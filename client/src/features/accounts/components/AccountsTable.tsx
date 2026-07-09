@@ -125,61 +125,6 @@ export function AccountsTable({
             },
           },
           {
-            title: tComponent("campus"),
-            key: "campus",
-            dataIndex: "campus",
-            render: (_: any, record: ListAccount) => (
-              <Tag color="blue">{tCampus(record.campus)}</Tag>
-            ),
-            filterIcon: () => {
-              const hasFilter =
-                (accountsListState.filters ?? {}).campus !== undefined;
-              return (
-                <FaFilter className={`${hasFilter ? "text-blue-500" : ""}`} />
-              );
-            },
-            filterDropdown: () => {
-              return (
-                <Space className="p-2 flex gap-2 items-center">
-                  <Select
-                    placeholder={tComponent("filterCampusPlaceholder")}
-                    allowClear
-                    onClear={() => {
-                      fetchAccounts({
-                        page: 0,
-                        filters: {
-                          ...accountsListState.filters,
-                          campus: undefined,
-                        },
-                      });
-                    }}
-                    value={(accountsListState.filters ?? {}).campus}
-                    options={[
-                      { label: "Comayagua", value: "COMAYAGUA" },
-                      { label: "Tegucigalpa", value: "TEGUCIGALPA" },
-                      { label: "San Pedro Sula", value: "SANPEDRO" },
-                      { label: "Olancho", value: "OLANCHO" },
-                      { label: "La Ceiba", value: "LA_CEIBA" },
-                      { label: "Choluteca", value: "CHOLUTECA" },
-                      { label: "Danlí", value: "DANLI" },
-                      { label: "Santa Rosa de Copán", value: "SANTA_ROSA" },
-                    ] as { label: string; value: CampusCode }[]}
-                    onChange={(val) => {
-                      fetchAccounts({
-                        page: 0,
-                        filters: {
-                          ...(accountsListState.filters ?? {}),
-                          campus: val,
-                        },
-                      });
-                    }}
-                  />
-                </Space>
-              );
-            },
-          },
-
-          {
             title: tComponent("email"),
             render: (_: any, record: ListAccount) => <p>{record.email}</p>,
           },

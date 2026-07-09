@@ -7,7 +7,7 @@ import prismaClient from "../../config/prisma.js";
 import LoggingService from "../../services/logging.js";
 import { getFieldsToPopulate, getFieldsToSelect } from "../../utils/prisma.js";
 
-import { Prisma, CampusCode } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 type AccountInclude = Prisma.AccountInclude;
 type AccountSelect = Prisma.AccountSelect;
@@ -29,14 +29,14 @@ const handler = async (
     });
     const fieldsToPopulate = populate
       ? getFieldsToPopulate<
-          AccountInclude,
-          NonNullable<AccountAPITypes.ListRequestBody["populate"]>
-        >(populate, {
-          "metadata.createdBy": ["id", "name"],
-          "metadata.updatedBy": ["id", "name"],
-          "metadata.deletedBy": ["id", "name"],
-          role: ["id", "name", "level"],
-        })
+        AccountInclude,
+        NonNullable<AccountAPITypes.ListRequestBody["populate"]>
+      >(populate, {
+        "metadata.createdBy": ["id", "name"],
+        "metadata.updatedBy": ["id", "name"],
+        "metadata.deletedBy": ["id", "name"],
+        role: ["id", "name", "level"],
+      })
       : {};
 
     if (search && search.query.length > 0 && search.searchIn.length > 0) {
@@ -53,10 +53,6 @@ const handler = async (
       }
       if (filters.status) {
         where.status = filters.status;
-      }
-
-      if (filters.campus) {
-        where.campus = filters.campus as CampusCode; // Type assertion since Prisma doesn't recognize the string enum type from Zod
       }
     }
 

@@ -11,7 +11,6 @@ const accountFields = z.enum(
     "lastLogin",
     "role",
     "status",
-    "campus",
     "email",
     "emailVerified",
     "emailLastChanged",

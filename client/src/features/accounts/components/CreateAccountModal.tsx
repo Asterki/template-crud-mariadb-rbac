@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { FaPlus } from "react-icons/fa";
 
 import type { CreateAccountModalState } from "../hooks/useCreateModal";
-import { CampusCode } from "@prisma/client";
 
 type CreateAccountFormProps = {
   roles: { id: string; name: string; level: number }[];
@@ -86,25 +85,6 @@ export function CreateAccountModal({
               setState((prev) => ({ ...prev, roleId: value }))
             }
           />
-        </Form.Item>
-
-        <Form.Item label={t("fields.campus")} required>
-          <Select
-            placeholder={t("fields.campusPlaceholder")}
-            options={[
-              { label: "Comayagua", value: "COMAYAGUA" },
-              { label: "Tegucigalpa", value: "TEGUCIGALPA" },
-              { label: "San Pedro Sula", value: "SANPEDRO" },
-              { label: "Olancho", value: "OLANCHO" },
-              { label: "La Ceiba", value: "LA_CEIBA" },
-              { label: "Choluteca", value: "CHOLUTECA" },
-              { label: "Danlí", value: "DANLI" },
-              { label: "Santa Rosa de Copán", value: "SANTA_ROSA" },
-            ] as { label: string; value: CampusCode }[]}
-            value={state.campus}
-            onChange={(value) =>
-              setState((prev) => ({ ...prev, campus: value }))
-            } />
         </Form.Item>
       </Form>
     </Modal>

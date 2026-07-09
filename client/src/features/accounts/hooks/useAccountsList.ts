@@ -6,8 +6,8 @@ import { App } from "antd";
 
 export type NullableAccountsListState = {
   [K in keyof AccountAPITypes.ListRequestBody]?:
-    | AccountAPITypes.ListRequestBody[K]
-    | null;
+  | AccountAPITypes.ListRequestBody[K]
+  | null;
 };
 export type FetchAccountsFn = (
   params?: NullableAccountsListState,
@@ -32,7 +32,6 @@ export function useAccountsList({
     fields: [
       "name",
       "email",
-      "campus",
       "role",
       "id",
       "status",
@@ -91,7 +90,6 @@ export function useAccountsList({
               name: acc.role!.name,
               level: acc.role!.level,
             },
-            campus: acc.campus,
             status: acc.status,
             createdAt: acc.metadata
               ? (acc.metadata!.createdAt ?? new Date())

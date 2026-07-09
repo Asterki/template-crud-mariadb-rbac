@@ -3,7 +3,7 @@ import * as schemas from "../../../../shared/schemas/accounts";
 
 // Types
 import * as AccountAPITypes from "../../../../shared/api/accounts";
-import { Account, CampusCode } from "@prisma/client";
+import { Account } from "@prisma/client";
 
 type ListAccount = {
   id: string;
@@ -15,7 +15,6 @@ type ListAccount = {
     name: string;
     level: number;
   };
-  campus: CampusCode;
   deleted: boolean;
 };
 

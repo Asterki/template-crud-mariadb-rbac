@@ -67,6 +67,8 @@ export default function PageLayout({ children, selectedPage, removePadding, defa
           result.payload.status === "unauthenticated"
         ) {
           navigate({ to: "/auth/login" });
+        } else {
+          console.log("Account fetched successfully:", result.payload);
         }
       })();
     }
@@ -161,12 +163,6 @@ export default function PageLayout({ children, selectedPage, removePadding, defa
           },
         ],
       },
-
-      {
-        key: "about",
-        label: <Link to="/admin/about">{t("sidebar.about")}</Link>,
-        icon: <FaInfo />,
-      },
       {
         key: "logout",
         label: (
@@ -207,7 +203,7 @@ export default function PageLayout({ children, selectedPage, removePadding, defa
           />
           <div className="text-white">
             <h1 style={{ margin: 0 }} className="text-white font-bold text-lg">
-              Plantilla de Proyectos
+              Sistema de Registro de la Universidad de Las Americas
             </h1>
           </div>
         </Space>
