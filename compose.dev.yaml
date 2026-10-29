@@ -1,0 +1,32 @@
+name: template-dev
+
+services:
+  mariadb:
+    image: mariadb:11.4
+    restart: unless-stopped
+    env_file:
+      - path: server/.env
+        required: false
+    ports:
+      - "127.0.0.1:3306:3306"
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  adminer:
+    image: adminer:5.3.0
+    profiles: ["tools"]
+    restart: unless-stopped
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8080:8080"
+
+volumes:
+  mariadb-data:
