@@ -195,7 +195,7 @@ the pino `req.id`. In production, stacks are logged but never returned.
 | `403` | `password-change-required` | The account must change the bootstrap password first. |
 | `404` | `not_found` | Unknown route, account, item or document. |
 | `409` | `conflict` | Duplicate email (`email-in-use`) or another unique violation. |
-| `429` | `rate_limited` | Login or global rate limit exceeded (`express-rate-limit` response). |
+| `429` | — | Login or global rate limit exceeded. `express-rate-limit` returns a plain-text response, not the JSON envelope. |
 | `500` | `internal_error` | Unhandled error; details are in the logs only. |
 | `503` | `service-unavailable` | Database unavailable or readiness degraded. |
 

@@ -87,8 +87,9 @@ roles they outrank. Managers cannot create peers or admins.
 
 The last-admin rule is enforced inside the same database transaction as the
 mutation. The last active, non-deleted `admin` cannot be deleted, demoted or
-disabled. To recover from a manual database edit, promote an account with SQL
-and restart the API; there is no API bypass.
+disabled. To recover from a manual database edit, promote an account with SQL;
+the session deserialiser reads the role on the next request. There is no API
+bypass.
 
 ## Add a permission
 

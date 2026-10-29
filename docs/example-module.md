@@ -49,7 +49,7 @@ longer need a reference implementation.
 | `client/src/features/items/index.ts`                     | Public exports for the feature.                                                       |
 | `client/src/routes/admin/items.tsx`                      | `/admin/items` route guarded by `items:read`.                                         |
 | `client/src/layouts/Admin.tsx`                           | Navigation entry gated by `<Can permission="items:read">`.                            |
-| `client/src/locales/es.ts`                               | Spanish strings for the page, permissions, nav, and item errors.                      |
+| `client/src/locales/{en,es}/*`                            | Page, permission, nav and item error strings in both locales.                        |
 | `client/src/routeTree.gen.ts`                            | Generated TanStack route tree entry.                                                  |
 
 ### Database

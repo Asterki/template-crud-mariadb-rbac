@@ -19,7 +19,7 @@ See [ADR 0001](decisions/0001-package-layout.md).
 ```text
 .
 ├── client/                 Vite SPA (own package.json + lockfile)
-│   └── src/{app,components,config,features,layouts,locales,rbac,routes,theme}
+│   └── src/{components,config,features,layouts,locales,rbac,routes,theme} + App.tsx
 ├── server/                 Headless API (own package.json + lockfile)
 │   ├── prisma/             schema.prisma, migrations, seed support
 │   ├── src/{config,db,http,middleware,rbac,routes,services,cli}
