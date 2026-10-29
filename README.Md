@@ -55,6 +55,17 @@ then exits. The `api` service starts only after it succeeds. See
 `docs/deployment.md` for the GHCR pull-only deployment and the Vercel SPA
 configuration.
 
+### Pull the published image from GHCR
+
+```bash
+docker login ghcr.io
+cp .env.ghcr.example .env
+# edit .env: GHCR_OWNER, IMAGE_NAME, IMAGE_TAG, database, secrets
+docker compose -f compose.ghcr.yaml pull
+docker compose -f compose.ghcr.yaml up -d
+curl -fsS "http://127.0.0.1:${PORT:-3000}/readyz"
+```
+
 ## Author
 
 **Fernando Rivera** — primary author and maintainer
