@@ -1,28 +1,50 @@
-site_name: Documentation
+site_name: Template Documentation
+site_description: Developer and operator documentation for the template.
+docs_dir: docs
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.expand
+    - content.code.copy
+    - content.tabs.link
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
 nav:
   - Home: index.md
   - Architecture: architecture.md
-  - Client: client.md
-  - Server: server.md
+  - Configuration: configuration.md
+  - Database: database.md
+  - Roles and permissions: rbac.md
   - API: api.md
-  - Database: prisma.md
-  - Routes: routes.md
-  - Schemas: schemas.md
-  - Middleware: middleware.md
-  - Services: services.md
-  - Features:
-    - Accounts: features/accounts.md
-    - Auth: features/auth.md
-    - Roles: features/roles.md
-  - Dev & Ops:
-    - Usage: usage.md
-    - Testing: testing.md
-    - Deployment: deployment.md
-    - Observability: observability.md
-    - Security: security.md
-    - Localization: localization.md
-  - Diagrams: diagrams.md
-  - Contributing: CONTRIBUTING.md
-markdown_extensions:
-  - toc:
-      permalink: true
+  - Deployment: deployment.md
+  - Observability: observability.md
+  - Testing: testing.md
+  - Contributing: contributing.md
+  - Using the template: template-usage.md
+  - Example module: example-module.md
+  - Upgrading: upgrading.md
+  - Operator pages:
+      - Overview: in-app/index.md
+      - Database switching: in-app/database.md
+      - Roles: in-app/rbac.md
+      - Deployment: in-app/deployment.md
+  - Decisions:
+      - Package layout: decisions/0001-package-layout.md
+      - Shared build: decisions/0002-shared-build-prisma-types.md
+      - Typecheck drift: decisions/0003-p0-typecheck-drift.md

@@ -145,6 +145,7 @@ dist
 !.yarn/versions
 
 # Local spike and client build output
+site/
 .spike
 client-dist
 

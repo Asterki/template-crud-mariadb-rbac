@@ -1,9 +1,9 @@
-# Deployment Guide
+# Deployment
 
 The template ships two deployment surfaces:
 
 - a static React SPA on Vercel;
-- a headless Express API in Docker, published to GHCR and run with
+- a headless Express API in Docker, optionally pulled from GHCR and run with
   `compose.ghcr.yaml`.
 
 The browser calls `/api/*` on the Vercel domain. Vercel proxies those requests
@@ -17,6 +17,18 @@ Browser --HTTPS--> Vercel SPA
                     v
               HTTPS reverse proxy --HTTP--> API container --> MariaDB
 ```
+
+## First deployment
+
+1. Create a repository from the template and run `npm run init` (see
+   [template usage](template-usage.md)).
+2. Create the database and the two least-privilege users
+   ([database](database.md)).
+3. Deploy the API with `compose.prod.yaml` (build from source) or
+   `compose.ghcr.yaml` (published image).
+4. Set `API_URL`, `ORIGIN_SECRET` and the `VITE_*` overrides in Vercel and
+   deploy the SPA.
+5. Confirm `GET /readyz` returns 200 and sign in with the seeded administrator.
 
 ## Headless vs all-in-one
 
@@ -148,8 +160,21 @@ docker compose -f compose.prod.yaml up -d --build
 
 For a least-privilege database, create a runtime user with DML only and a
 migration user with DDL rights, then point `DATABASE_URL` at the runtime user
-and `MIGRATE_DATABASE_URL` at the migration user. See the database section in
-the project documentation.
+and `MIGRATE_DATABASE_URL` at the migration user. See
+[database](database.md).
+
+### Image tags
+
+`.github/workflows/release.yml` publishes:
+
+| Trigger | Tags |
+|---|---|
+| Push to `main` | `edge`, `sha-*` |
+| release-please release | `latest`, `X.Y.Z`, `X.Y` |
+| `workflow_dispatch` with `tag` | the supplied tag, plus `sha-*` |
+
+Images are built for `linux/amd64` and `linux/arm64`, scanned with Trivy before
+push, and include an SBOM and provenance.
 
 ## Rollback
 
@@ -161,16 +186,16 @@ the project documentation.
    rebuild the old tag.
 3. **Database:** restore the backup taken before the deployment if a migration
    is not backward-compatible. Migrations are forward-only; never edit an
-   applied migration.
+   applied migration. See [database](database.md#backup-and-restore).
 4. **Sessions:** changing `SESSION_SECRET` invalidates all sessions. Rotate it
-   only when you intend to log everyone out.
+   only when you intend to log everyone out. Switching databases also logs
+   everyone out because sessions live in the database.
 5. **Origin secret:** to rotate, deploy the API with both old and new values
    accepted if your proxy supports it, update Vercel, then remove the old value.
 
 ## CI/CD
 
-GitHub Actions is the only CI. The legacy CI configuration was removed; there
-is no second pipeline to keep in sync.
+GitHub Actions is the only CI. There is no second pipeline to keep in sync.
 
 GitHub Actions runs lint, typecheck, tests and the SPA build on pull requests,
 and builds the Docker image for scanning. Pushes to `main` publish

@@ -22,7 +22,7 @@ server/test
 scripts
 mkdocs.yml
 docs.md
-README.Md
+README.md
 LICENSE
 .drone.yml
 compose*.yaml
