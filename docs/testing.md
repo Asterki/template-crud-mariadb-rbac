@@ -95,6 +95,7 @@ npm run test:coverage
 npm run build
 ```
 
-The server job additionally runs `npx prisma migrate deploy` before tests. The
-Docker job builds the image and scans it with Trivy. Keep the local commands and
-the workflow aligned.
+The server job additionally runs `npx prisma migrate deploy` before tests and
+`npm run db:generate` before typecheck, because a fresh `npm ci` does not create
+the generated Prisma client. The Docker job builds the image and scans it with
+Trivy. Keep the local commands and the workflow aligned.

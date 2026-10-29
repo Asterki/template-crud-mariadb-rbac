@@ -95,6 +95,7 @@ jobs:
         run: npm ci && npm run build
 
       - run: npm ci
+      - run: npm run db:generate
       - run: npm run lint
       - run: npm run typecheck
       - run: npx prisma migrate deploy
