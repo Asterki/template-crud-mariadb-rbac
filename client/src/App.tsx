@@ -1,17 +1,12 @@
-import { StrictMode, useEffect } from "react";
-import { Provider, useDispatch } from "react-redux";
-import { AppDispatch } from "./store";
+import { StrictMode } from "react";
+import { Provider } from "react-redux";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 
 import { store } from "./store";
 import { routeTree } from "./routeTree.gen";
-// import Route404 from "./routes/errors/404";
 import { Context } from "./Context";
 
-const router = createRouter({
-  routeTree,
-  // defaultNotFoundComponent: () => <Route404 />,
-});
+const router = createRouter({ routeTree });
 
 declare module "@tanstack/react-router" {
   interface Register {
@@ -19,20 +14,11 @@ declare module "@tanstack/react-router" {
   }
 }
 
-// Component to dispatch config fetch on app start
-const AppInitializer = ({ children }: { children: React.ReactNode }) => {
-  const dispatch = useDispatch<AppDispatch>();
-
-  return <>{children}</>;
-};
-
 const App = () => (
   <StrictMode>
     <Context.Provider value={{ name: "App" }}>
       <Provider store={store}>
-        <AppInitializer>
-          <RouterProvider router={router} />
-        </AppInitializer>
+        <RouterProvider router={router} />
       </Provider>
     </Context.Provider>
   </StrictMode>

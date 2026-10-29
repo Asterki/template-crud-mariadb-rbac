@@ -1,16 +1,14 @@
-import { Button, ConfigProvider, Layout, Space, Typography } from "antd";
+import { ConfigProvider, Layout, Space } from "antd";
 import esES from "antd/locale/es_ES";
-import { useNavigate } from "@tanstack/react-router";
+import { APP_LOGO, APP_NAME } from "@template/shared";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export default function GeneralLayout({ children }: LayoutProps) {
-  const navigate = useNavigate();
   const isDark = false;
   const { Header, Content, Footer } = Layout;
-  const { Title, Text } = Typography;
 
   return (
     <ConfigProvider locale={esES}>
@@ -27,8 +25,8 @@ export default function GeneralLayout({ children }: LayoutProps) {
         >
           <Space align="center" className="" size={14}>
             <img
-              src="/assets/img/icon.png"
-              alt="Logo"
+              src={APP_LOGO}
+              alt=""
               style={{ width: 42, height: 42, objectFit: "contain" }}
             />
             <div className="text-white">
@@ -36,7 +34,7 @@ export default function GeneralLayout({ children }: LayoutProps) {
                 style={{ margin: 0 }}
                 className="text-white font-bold text-lg"
               >
-                Plantilla de Proyectos
+                {APP_NAME}
               </h1>
             </div>
           </Space>

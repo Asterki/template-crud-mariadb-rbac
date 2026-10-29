@@ -94,7 +94,6 @@ jobs:
 
       - name: Build
         run: npm run build
-        continue-on-error: true # remove in P2-08
 
   gitleaks:
     name: Secret scan

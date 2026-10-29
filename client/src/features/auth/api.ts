@@ -1,58 +1,27 @@
-import axios from "axios";
+import { authApi as authContracts } from "@template/shared";
 
-import type { AuthAPITypes } from ".";
+import { api, resetCsrfToken } from "../../utils/api";
 
-import ApiUtils from "../../utils/api";
-
-const baseUrl =
-  import.meta.env.MODE === "development"
-    ? import.meta.env.VITE_SERVER_URL + "/api/auth"
-    : "/api/auth";
-
-const axiosClient = axios.create({
-  baseURL: baseUrl,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  withCredentials: true,
-});
-
-const authApi = {
-  async login(
-    data: AuthAPITypes.LoginRequestBody,
-  ): Promise<AuthAPITypes.LoginResponseData> {
-    try {
-      const response = await axiosClient.post<AuthAPITypes.LoginResponseData>(
-        "/login",
-        data,
-      );
-      return response.data;
-    } catch (error) {
-      return ApiUtils.handleAxiosError(error);
-    }
+export const authApi = {
+  async login(body: authContracts.LoginRequest) {
+    return api.post<authContracts.LoginResponse>("/auth/login", body);
   },
 
-  async fetch(): Promise<AuthAPITypes.FetchResponseData> {
-    try {
-      const response =
-        await axiosClient.get<AuthAPITypes.FetchResponseData>("/fetch");
-
-      return response.data;
-    } catch (error) {
-      return ApiUtils.handleAxiosError(error);
-    }
+  async me() {
+    return api.get<authContracts.MeResponse>("/auth/me");
   },
 
-  async logout(): Promise<AuthAPITypes.LogoutResponseData> {
-    try {
-      const response = await axiosClient.post<AuthAPITypes.LogoutResponseData>(
-        "/logout",
-        {},
-      );
-      return response.data;
-    } catch (error) {
-      return ApiUtils.handleAxiosError(error);
-    }
+  async logout() {
+    const response = await api.post<authContracts.LogoutResponse>(
+      "/auth/logout",
+      {},
+    );
+    resetCsrfToken();
+    return response;
+  },
+
+  async changePassword(body: authContracts.ChangePasswordRequest) {
+    return api.post<authContracts.MeResponse>("/auth/change-password", body);
   },
 };
 

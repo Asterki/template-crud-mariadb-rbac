@@ -11,14 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
-import { Route as AdminConfigRouteImport } from './routes/admin/config'
-import { Route as AdminLogsRouteImport } from './routes/admin/logs'
+import { Route as AdminChangePasswordRouteImport } from './routes/admin/change-password'
+import { Route as AdminRolesRouteImport } from './routes/admin/roles'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthLogoutRouteImport } from './routes/auth/logout'
 import { Route as Errors404RouteImport } from './routes/errors/404'
 import { Route as ErrorsOfflineRouteImport } from './routes/errors/offline'
 import { Route as AdminAccountsIndexRouteImport } from './routes/admin/accounts/index'
-import { Route as AdminAccountsRolesRouteImport } from './routes/admin/accounts/roles'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -30,14 +29,14 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/admin/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminConfigRoute = AdminConfigRouteImport.update({
-  id: '/admin/config',
-  path: '/admin/config',
+const AdminChangePasswordRoute = AdminChangePasswordRouteImport.update({
+  id: '/admin/change-password',
+  path: '/admin/change-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminLogsRoute = AdminLogsRouteImport.update({
-  id: '/admin/logs',
-  path: '/admin/logs',
+const AdminRolesRoute = AdminRolesRouteImport.update({
+  id: '/admin/roles',
+  path: '/admin/roles',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
@@ -65,98 +64,86 @@ const AdminAccountsIndexRoute = AdminAccountsIndexRouteImport.update({
   path: '/admin/accounts/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminAccountsRolesRoute = AdminAccountsRolesRouteImport.update({
-  id: '/admin/accounts/roles',
-  path: '/admin/accounts/roles',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin/config': typeof AdminConfigRoute
-  '/admin/logs': typeof AdminLogsRoute
+  '/admin/change-password': typeof AdminChangePasswordRoute
+  '/admin/roles': typeof AdminRolesRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/errors/404': typeof Errors404Route
   '/errors/offline': typeof ErrorsOfflineRoute
   '/admin/': typeof AdminIndexRoute
-  '/admin/accounts/roles': typeof AdminAccountsRolesRoute
   '/admin/accounts/': typeof AdminAccountsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin/config': typeof AdminConfigRoute
-  '/admin/logs': typeof AdminLogsRoute
+  '/admin/change-password': typeof AdminChangePasswordRoute
+  '/admin/roles': typeof AdminRolesRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/errors/404': typeof Errors404Route
   '/errors/offline': typeof ErrorsOfflineRoute
   '/admin': typeof AdminIndexRoute
-  '/admin/accounts/roles': typeof AdminAccountsRolesRoute
   '/admin/accounts': typeof AdminAccountsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin/config': typeof AdminConfigRoute
-  '/admin/logs': typeof AdminLogsRoute
+  '/admin/change-password': typeof AdminChangePasswordRoute
+  '/admin/roles': typeof AdminRolesRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/errors/404': typeof Errors404Route
   '/errors/offline': typeof ErrorsOfflineRoute
   '/admin/': typeof AdminIndexRoute
-  '/admin/accounts/roles': typeof AdminAccountsRolesRoute
   '/admin/accounts/': typeof AdminAccountsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/admin/config'
-    | '/admin/logs'
+    | '/admin/change-password'
+    | '/admin/roles'
     | '/auth/login'
     | '/auth/logout'
     | '/errors/404'
     | '/errors/offline'
     | '/admin/'
-    | '/admin/accounts/roles'
     | '/admin/accounts/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/admin/config'
-    | '/admin/logs'
+    | '/admin/change-password'
+    | '/admin/roles'
     | '/auth/login'
     | '/auth/logout'
     | '/errors/404'
     | '/errors/offline'
     | '/admin'
-    | '/admin/accounts/roles'
     | '/admin/accounts'
   id:
     | '__root__'
     | '/'
-    | '/admin/config'
-    | '/admin/logs'
+    | '/admin/change-password'
+    | '/admin/roles'
     | '/auth/login'
     | '/auth/logout'
     | '/errors/404'
     | '/errors/offline'
     | '/admin/'
-    | '/admin/accounts/roles'
     | '/admin/accounts/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminConfigRoute: typeof AdminConfigRoute
-  AdminLogsRoute: typeof AdminLogsRoute
+  AdminChangePasswordRoute: typeof AdminChangePasswordRoute
+  AdminRolesRoute: typeof AdminRolesRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthLogoutRoute: typeof AuthLogoutRoute
   Errors404Route: typeof Errors404Route
   ErrorsOfflineRoute: typeof ErrorsOfflineRoute
   AdminIndexRoute: typeof AdminIndexRoute
-  AdminAccountsRolesRoute: typeof AdminAccountsRolesRoute
   AdminAccountsIndexRoute: typeof AdminAccountsIndexRoute
 }
 
@@ -176,18 +163,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/config': {
-      id: '/admin/config'
-      path: '/admin/config'
-      fullPath: '/admin/config'
-      preLoaderRoute: typeof AdminConfigRouteImport
+    '/admin/change-password': {
+      id: '/admin/change-password'
+      path: '/admin/change-password'
+      fullPath: '/admin/change-password'
+      preLoaderRoute: typeof AdminChangePasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/logs': {
-      id: '/admin/logs'
-      path: '/admin/logs'
-      fullPath: '/admin/logs'
-      preLoaderRoute: typeof AdminLogsRouteImport
+    '/admin/roles': {
+      id: '/admin/roles'
+      path: '/admin/roles'
+      fullPath: '/admin/roles'
+      preLoaderRoute: typeof AdminRolesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/login': {
@@ -225,26 +212,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAccountsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/accounts/roles': {
-      id: '/admin/accounts/roles'
-      path: '/admin/accounts/roles'
-      fullPath: '/admin/accounts/roles'
-      preLoaderRoute: typeof AdminAccountsRolesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminConfigRoute: AdminConfigRoute,
-  AdminLogsRoute: AdminLogsRoute,
+  AdminChangePasswordRoute: AdminChangePasswordRoute,
+  AdminRolesRoute: AdminRolesRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthLogoutRoute: AuthLogoutRoute,
   Errors404Route: Errors404Route,
   ErrorsOfflineRoute: ErrorsOfflineRoute,
   AdminIndexRoute: AdminIndexRoute,
-  AdminAccountsRolesRoute: AdminAccountsRolesRoute,
   AdminAccountsIndexRoute: AdminAccountsIndexRoute,
 }
 export const routeTree = rootRouteImport

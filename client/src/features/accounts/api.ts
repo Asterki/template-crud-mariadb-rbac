@@ -1,137 +1,45 @@
-import axios from "axios";
-import { accountApi as AccountsAPITypes } from "@template/shared";
-import ApiUtils from "../../utils/api";
+import { accountApi } from "@template/shared";
 
-const baseUrl =
-  import.meta.env.MODE === "development"
-    ? import.meta.env.VITE_SERVER_URL + "/api/accounts"
-    : "/api/accounts";
+import { api } from "../../utils/api";
 
-// Create an Axios client with credentials enabled by default
-const axiosClient = axios.create({
-  baseURL: baseUrl,
-  withCredentials: true, // Always include credentials
-});
-
-export const categoriesApi = {
-  async create(
-    data: AccountsAPITypes.CreateRequestBody,
-  ): Promise<AccountsAPITypes.CreateResponseData> {
-    try {
-      const response =
-        await axiosClient.post<AccountsAPITypes.CreateResponseData>(
-          "/create",
-          data,
-        );
-      return response.data;
-    } catch (error) {
-      return ApiUtils.handleAxiosError(error);
-    }
+export const accountsApi = {
+  async list(query: accountApi.ListAccountsQuery) {
+    return api.get<accountApi.AccountListResponse>("/accounts", {
+      params: query,
+    });
   },
 
-  async get(
-    data: AccountsAPITypes.GetRequestBody,
-  ): Promise<AccountsAPITypes.GetResponseData> {
-    try {
-      const response = await axiosClient.post<AccountsAPITypes.GetResponseData>(
-        "/get",
-        data,
-      );
-      return response.data;
-    } catch (error) {
-      return ApiUtils.handleAxiosError(error);
-    }
+  async get(id: string) {
+    return api.get<accountApi.AccountResponse>(`/accounts/${id}`);
   },
 
-  async update(
-    data: AccountsAPITypes.UpdateRequestBody,
-  ): Promise<AccountsAPITypes.UpdateResponseData> {
-    try {
-      const response =
-        await axiosClient.post<AccountsAPITypes.UpdateResponseData>(
-          "/update",
-          data,
-        );
-      return response.data;
-    } catch (error) {
-      return ApiUtils.handleAxiosError(error);
-    }
+  async create(body: accountApi.CreateAccountRequest) {
+    return api.post<accountApi.AccountResponse>("/accounts", body);
   },
 
-  async delete(
-    data: AccountsAPITypes.DeleteRequestBody,
-  ): Promise<AccountsAPITypes.DeleteResponseData> {
-    try {
-      const response =
-        await axiosClient.post<AccountsAPITypes.DeleteResponseData>(
-          "/delete",
-          data,
-        );
-      return response.data;
-    } catch (error) {
-      return ApiUtils.handleAxiosError(error);
-    }
+  async update(id: string, body: accountApi.UpdateAccountRequest) {
+    return api.patch<accountApi.AccountResponse>(`/accounts/${id}`, body);
   },
 
-  async restore(
-    data: AccountsAPITypes.RestoreRequestBody,
-  ): Promise<AccountsAPITypes.RestoreResponseData> {
-    try {
-      const response =
-        await axiosClient.post<AccountsAPITypes.RestoreResponseData>(
-          "/restore",
-          data,
-        );
-      return response.data;
-    } catch (error) {
-      return ApiUtils.handleAxiosError(error);
-    }
+  async setStatus(id: string, status: "active" | "inactive") {
+    return api.post<accountApi.AccountResponse>(`/accounts/${id}/status`, {
+      status,
+    });
   },
 
-  async list(
-    data: AccountsAPITypes.ListRequestBody,
-  ): Promise<AccountsAPITypes.ListResponseData> {
-    try {
-      const response =
-        await axiosClient.post<AccountsAPITypes.ListResponseData>(
-          "/list",
-          data,
-        );
-      return response.data;
-    } catch (error) {
-      return ApiUtils.handleAxiosError(error);
-    }
+  async setPassword(id: string, newPassword: string) {
+    return api.post<accountApi.AccountResponse>(`/accounts/${id}/password`, {
+      newPassword,
+    });
   },
 
-  async updateStatus(
-    data: AccountsAPITypes.UpdateStatusRequestBody,
-  ): Promise<AccountsAPITypes.UpdateStatusResponseData> {
-    try {
-      const response =
-        await axiosClient.post<AccountsAPITypes.UpdateStatusResponseData>(
-          "/update-status",
-          data,
-        );
-      return response.data;
-    } catch (error) {
-      return ApiUtils.handleAxiosError(error);
-    }
+  async remove(id: string) {
+    return api.delete<accountApi.AccountResponse>(`/accounts/${id}`);
   },
 
-  async updatePassword(
-    data: AccountsAPITypes.UpdatePasswordRequestBody,
-  ): Promise<AccountsAPITypes.UpdatePasswordResponseData> {
-    try {
-      const response =
-        await axiosClient.post<AccountsAPITypes.UpdatePasswordResponseData>(
-          "/update-password",
-          data,
-        );
-      return response.data;
-    } catch (error) {
-      return ApiUtils.handleAxiosError(error);
-    }
+  async restore(id: string) {
+    return api.post<accountApi.AccountResponse>(`/accounts/${id}/restore`);
   },
 };
 
-export default categoriesApi;
+export default accountsApi;

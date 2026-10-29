@@ -1,280 +1,560 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
-
+import { useCallback, useEffect, useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import {
+  App,
+  Button,
+  Input,
+  Modal,
+  Select,
+  Space,
+  Switch,
+  Table,
+  Tag,
+  Typography,
+} from "antd";
+import type { ColumnsType } from "antd/es/table";
+import { FaPlus } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
-
-import { FaUser, FaPlus } from "react-icons/fa";
-
-import AccountsFeature from "../../../features/accounts";
-import AccountRolesFeature from "../../../features/roles";
-
 import { useSelector } from "react-redux";
-import type { RootState } from "../../../store";
-
-import { App, Button, Input, Modal, Switch, Typography } from "antd";
-const { Text, Title } = Typography;
+import {
+  ROLES,
+  createAccountSchema,
+  setAccountPasswordSchema,
+  updateAccountSchema,
+  type AccountDto,
+  type Role,
+} from "@template/shared";
 
 import AdminPageLayout from "../../../layouts/Admin";
+import { RequirePermission, useCan } from "../../../rbac";
+import { accountsApi } from "../../../features/accounts/api";
+import { normalizeApiError } from "../../../utils/api";
+import type { RootState } from "../../../store";
+
+const { Title, Text } = Typography;
 
 export const Route = createFileRoute("/admin/accounts/")({
   component: RouteComponent,
 });
 
+const ROLE_COLORS: Record<Role, string> = {
+  admin: "red",
+  manager: "gold",
+  staff: "blue",
+  viewer: "default",
+};
+
+type CreateState = {
+  open: boolean;
+  loading: boolean;
+  name: string;
+  email: string;
+  password: string;
+  role: Role;
+};
+
+type EditState = {
+  open: boolean;
+  loading: boolean;
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+};
+
+type PasswordState = {
+  open: boolean;
+  loading: boolean;
+  id: string;
+  newPassword: string;
+};
+
+const emptyCreate: CreateState = {
+  open: false,
+  loading: false,
+  name: "",
+  email: "",
+  password: "",
+  role: "staff",
+};
+
+const emptyEdit: EditState = {
+  open: false,
+  loading: false,
+  id: "",
+  name: "",
+  email: "",
+  role: "staff",
+};
+
+const emptyPassword: PasswordState = {
+  open: false,
+  loading: false,
+  id: "",
+  newPassword: "",
+};
+
 function RouteComponent() {
+  const { t } = useTranslation(["pages"], { keyPrefix: "admin.accounts" });
+  const { t: tCommon } = useTranslation(["common"]);
+  const { message, modal } = App.useApp();
+  const { can, canManage } = useCan();
   const { account } = useSelector((state: RootState) => state.auth);
 
-  const navigate = useNavigate();
-  const { message, modal } = App.useApp();
+  const [rows, setRows] = useState<AccountDto[]>([]);
+  const [meta, setMeta] = useState({ page: 1, pageSize: 20, total: 0 });
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [includeDeleted, setIncludeDeleted] = useState(false);
 
-  // Translations
-  const { t: tPage } = useTranslation(["pages"], {
-    keyPrefix: "admin.accounts",
-  });
-  const { t: tCommon } = useTranslation(["common"]);
+  const [createState, setCreateState] = useState<CreateState>(emptyCreate);
+  const [editState, setEditState] = useState<EditState>(emptyEdit);
+  const [passwordState, setPasswordState] =
+    useState<PasswordState>(emptyPassword);
 
-  const { accounts, fetchAccounts, accountsListState } =
-    AccountsFeature.hooks.useAccountsList({});
-
-  const { accountRoles, fetchAccountRoles } = AccountRolesFeature.hooks.useList(
-    {},
+  const reportError = useCallback(
+    (error: unknown) => {
+      const normalized = normalizeApiError(error);
+      message.error(
+        t(`error-messages:${normalized.message}`, {
+          defaultValue: normalized.message,
+        }),
+      );
+    },
+    [message, t],
   );
 
-  //#region Create Account
-  const {
-    setState: setCreateModalState,
-    state: createModalState,
-    openModal: openCreateAccountModal,
-    closeModal: closeCreateAccountModal,
-    createAccount: handleCreateAccount,
-  } = AccountsFeature.hooks.useCreateModal({
-    onSuccess: () => fetchAccounts({}),
-  });
-  //#endregion
-
-  //#region Update Password
-  const {
-    setState: setUpdatePasswordModalState,
-    closeModal: closeUpdatePasswordModal,
-    updatePassword: handleUpdatePassword,
-    state: updatePasswordModalState,
-    openModal: openUpdatePasswordModal,
-  } = AccountsFeature.hooks.useUpdatePasswordModal({
-    onSuccess: () => fetchAccounts({}),
-  });
-  //#endregion
-
-  //#region Update State
-  const {
-    setState: setUpdateStatusModalState,
-    closeModal: closeUpdateStatusModal,
-    updateStatus: handleUpdateStatus,
-    state: updateStatusModalState,
-    openModal: openUpdateStatusModal,
-  } = AccountsFeature.hooks.useUpdateStatusModal({
-    onSuccess: () => fetchAccounts({}),
-  });
-  //#endregion
-
-  //#region Update Account
-  const {
-    setState: setUpdateModalState,
-    reset: closeUpdateModal,
-    update: handleUpdateAccount,
-    state: updateModalState,
-    openModal: openUpdateModal,
-  } = AccountsFeature.hooks.useUpdateModal({
-    onSuccess: () => fetchAccounts({}),
-  });
-  //#endregion
-
-  //#region Delete Account
-  const handleDeleteAccount = async (accountId: string) => {
-    const result = await AccountsFeature.api.delete({
-      accountId,
-    });
-
-    if (result.status === "success") {
-      message.success(tPage("messages.delete.success"));
-      await fetchAccounts({});
-    } else {
-      message.error(tPage(`error-messages:${result.status}`));
-    }
-  };
-  //#endregion
-
-  //#region Restore account
-  const handleRestoreAccount = async (accountId: string) => {
-    const result = await AccountsFeature.api.restore({
-      accountId,
-    });
-
-    if (result.status === "success") {
-      message.success(tPage("messages.restore.success"));
-      await fetchAccounts({});
-    } else {
-      message.error(tPage(`error-messages:${result.status}`));
-    }
-  };
-  //#endregion
+  const load = useCallback(
+    async (page = 1, pageSize = meta.pageSize) => {
+      setLoading(true);
+      try {
+        const response = await accountsApi.list({
+          page,
+          pageSize,
+          search: search.trim() || undefined,
+          includeDeleted,
+        });
+        setRows(response.data);
+        setMeta(response.meta);
+      } catch (error) {
+        reportError(error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [includeDeleted, meta.pageSize, reportError, search],
+  );
 
   useEffect(() => {
-    if (!account) return; // Admin layout will handle this
-    if (
-      !account.data.role.permissions.includes("accounts:read") &&
-      !account.data.role.permissions.includes("*")
-    ) {
-      message.error(tPage("error-messages:forbidden"));
-      navigate({ to: "/admin" });
+    void load(1);
+  }, [load]);
+
+  const assignableRoles = ROLES.filter((role) => canManage(role));
+
+  const canActOn = (row: AccountDto) => Boolean(account) && canManage(row.role);
+
+  const handleCreate = async () => {
+    const parsed = createAccountSchema.safeParse(createState);
+    if (!parsed.success) {
+      message.warning(t(`validation:${parsed.error.issues[0]?.message}`));
       return;
-    } else {
-      (async () => {
-        await fetchAccounts({ count: 50, page: 0 });
-        await fetchAccountRoles({ count: 50, page: 0 });
-      })();
     }
-  }, [account]);
+
+    setCreateState((prev) => ({ ...prev, loading: true }));
+    try {
+      await accountsApi.create(parsed.data);
+      message.success(t("messages.createSuccess"));
+      setCreateState(emptyCreate);
+      await load(1);
+    } catch (error) {
+      reportError(error);
+      setCreateState((prev) => ({ ...prev, loading: false }));
+    }
+  };
+
+  const handleEdit = async () => {
+    const parsed = updateAccountSchema.safeParse({
+      name: editState.name,
+      email: editState.email,
+      role: editState.role,
+    });
+    if (!parsed.success) {
+      message.warning(t(`validation:${parsed.error.issues[0]?.message}`));
+      return;
+    }
+
+    setEditState((prev) => ({ ...prev, loading: true }));
+    try {
+      await accountsApi.update(editState.id, parsed.data);
+      message.success(t("messages.updateSuccess"));
+      setEditState(emptyEdit);
+      await load(meta.page, meta.pageSize);
+    } catch (error) {
+      reportError(error);
+      setEditState((prev) => ({ ...prev, loading: false }));
+    }
+  };
+
+  const handleStatus = (row: AccountDto) => {
+    const status = row.status === "active" ? "inactive" : "active";
+    modal.confirm({
+      title: t("modals.statusTitle"),
+      content: t("modals.statusContent", { name: row.name, status }),
+      okText: tCommon("confirm"),
+      cancelText: tCommon("cancel"),
+      onOk: async () => {
+        try {
+          await accountsApi.setStatus(row.id, status);
+          message.success(t("messages.statusSuccess"));
+          await load(meta.page, meta.pageSize);
+        } catch (error) {
+          reportError(error);
+        }
+      },
+    });
+  };
+
+  const handlePassword = async () => {
+    const parsed = setAccountPasswordSchema.safeParse({
+      newPassword: passwordState.newPassword,
+    });
+    if (!parsed.success) {
+      message.warning(t(`validation:${parsed.error.issues[0]?.message}`));
+      return;
+    }
+
+    setPasswordState((prev) => ({ ...prev, loading: true }));
+    try {
+      await accountsApi.setPassword(passwordState.id, parsed.data.newPassword);
+      message.success(t("messages.passwordSuccess"));
+      setPasswordState(emptyPassword);
+    } catch (error) {
+      reportError(error);
+      setPasswordState((prev) => ({ ...prev, loading: false }));
+    }
+  };
+
+  const handleDelete = (row: AccountDto) => {
+    modal.confirm({
+      title: t("modals.deleteTitle"),
+      content: t("modals.deleteContent", { name: row.name }),
+      okText: tCommon("yes"),
+      cancelText: tCommon("no"),
+      onOk: async () => {
+        try {
+          await accountsApi.remove(row.id);
+          message.success(t("messages.deleteSuccess"));
+          await load(meta.page, meta.pageSize);
+        } catch (error) {
+          reportError(error);
+        }
+      },
+    });
+  };
+
+  const handleRestore = (row: AccountDto) => {
+    modal.confirm({
+      title: t("modals.restoreTitle"),
+      content: t("modals.restoreContent", { name: row.name }),
+      okText: tCommon("yes"),
+      cancelText: tCommon("no"),
+      onOk: async () => {
+        try {
+          await accountsApi.restore(row.id);
+          message.success(t("messages.restoreSuccess"));
+          await load(meta.page, meta.pageSize);
+        } catch (error) {
+          reportError(error);
+        }
+      },
+    });
+  };
+
+  const columns: ColumnsType<AccountDto> = [
+    {
+      title: t("table.name"),
+      dataIndex: "name",
+      key: "name",
+      render: (_value, row) => (
+        <Space>
+          <span>{row.name}</span>
+          {row.deleted && <Tag color="red">{t("table.deleted")}</Tag>}
+        </Space>
+      ),
+    },
+    {
+      title: t("table.email"),
+      dataIndex: "email",
+      key: "email",
+    },
+    {
+      title: t("table.role"),
+      dataIndex: "role",
+      key: "role",
+      render: (role: Role) => <Tag color={ROLE_COLORS[role]}>{role}</Tag>,
+    },
+    {
+      title: t("table.status"),
+      dataIndex: "status",
+      key: "status",
+      render: (status: AccountDto["status"]) => (
+        <Tag color={status === "active" ? "green" : "red"}>{status}</Tag>
+      ),
+    },
+    {
+      title: t("table.lastLogin"),
+      dataIndex: "lastLogin",
+      key: "lastLogin",
+      render: (value: string | null) =>
+        value ? new Date(value).toLocaleString() : t("table.never"),
+    },
+    {
+      title: t("table.actions"),
+      key: "actions",
+      render: (_value, row) => {
+        const manageable = canActOn(row);
+        return (
+          <Space wrap>
+            <Button
+              size="small"
+              disabled={!manageable || row.deleted || !can("accounts:update")}
+              onClick={() => {
+                setEditState({
+                  open: true,
+                  loading: false,
+                  id: row.id,
+                  name: row.name,
+                  email: row.email,
+                  role: row.role,
+                });
+              }}
+            >
+              {t("actions.edit")}
+            </Button>
+            <Button
+              size="small"
+              disabled={
+                !manageable || row.deleted || !can("accounts:update-status")
+              }
+              onClick={() => handleStatus(row)}
+            >
+              {row.status === "active"
+                ? t("actions.deactivate")
+                : t("actions.activate")}
+            </Button>
+            <Button
+              size="small"
+              disabled={
+                !manageable || row.deleted || !can("accounts:change-password")
+              }
+              onClick={() =>
+                setPasswordState({
+                  open: true,
+                  loading: false,
+                  id: row.id,
+                  newPassword: "",
+                })
+              }
+            >
+              {t("actions.password")}
+            </Button>
+            {row.deleted ? (
+              <Button
+                size="small"
+                disabled={!manageable || !can("accounts:restore")}
+                onClick={() => handleRestore(row)}
+              >
+                {t("actions.restore")}
+              </Button>
+            ) : (
+              <Button
+                size="small"
+                danger
+                disabled={!manageable || !can("accounts:delete")}
+                onClick={() => handleDelete(row)}
+              >
+                {t("actions.delete")}
+              </Button>
+            )}
+          </Space>
+        );
+      },
+    },
+  ];
 
   return (
     <AdminPageLayout selectedPage="accounts">
-      <AccountsFeature.components.CreateAccountModal
-        onClose={closeCreateAccountModal}
-        onCreate={handleCreateAccount}
-        state={createModalState}
-        setState={setCreateModalState}
-        roles={accountRoles.accountRoles}
-      />
+      <RequirePermission permission="accounts:read">
+        <div className="mb-2">
+          {tCommon("loggedInAs", {
+            name: account?.name,
+            email: account?.email,
+          })}
+        </div>
 
-      <AccountsFeature.components.UpdatePasswordModal
-        onClose={closeUpdatePasswordModal}
-        onUpdatePassword={handleUpdatePassword}
-        state={updatePasswordModalState}
-        setState={setUpdatePasswordModalState}
-      />
+        <Title>{t("title")}</Title>
+        <Text>{t("description")}</Text>
 
-      <AccountsFeature.components.UpdateStatusModal
-        onClose={closeUpdateStatusModal}
-        onUpdateStatus={handleUpdateStatus}
-        state={updateStatusModalState}
-        setState={setUpdateStatusModalState}
-      />
+        <div className="my-3 flex flex-wrap gap-2 items-center">
+          <Button
+            type="primary"
+            icon={<FaPlus />}
+            disabled={!can("accounts:create")}
+            onClick={() =>
+              setCreateState({ ...emptyCreate, open: true, role: "staff" })
+            }
+          >
+            {t("createAccount")}
+          </Button>
 
-      <AccountsFeature.components.UpdateModal
-        onClose={closeUpdateModal}
-        onUpdate={handleUpdateAccount}
-        state={updateModalState}
-        setState={setUpdateModalState}
-        accountRoles={accountRoles.accountRoles}
-      />
+          <Input.Search
+            allowClear
+            style={{ maxWidth: 360 }}
+            placeholder={t("searchPlaceholder")}
+            loading={loading}
+            onSearch={(value) => setSearch(value)}
+            onClear={() => setSearch("")}
+          />
 
-      <div className="mb-2">
-        {tCommon("loggedInAs", {
-          name: account?.profile.name,
-          email: account?.email.value,
-        })}
-      </div>
-      <Title className="flex items-center gap-2">
-        <FaUser />
-        {tPage("title")}
-      </Title>
-      <Text>{tPage("description")}</Text>
+          <Space>
+            <Switch
+              checked={includeDeleted}
+              onChange={(value) => setIncludeDeleted(value)}
+              id="show-deleted"
+            />
+            <label htmlFor="show-deleted">{t("showDeleted")}</label>
+          </Space>
+        </div>
 
-      <div className="my-2 flex gap-2">
-        <Button
-          variant="solid"
-          type="primary"
-          className="bg-blue-500 text-white px-4 py-2 rounded-md"
-          onClick={openCreateAccountModal}
-          icon={<FaPlus />}
-          disabled={
-            !account ||
-            !(
-              account?.data.role.permissions.includes("*") ||
-              account?.data.role.permissions.includes("accounts:create")
-            )
-          }
+        <Table<AccountDto>
+          rowKey="id"
+          loading={loading}
+          dataSource={rows}
+          columns={columns}
+          pagination={{
+            current: meta.page,
+            pageSize: meta.pageSize,
+            total: meta.total,
+            showSizeChanger: true,
+            onChange: (page, pageSize) => {
+              void load(page, pageSize);
+            },
+          }}
+        />
+
+        <Modal
+          title={t("modals.createTitle")}
+          open={createState.open}
+          onCancel={() => setCreateState(emptyCreate)}
+          onOk={handleCreate}
+          confirmLoading={createState.loading}
+          okText={tCommon("create")}
+          cancelText={tCommon("cancel")}
         >
-          {tPage("createAccount")}
-        </Button>
-      </div>
-      {/* Search */}
-      <section>
-        <Input.Search
-          type="text"
-          variant="outlined"
-          allowClear
-          onClear={async () => {
-            await fetchAccounts({
-              page: 0,
-              search: null,
-            });
-          }}
-          onSearch={async (query) => {
-            await fetchAccounts({
-              search: {
-                query: query,
-                searchIn: ["email", "name"],
-              },
-              page: 0,
-            });
-          }}
-          loading={accountsListState.loading}
-          enterButton={tCommon("search")}
-          placeholder={tPage("searchPlaceholder")}
-        />
-      </section>
-      {account && (
-        <AccountsFeature.components.AccountsTable
-          accountsListState={accountsListState}
-          fetchAccounts={fetchAccounts}
-          accounts={accounts}
-          onDelete={(acc) => {
-            modal.confirm({
-              title: tPage("modals.delete.title"),
-              content: tPage("modals.delete.content", { name: acc.name }),
-              okText: tCommon("yes"),
-              cancelText: tCommon("no"),
-              onOk: () => {
-                handleDeleteAccount(acc.id);
-              },
-            });
-          }}
-          onUpdate={(acc) => {
-            openUpdateModal(acc.id);
-          }}
-          onRestore={(acc) => {
-            modal.confirm({
-              title: tPage("modals.restore.title"),
-              content: tPage("modals.restore.content", { name: acc.name }),
-              okText: tCommon("yes"),
-              cancelText: tCommon("no"),
-              onOk: () => {
-                handleRestoreAccount(acc.id);
-              },
-            });
-          }}
-          onChangePassword={(acc) => {
-            openUpdatePasswordModal(acc.id);
-          }}
-          onUpdateStatus={(acc) => {
-            openUpdateStatusModal(acc.id);
-          }}
-          accountRoles={accountRoles.accountRoles}
-        />
-      )}
+          <div className="flex flex-col gap-3">
+            <Input
+              placeholder={t("fields.name")}
+              value={createState.name}
+              onChange={(event) =>
+                setCreateState((prev) => ({
+                  ...prev,
+                  name: event.target.value,
+                }))
+              }
+            />
+            <Input
+              placeholder={t("fields.email")}
+              value={createState.email}
+              onChange={(event) =>
+                setCreateState((prev) => ({
+                  ...prev,
+                  email: event.target.value,
+                }))
+              }
+            />
+            <Input.Password
+              placeholder={t("fields.password")}
+              value={createState.password}
+              onChange={(event) =>
+                setCreateState((prev) => ({
+                  ...prev,
+                  password: event.target.value,
+                }))
+              }
+            />
+            <Select<Role>
+              value={createState.role}
+              options={assignableRoles.map((role) => ({
+                value: role,
+                label: role,
+              }))}
+              onChange={(role) => setCreateState((prev) => ({ ...prev, role }))}
+            />
+          </div>
+        </Modal>
 
-      <div className="flex mt-4 gap-2 items-center">
-        <Switch
-          id="page-show-deleted"
-          checked={accountsListState.includeDeleted}
-          onChange={(value) => {
-            fetchAccounts({
-              includeDeleted: value,
-            });
-          }}
-        />
+        <Modal
+          title={t("modals.editTitle")}
+          open={editState.open}
+          onCancel={() => setEditState(emptyEdit)}
+          onOk={handleEdit}
+          confirmLoading={editState.loading}
+          okText={tCommon("save")}
+          cancelText={tCommon("cancel")}
+        >
+          <div className="flex flex-col gap-3">
+            <Input
+              placeholder={t("fields.name")}
+              value={editState.name}
+              onChange={(event) =>
+                setEditState((prev) => ({
+                  ...prev,
+                  name: event.target.value,
+                }))
+              }
+            />
+            <Input
+              placeholder={t("fields.email")}
+              value={editState.email}
+              onChange={(event) =>
+                setEditState((prev) => ({
+                  ...prev,
+                  email: event.target.value,
+                }))
+              }
+            />
+            <Select<Role>
+              value={editState.role}
+              options={assignableRoles.map((role) => ({
+                value: role,
+                label: role,
+              }))}
+              onChange={(role) => setEditState((prev) => ({ ...prev, role }))}
+            />
+          </div>
+        </Modal>
 
-        <label htmlFor="page-show-deleted">{tPage("showDeleted")}</label>
-      </div>
+        <Modal
+          title={t("modals.passwordTitle")}
+          open={passwordState.open}
+          onCancel={() => setPasswordState(emptyPassword)}
+          onOk={handlePassword}
+          confirmLoading={passwordState.loading}
+          okText={tCommon("save")}
+          cancelText={tCommon("cancel")}
+        >
+          <Input.Password
+            placeholder={t("fields.newPassword")}
+            value={passwordState.newPassword}
+            onChange={(event) =>
+              setPasswordState((prev) => ({
+                ...prev,
+                newPassword: event.target.value,
+              }))
+            }
+          />
+        </Modal>
+      </RequirePermission>
     </AdminPageLayout>
   );
 }

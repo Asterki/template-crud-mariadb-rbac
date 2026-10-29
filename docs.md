@@ -153,7 +153,7 @@ Esta carpeta contiene el servidor que procesa las peticiones del frontend, se co
 | Archivo / Carpeta | ¿Qué es? |
 |---|---|
 | `server/src/index.ts` | Punto de entrada del servidor. Configura Express, middlewares, rutas, sesiones, y WebSockets. |
-| `server/src/setup.ts` | Script de arranque inicial. Si el sistema está vacío, crea un rol Admin y un usuario administrador por defecto (admin@local.test / admin123). |
+| `server/src/setup.ts` | Script de arranque inicial. Si el sistema está vacío, crea un rol Admin y un usuario administrador por defecto (the credentials printed by the seed command). |
 | `server/package.json` | Dependencias del servidor (no incluye las del root, solo las específicas del server). |
 | `server/tsconfig.json` | Configuración de TypeScript. |
 | `server/nodemon.json` | Configuración de Nodemon (qué archivos observar y cómo ejecutar). |
@@ -381,7 +381,7 @@ Esto construye la imagen y levanta MariaDB, Redis, y el servidor en el puerto 30
 
 Al iniciar el sistema por primera vez, el `setup.ts` crea automáticamente:
 - **Correo:** admin@local.test
-- **Contraseña:** admin123
+- **Contraseña:** impresa una sola vez por el comando de seed
 - **Rol:** Admin (con todos los permisos, incluyendo `*`)
 
 ---

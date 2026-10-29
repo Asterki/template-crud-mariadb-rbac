@@ -1,136 +1,131 @@
-import type { WritableDraft } from "immer";
-
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
+import type {
+  ChangePasswordRequest,
+  LoginRequest,
+  SessionAccountDto,
+} from "@template/shared";
 
 import authApi from "./api";
+import { normalizeApiError, type NormalizedApiError } from "../../utils/api";
 
-import type { ISessionAccount } from "@template/shared";
-import { AxiosError } from "axios";
-
-import { authApi as AuthAPITypes } from "@template/shared";
-
-export interface AccountsState {
-  account: ISessionAccount | null;
+export interface AuthState {
+  account: SessionAccountDto | null;
   loading: boolean;
-  error: string | null;
+  error: NormalizedApiError | null;
 }
 
-const initialState: AccountsState = {
+const initialState: AuthState = {
   account: null,
   loading: false,
   error: null,
 };
 
-// Define thunks
-export const login = createAsyncThunk(
-  "accounts/login",
-  async (data: AuthAPITypes.LoginRequestBody) => {
-    const result = await authApi.login(data);
-    return result;
-  },
-);
+function rejection(error: unknown): NormalizedApiError {
+  return normalizeApiError(error);
+}
 
-export const logout = createAsyncThunk(
-  "accounts/logout",
-  async (_, thunkAPI) => {
-    try {
-      await authApi.logout();
-    } catch (error: unknown) {
-      if (!(error instanceof AxiosError)) {
-        return thunkAPI.rejectWithValue("Unknown error");
-      } else {
-        return thunkAPI.rejectWithValue(
-          error.response?.data.status || error.message,
-        );
-      }
-    }
-  },
-);
-
-export const fetch = createAsyncThunk("accounts/fetch", async (_, thunkAPI) => {
+export const login = createAsyncThunk<
+  SessionAccountDto,
+  LoginRequest,
+  { rejectValue: NormalizedApiError }
+>("auth/login", async (body, { rejectWithValue }) => {
   try {
-    return await authApi.fetch();
-  } catch (error: unknown) {
-    if (!(error instanceof AxiosError)) {
-      return thunkAPI.rejectWithValue("Unknown error");
-    } else {
-      console.log(error);
-      return thunkAPI.rejectWithValue(
-        error.response?.data.status || error.message,
-      );
-    }
+    const response = await authApi.login(body);
+    return response.data;
+  } catch (error) {
+    return rejectWithValue(rejection(error));
   }
 });
 
-export const accountsSlice = createSlice({
-  name: "accounts",
+export const fetchMe = createAsyncThunk<
+  SessionAccountDto,
+  void,
+  { rejectValue: NormalizedApiError }
+>("auth/me", async (_, { rejectWithValue }) => {
+  try {
+    const response = await authApi.me();
+    return response.data;
+  } catch (error) {
+    return rejectWithValue(rejection(error));
+  }
+});
+
+export const logout = createAsyncThunk<
+  void,
+  void,
+  { rejectValue: NormalizedApiError }
+>("auth/logout", async (_, { rejectWithValue }) => {
+  try {
+    await authApi.logout();
+  } catch (error) {
+    return rejectWithValue(rejection(error));
+  }
+});
+
+export const changePassword = createAsyncThunk<
+  SessionAccountDto,
+  ChangePasswordRequest,
+  { rejectValue: NormalizedApiError }
+>("auth/changePassword", async (body, { rejectWithValue }) => {
+  try {
+    const response = await authApi.changePassword(body);
+    return response.data;
+  } catch (error) {
+    return rejectWithValue(rejection(error));
+  }
+});
+
+const authSlice = createSlice({
+  name: "auth",
   initialState,
   reducers: {
-    setAccount: (state, action: PayloadAction<any>) => {
-      state.account = action.payload as WritableDraft<any>;
-      state.loading = false;
+    setAccount(state, action: PayloadAction<SessionAccountDto | null>) {
+      state.account = action.payload;
       state.error = null;
     },
-    clearAccount: (state) => {
+    clearAccount(state) {
       state.account = null;
+      state.error = null;
       state.loading = false;
-      state.error = null;
-    },
-    clearError: (state) => {
-      state.error = null;
-    },
-    setError: (state, action: PayloadAction<string>) => {
-      state.error = action.payload;
     },
   },
   extraReducers: (builder) => {
     builder
-      // Login cases
       .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(login.fulfilled, (state, action) => {
-        state.account = action.payload!
-          .account! as WritableDraft<ISessionAccount>;
+        state.account = action.payload;
         state.loading = false;
-        state.error = null;
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload ?? null;
       })
-      // Logout cases
-      .addCase(logout.pending, (state) => {
+      .addCase(fetchMe.pending, (state) => {
         state.loading = true;
+      })
+      .addCase(fetchMe.fulfilled, (state, action) => {
+        state.account = action.payload;
+        state.loading = false;
         state.error = null;
+      })
+      .addCase(fetchMe.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload ?? null;
       })
       .addCase(logout.fulfilled, (state) => {
         state.account = null;
-        state.loading = false;
         state.error = null;
-      })
-      .addCase(logout.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
       })
-      // Fetch cases
-      .addCase(fetch.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetch.fulfilled, (state, action) => {
-        state.account = action.payload!
-          .account! as WritableDraft<ISessionAccount>;
-        state.loading = false;
-        state.error = null;
-      })
-      .addCase(fetch.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
+      .addCase(changePassword.fulfilled, (state, action) => {
+        state.account = action.payload;
       });
   },
 });
 
-export default accountsSlice;
+export const { setAccount, clearAccount } = authSlice.actions;
+export default authSlice;

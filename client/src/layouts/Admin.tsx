@@ -1,24 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
-
-import {
-  FaBars,
-  FaTerminal,
-  FaUserShield,
-  FaUsers,
-  FaCompressArrowsAlt,
-  FaChartArea,
-  FaCog,
-  FaRegArrowAltCircleLeft,
-  FaInfo,
-} from "react-icons/fa";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 
 import {
   ConfigProvider,
   Drawer,
   Layout,
   Menu,
-  MenuProps,
+  type MenuProps,
   Space,
   Spin,
   Typography,
@@ -26,15 +14,23 @@ import {
 const { Title } = Typography;
 import esES from "antd/locale/es_ES";
 
+import {
+  FaBars,
+  FaCompressArrowsAlt,
+  FaKey,
+  FaRegArrowAltCircleLeft,
+  FaUserShield,
+  FaUsers,
+} from "react-icons/fa";
+
 import { useDispatch, useSelector } from "react-redux";
-
 import { useTranslation } from "react-i18next";
-import AuthFeature from "../features/auth/";
+import { APP_LOGO, APP_NAME } from "@template/shared";
 
-// import ConfigFeature from "../features/config/";
+import AuthFeature from "../features/auth";
+import { useCan } from "../rbac";
+import { authRedirect } from "../rbac/guards";
 import type { RootState } from "../store";
-
-import { hasPermissions } from "../utils/permissions";
 
 const { Header, Sider } = Layout;
 
@@ -52,190 +48,133 @@ export default function PageLayout({
   defaultCollapsed,
 }: LayoutProps) {
   const navigate = useNavigate();
-  const dispatch = useDispatch<typeof import("../store").store.dispatch>();
-
+  const location = useLocation();
+  const dispatch = useDispatch<AppDispatch>();
   const { t } = useTranslation(["layouts"], { keyPrefix: "admin" });
+  const { can } = useCan();
 
   const { account } = useSelector((state: RootState) => state.auth);
-  // const { config } = useSelector((state: RootState) => state.config);
 
   const [collapsed, setCollapsed] = useState(defaultCollapsed || false);
   const [drawerVisible, setDrawerVisible] = useState(false);
 
   useEffect(() => {
-    if (!account) {
-      (async () => {
-        const result = await dispatch(AuthFeature.actions.fetch());
+    if (account) return;
+    void dispatch(AuthFeature.actions.fetchMe())
+      .unwrap()
+      .catch(() => {
+        navigate({ to: "/auth/login" });
+      });
+  }, [account, dispatch, navigate]);
 
-        if (
-          AuthFeature.actions.fetch.rejected.match(result) ||
-          result.payload.status === "unauthenticated"
-        ) {
-          navigate({ to: "/auth/login" });
-        } else {
-          console.log("Account fetched successfully:", result.payload);
-        }
-      })();
+  useEffect(() => {
+    if (!account) return;
+    const target = authRedirect(account, location.pathname);
+    if (target && target !== location.pathname) {
+      navigate({ to: target });
     }
-  }, [account]);
-
-  // useEffect(() => {
-  //   if (!config) dispatch(ConfigFeature.actions.fetchConfig());
-
-  //   // if (!config?.masterServer.enabled) navigate({ to: '/nodes/register' })
-  // }, [config]);
-
-  const sidebarRef = useRef(null);
+  }, [account, location.pathname, navigate]);
 
   type MenuItem = Required<MenuProps>["items"][number];
   const menuItems = useMemo<MenuItem[]>(() => {
     if (!account) return [];
 
-    const userPermissions = account.data.role.permissions;
-
-    return [
-      // === Overview & Core ===
+    const items: MenuItem[] = [
       {
         key: "dashboard",
         label: <Link to="/admin">{t("sidebar.dashboard")}</Link>,
-        icon: <FaCompressArrowsAlt />, // Better for dashboards
+        icon: <FaCompressArrowsAlt />,
       },
+    ];
 
+    if (can("accounts:read")) {
+      items.push({
+        key: "accounts",
+        label: <Link to="/admin/accounts">{t("sidebar.accounts")}</Link>,
+        icon: <FaUsers />,
+      });
+    }
+
+    if (can("roles:read")) {
+      items.push({
+        key: "roles",
+        label: <Link to="/admin/roles">{t("sidebar.roles")}</Link>,
+        icon: <FaUserShield />,
+      });
+    }
+
+    items.push(
       {
-        key: "reports-group",
-        label: t("sidebar.reports-group.title"),
-        icon: <FaChartArea />,
-        children: [],
-      },
-
-      {
-        key: "management",
-        label: t("sidebar.management.title"),
-        icon: <FaCog />,
-        children: [
-          {
-            key: "accounts",
-            label: (
-              <Link to="/admin/accounts">
-                {t("sidebar.management.accounts")}
-              </Link>
-            ),
-            style: {
-              display: hasPermissions(userPermissions, ["accounts:read"])
-                ? "block"
-                : "none",
-            },
-            icon: <FaUsers />, // Better for dashboards
-          },
-
-          {
-            key: "account-roles",
-            label: (
-              <Link to="/admin/accounts/roles">
-                {t("sidebar.management.account-roles")}
-              </Link>
-            ),
-            style: {
-              display: hasPermissions(userPermissions, ["account-roles:read"])
-                ? "block"
-                : "none",
-            },
-            icon: <FaUserShield />,
-          },
-
-          {
-            key: "config",
-            label: (
-              <Link to="/admin/config">{t("sidebar.management.config")}</Link>
-            ),
-            style: {
-              display: hasPermissions(userPermissions, ["config:read"])
-                ? "block"
-                : "none",
-            },
-            icon: <FaCog />,
-          },
-
-          {
-            key: "logs",
-            label: <Link to="/admin/logs">{t("sidebar.management.logs")}</Link>,
-            style: {
-              display: hasPermissions(userPermissions, ["logs:read"])
-                ? "block"
-                : "none",
-            },
-            icon: <FaTerminal />,
-          },
-        ],
+        key: "change-password",
+        label: (
+          <Link to="/admin/change-password">{t("sidebar.changePassword")}</Link>
+        ),
+        icon: <FaKey />,
       },
       {
         key: "logout",
         label: (
-          <Link color="red" to="/auth/logout">
+          <Link to="/auth/logout" className="text-red-500">
             {t("sidebar.logout")}
           </Link>
         ),
         danger: true,
         icon: <FaRegArrowAltCircleLeft className="text-red-300" />,
       },
-    ];
-  }, [account]);
+    );
 
-  const isDark = false;
+    return items;
+  }, [account, can, t]);
 
   return (
     <ConfigProvider locale={esES}>
-      {/* Top Navbar */}
       <Header
-        className={`px-4 flex items-center justify-between color-white`}
+        className="px-4 flex items-center justify-between color-white"
         style={{ paddingInline: 16 }}
       >
         <div className="md:hidden block">
           <button
+            type="button"
             onClick={() => setDrawerVisible(true)}
             className="md:hidden text-xl block text-white"
+            aria-label="Menu"
           >
             <FaBars />
           </button>
         </div>
-        <Space align="center" className="" size={14}>
+        <Space align="center" size={14}>
           <img
-            src="/assets/img/icon.png"
-            alt="Icon"
+            src={APP_LOGO}
+            alt=""
             style={{ width: 42, height: 42, objectFit: "contain" }}
           />
-          <div className="text-white">
-            <h1 style={{ margin: 0 }} className="text-white font-bold text-lg">
-              Sistema de Registro de la Universidad de Las Americas
-            </h1>
-          </div>
+          <Title level={1} style={{ margin: 0 }} className="text-white text-lg">
+            {APP_NAME}
+          </Title>
         </Space>
       </Header>
 
       <Layout hasSider>
-        {/* Sidebar for desktop */}
         <Sider
           breakpoint="md"
           collapsible
           collapsed={collapsed}
           onCollapse={(value) => setCollapsed(value)}
           className="hidden md:block"
-          theme={isDark ? "dark" : "light"}
+          theme="light"
           width={220}
-          ref={sidebarRef}
         >
           <Menu
             mode="inline"
-            defaultOpenKeys={["reports-group", "management"]}
+            defaultOpenKeys={["management"]}
             defaultSelectedKeys={[selectedPage || "dashboard"]}
             items={menuItems}
             className="h-full"
           />
         </Sider>
 
-        {/* Sidebar Drawer for mobile */}
         <Drawer
-          title="Menú"
+          title="Menu"
           placement="left"
           onClose={() => setDrawerVisible(false)}
           open={drawerVisible}
@@ -243,25 +182,18 @@ export default function PageLayout({
           <Menu
             mode="inline"
             defaultSelectedKeys={[selectedPage || "dashboard"]}
-            defaultOpenKeys={["reports-group", "management"]}
-            style={{
-              color: "white",
-            }}
             items={menuItems}
             onClick={() => setDrawerVisible(false)}
           />
         </Drawer>
 
-        {/* Main Content */}
-        <Layout
-          style={{ background: "transparent" }}
-          className={`min-h-screen ${isDark ? "dark" : ""} relative`}
-        >
+        <Layout style={{ background: "transparent" }} className="min-h-screen">
           <div
             className={`${removePadding ? "" : "p-4"} dark:text-white min-h-[calc(100vh-64px)] z-10`}
           >
-            {account && children}
-            {!account && (
+            {account ? (
+              children
+            ) : (
               <div className="text-center text-lg text-gray-500">
                 <Spin size="large" />
               </div>
@@ -272,3 +204,5 @@ export default function PageLayout({
     </ConfigProvider>
   );
 }
+
+type AppDispatch = typeof import("../store").store.dispatch;
