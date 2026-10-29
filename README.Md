@@ -17,3 +17,11 @@ Technical and user documentation are located in the `docs/` folder. Spanish tran
 ## License
 
 See [License](./LICENSE) 
+## Environment files
+
+Copy the examples before starting the packages:
+
+- `server/.env.example` to `server/.env` for the API and Prisma.
+- `client/.env.example` to `client/.env` for the Vite app.
+
+Both examples contain placeholders only; never commit real credentials.
