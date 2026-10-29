@@ -31,7 +31,7 @@ pip install -r docs/requirements.txt && mkdocs build --strict
 When a change affects the database or image:
 
 ```bash
-npm --prefix server exec prisma validate
+npm --prefix server run db:validate
 docker build -t template-api:test .
 for f in dev prod ghcr; do docker compose -f compose.$f.yaml config > /dev/null; done
 ```

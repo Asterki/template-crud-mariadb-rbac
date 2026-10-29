@@ -59,6 +59,7 @@ Run commands from the repository root unless noted.
 | Test | `npm --prefix server run test` |
 | Build | `npm --prefix server run build` |
 | Generate Prisma client | `npm --prefix server run db:generate` |
+| Validate the schema | `npm --prefix server run db:validate` |
 | Apply migrations | `npm --prefix server run db:deploy` |
 | Migration status | `npm --prefix server run db:status` |
 | Seed first admin | `npm --prefix server run db:seed` |

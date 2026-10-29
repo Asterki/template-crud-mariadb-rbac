@@ -14,6 +14,7 @@
     "bundle": "tsup",
     "start": "cross-env NODE_ENV=production node ./dist/main.js",
     "db:generate": "prisma generate",
+    "db:validate": "prisma validate",
     "db:deploy": "prisma migrate deploy",
     "db:status": "prisma migrate status",
     "db:seed": "tsx src/cli/seed.ts",

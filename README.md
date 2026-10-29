@@ -57,6 +57,7 @@ Root scripts only delegate to the three packages; the root has no dependencies.
 | Typecheck | `npm run typecheck` | `npm run typecheck` | `npm run typecheck` | `npm run typecheck` |
 | Test | `npm run test` | `npm run test` | `npm run test` | `npm run test` |
 | Generate Prisma client | — | — | `npm run db:generate` | — |
+| Validate the schema | — | — | `npm run db:validate` | — |
 | Apply migrations | — | — | `npm run db:deploy` | — |
 | Seed first admin | — | — | `npm run db:seed` | — |
 | Diagnostics | `npm run doctor` | — | — | — |
