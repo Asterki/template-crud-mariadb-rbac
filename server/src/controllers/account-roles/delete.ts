@@ -19,7 +19,7 @@ const handler = async (
 
   try {
     const deletedRole = await deleteAccountRoleWithRetry(roleId, {
-      traceId: req.id,
+      traceId: String(req.id),
       userAccount: userAccount,
     });
 
@@ -41,7 +41,7 @@ const handler = async (
       req.log.error(
         {
           source: "api:account-roles:delete",
-          traceId: req.id,
+          traceId: String(req.id),
           details: {
             code: error,
             meta: error,
@@ -54,7 +54,7 @@ const handler = async (
       req.log.error(
         {
           source: "api:account-roles:delete",
-          traceId: req.id,
+          traceId: String(req.id),
           details: {
             error: error.message,
             stack: error.stack,

@@ -9,7 +9,7 @@ import {
 } from "../../services/accounts/update.js";
 import { APIError } from "../../errors/api.js";
 
-import prismaClient from "../../config/prisma.js";
+import prismaClient from "../../db/prisma.js";
 
 import { CampusCode } from "@prisma/client";
 
@@ -55,7 +55,7 @@ const handler = async (
         name: name?.trim(),
       },
       {
-        traceId: req.id,
+        traceId: String(req.id),
         userAccount: userAccount,
       },
     );
@@ -85,7 +85,7 @@ const handler = async (
     req.log.error(
       {
         source: "api:accounts:update",
-        traceId: req.id,
+        traceId: String(req.id),
         duration,
         details: {
           error: (error as any)?.message,

@@ -19,7 +19,7 @@ const handler = async (
 
   try {
     const restoredAccount = await restoreAccountWithRetry(accountId, {
-      traceId: req.id,
+      traceId: String(req.id),
       userAccount,
     });
 
@@ -41,7 +41,7 @@ const handler = async (
       req.log.error(
         {
           source: "api:accounts:restore",
-          traceId: req.id,
+          traceId: String(req.id),
           details: {
             code: error,
             meta: error,
@@ -54,7 +54,7 @@ const handler = async (
       req.log.error(
         {
           source: "api:accounts:restore",
-          traceId: req.id,
+          traceId: String(req.id),
           details: {
             error: error.message,
             stack: error.stack,

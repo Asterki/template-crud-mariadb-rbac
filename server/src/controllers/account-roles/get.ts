@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import prismaClient from "../../config/prisma.js";
+import prismaClient from "../../db/prisma.js";
 
 import { accountRoleApi as AccountRolesAPITypes } from "@template/shared";
 
@@ -62,7 +62,7 @@ const handler = async (
       req.log.error(
         {
           source: "api:account-roles:get",
-          traceId: req.id,
+          traceId: String(req.id),
           duration,
           details: {
             error: error.message,

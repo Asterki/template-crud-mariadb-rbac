@@ -14,7 +14,7 @@ type AccountUpdateInput = Prisma.AccountUpdateInput;
 type MetadataUpdateHistoryCreateWithoutMetadataInput =
   Prisma.MetadataUpdateHistoryCreateWithoutMetadataInput;
 
-import prismaClient from "../../config/prisma.js";
+import prismaClient from "../../db/prisma.js";
 
 type UpdateAccountOptions = {
   traceId?: string;

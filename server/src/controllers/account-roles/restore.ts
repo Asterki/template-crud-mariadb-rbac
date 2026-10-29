@@ -20,7 +20,7 @@ const handler = async (
 
   try {
     const restoredRole = await restoreAccountRoleWithRetry(roleId, {
-      traceId: req.id,
+      traceId: String(req.id),
       userAccount,
     });
 
@@ -42,7 +42,7 @@ const handler = async (
       req.log.error(
         {
           source: "api:account-roles:restore",
-          traceId: req.id,
+          traceId: String(req.id),
           details: {
             code: error,
             meta: error,
@@ -55,7 +55,7 @@ const handler = async (
       req.log.error(
         {
           source: "api:account-roles:restore",
-          traceId: req.id,
+          traceId: String(req.id),
           details: {
             error: error.message,
             stack: error.stack,

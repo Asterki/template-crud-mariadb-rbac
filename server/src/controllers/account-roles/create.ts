@@ -5,7 +5,7 @@ import { accountRoleApi as AccountRolesAPITypes } from "@template/shared";
 
 import { createAccountRoleWithRetry } from "../../services/account-roles/create.js";
 
-import prismaClient from "../../config/prisma.js";
+import prismaClient from "../../db/prisma.js";
 
 class CannotCreateRoleAtThisLevelError extends Error {
   constructor(message: string) {
@@ -72,7 +72,7 @@ const handler = async (
       },
       {
         userAccount,
-        traceId: req.id,
+        traceId: String(req.id),
       },
     );
 
@@ -81,7 +81,7 @@ const handler = async (
     req.log.info(
       {
         source: "api:account-roles:create",
-        traceId: req.id,
+        traceId: String(req.id),
         duration,
         details: {
           accountRoleId: createdRole.id,
@@ -120,7 +120,7 @@ const handler = async (
       req.log.error(
         {
           source: "api:account-roles:create",
-          traceId: req.id,
+          traceId: String(req.id),
           details: {
             code: error,
             meta: error,
@@ -132,7 +132,7 @@ const handler = async (
       req.log.error(
         {
           source: "api:account-roles:create",
-          traceId: req.id,
+          traceId: String(req.id),
           details: {
             error: error.message,
             stack: error.stack,

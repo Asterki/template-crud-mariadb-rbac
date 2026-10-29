@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 
 import { accountApi as AccountAPITypes } from "@template/shared";
 
-import prismaClient from "../../config/prisma.js";
+import prismaClient from "../../db/prisma.js";
 import { updateAccountWithRetry } from "../../services/accounts/update.js";
 
 import { APIError } from "../../errors/api.js";
@@ -49,7 +49,7 @@ const handler = async (
         status: newStatus,
       },
       {
-        traceId: req.id,
+        traceId: String(req.id),
         userAccount: userAccount,
       },
     );
@@ -68,7 +68,7 @@ const handler = async (
     req.log.error(
       {
         source: "api:accounts:update-password",
-        traceId: req.id,
+        traceId: String(req.id),
         duration,
         details: {
           error: (error as any)?.message,

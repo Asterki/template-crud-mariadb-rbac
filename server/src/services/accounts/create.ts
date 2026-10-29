@@ -3,17 +3,19 @@ import bcrypt from "bcrypt";
 import retry from "async-retry";
 import { performance } from "perf_hooks";
 
-import prismaClient from "../../config/prisma.js";
+import prismaClient from "../../db/prisma.js";
 import {
   MetadataSource,
   MetadataStatus,
   Account,
   Prisma,
+  type PrismaClient,
 } from "@prisma/client";
 
 type CreateUserOptions = {
   traceId?: string; // Unique identifier for tracing requests
   userAccount?: Account; // The account that is creating the user, if applicable
+  prismaClient?: PrismaClient;
 };
 
 type CreateUserParameters = {
@@ -36,6 +38,7 @@ export async function createAccount(
   options: CreateUserOptions = {},
 ): Promise<Account> {
   const startTime = performance.now();
+  const db = options.prismaClient ?? prismaClient;
   const { name, email, password, roleId } = parameters;
 
   const now = new Date();
@@ -45,7 +48,7 @@ export async function createAccount(
     const saltRounds = 10;
     const hashed = await bcrypt.hash(password, saltRounds);
 
-    const metadata = await prismaClient.metadata.create({
+    const metadata = await db.metadata.create({
       data: {
         documentVersion: 1,
         createdAt: now,
@@ -62,7 +65,7 @@ export async function createAccount(
       },
     });
 
-    const account = await prismaClient.account.create({
+    const account = await db.account.create({
       data: {
         name: name,
         lastLogin: now,

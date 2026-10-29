@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 
 import { accountApi as AccountsAPITypes } from "@template/shared";
 
-import prismaClient from "../../config/prisma.js";
+import prismaClient from "../../db/prisma.js";
 import { createAccountWithRetry } from "../../services/accounts/create.js";
 
 import { APIError } from "../../errors/api.js";
@@ -65,7 +65,7 @@ const handler = async (
         roleId,
       },
       {
-        traceId: req.id,
+        traceId: String(req.id),
         userAccount: adminAccount,
       },
     );
@@ -85,7 +85,7 @@ const handler = async (
       req.log.error(
         {
           source: "api:accounts:create",
-          traceId: req.id,
+          traceId: String(req.id),
           details: {
             error: error.message,
             stack: error.stack,

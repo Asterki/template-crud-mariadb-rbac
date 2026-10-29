@@ -45,7 +45,7 @@ const handler = (
     req.log.error(
       {
         source: "api:auth:change-email",
-        traceId: req.id,
+        traceId: String(req.id),
         details: { error: error.message, stack: error.stack },
       },
       "Unexpected error during email change",

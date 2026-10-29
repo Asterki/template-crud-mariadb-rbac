@@ -7,7 +7,7 @@ import {
 } from "../../services/account-roles/update.js";
 
 import { Prisma } from "@prisma/client";
-import prismaClient from "../../config/prisma.js";
+import prismaClient from "../../db/prisma.js";
 
 class CannotUpdateRoleAtThisLevelError extends Error {
   constructor(message: string) {
@@ -97,7 +97,7 @@ const handler = async (
         permissions,
       },
       {
-        traceId: req.id,
+        traceId: String(req.id),
         userAccount: userAccount,
       },
     );
@@ -106,7 +106,7 @@ const handler = async (
     req.log.info(
       {
         source: "api:account-roles:update",
-        traceId: req.id,
+        traceId: String(req.id),
         duration,
         details: {
           updatedById: userAccount.id,
@@ -146,7 +146,7 @@ const handler = async (
       req.log.error(
         {
           source: "api:account-roles:update",
-          traceId: req.id,
+          traceId: String(req.id),
           details: { code: error, meta: error },
           duration,
         },
@@ -156,7 +156,7 @@ const handler = async (
       req.log.error(
         {
           source: "api:account-roles:update",
-          traceId: req.id,
+          traceId: String(req.id),
           details: { error: error.message, stack: error.stack },
           duration,
         },

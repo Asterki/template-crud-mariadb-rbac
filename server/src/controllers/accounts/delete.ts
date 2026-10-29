@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { accountApi as AccountsAPITypes } from "@template/shared";
 
-import prismaClient from "../../config/prisma.js";
+import prismaClient from "../../db/prisma.js";
 
 import {
   AccountNotFoundError,
@@ -57,7 +57,7 @@ const handler = async (
 
     await deleteAccountWithRetry(accountId, {
       userAccount: userAccount,
-      traceId: req.id,
+      traceId: String(req.id),
     });
 
     res.status(200).json({ status: "success" });
@@ -74,7 +74,7 @@ const handler = async (
           details: {
             error: error.message,
             stack: error.stack,
-            traceId: req.id,
+            traceId: String(req.id),
           },
         },
         "Unexpected error during user deletion",

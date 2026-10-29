@@ -1,11 +1,18 @@
-import prismaClient from "./config/prisma.js";
-import { logger } from "./logger.js";
+import type { PrismaClient } from "@prisma/client";
+import type { Logger } from "pino";
+
 import { createAccountWithRetry } from "./services/accounts/create.js";
 
 /**
  * Bootstraps the system with default admin role and account if none exist.
+ *
+ * The caller passes the Prisma client and logger explicitly; this module has no
+ * import-time side effects.
  */
-const setupServer = async () => {
+export async function setupServer(
+  prismaClient: PrismaClient,
+  logger: Logger,
+): Promise<void> {
   // Check if system is fresh
   const existingAccounts = await prismaClient.account.count({});
   logger.info(`Existing accounts in system: ${existingAccounts}`);
@@ -55,16 +62,15 @@ const setupServer = async () => {
   // 2. Create Primary Admin Account
   await createAccountWithRetry(
     {
-      campus: "COMAYAGUA",
       roleId: adminRole.id,
       password: "admin123", // Service will hash this password before saving
       name: "Admin User",
       email: "admin@local.test",
     },
-    {},
+    { prismaClient },
   );
 
   logger.info("Created default admin account");
-};
+}
 
 export default setupServer;

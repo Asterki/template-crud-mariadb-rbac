@@ -10,7 +10,7 @@ import {
   MetadataUpdateHistory,
   Prisma,
 } from "@prisma/client";
-import prismaClient from "../../config/prisma.js";
+import prismaClient from "../../db/prisma.js";
 
 type AccountRoleUpdateInput = Prisma.AccountRoleUpdateInput;
 type MetadataUpdateHistoryCreateWithoutMetadataInput =

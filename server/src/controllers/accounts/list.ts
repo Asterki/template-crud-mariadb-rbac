@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 
 import { accountApi as AccountAPITypes } from "@template/shared";
 
-import prismaClient from "../../config/prisma.js";
+import prismaClient from "../../db/prisma.js";
 
 import { getFieldsToPopulate, getFieldsToSelect } from "../../utils/prisma.js";
 
@@ -93,7 +93,7 @@ const handler = async (
       req.log.error(
         {
           source: "api:accounts:list",
-          traceId: req.id,
+          traceId: String(req.id),
           details: { error: error.message, stack: error.stack },
           duration,
         },
