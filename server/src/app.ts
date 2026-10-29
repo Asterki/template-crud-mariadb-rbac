@@ -10,6 +10,7 @@ import type { AppConfig } from "./config/index.js";
 import { errorHandler } from "./http/error-handler.js";
 import { notFound } from "./http/not-found.js";
 import { requestLogger } from "./middleware/request-logger.js";
+import { createHealthRouter } from "./routes/health.js";
 import { registerRoutes } from "./routes/index.js";
 import { createSessionManager } from "./services/sessions.js";
 
@@ -39,6 +40,7 @@ export function createApp({
   app.use(requestLogger(logger));
   app.use(express.json({ limit: "1mb" }));
   app.use(cookie(config.sessionSecret));
+  app.use(createHealthRouter({ prisma, logger }));
   app.use("/uploads/", express.static(path.join(__dirname, "../uploads")));
 
   if (config.nodeEnv !== "production") {
