@@ -1,5 +1,6 @@
 import express, { type Express } from "express";
 import cookie from "cookie-parser";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { PrismaClient } from "@prisma/client";
@@ -21,6 +22,12 @@ import { createItemService } from "./services/item-service.js";
 import { createSessionManager } from "./services/sessions.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const packageJson = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+) as { version?: string };
+
+const APP_VERSION = packageJson.version ?? "0.0.0";
 
 export type AppDependencies = {
   config: AppConfig;
@@ -59,21 +66,34 @@ export function createApp({
   app.use("/api", globalRateLimit(config));
   app.use(csrfProtection(config));
 
-  if (config.nodeEnv === "production") {
-    const clientPath = path.join(__dirname, "../../client-dist");
-    app.use(express.static(clientPath));
-    app.get(/.*/, (req, res, next) => {
-      if (req.path.startsWith("/api/")) return next();
-      res.sendFile(path.join(clientPath, "index.html"));
-    });
-  }
-
   registerRoutes(app, {
     accounts: createAccountService(prisma),
     items: createItemService(prisma),
     config,
   });
   app.use("/api", notFound);
+
+  if (config.serveClient) {
+    const clientPath = path.resolve(config.clientDir);
+    app.use(express.static(clientPath));
+    app.get(/.*/, (req, res, next) => {
+      if (
+        req.path === "/api" ||
+        req.path.startsWith("/api/") ||
+        req.path === "/healthz" ||
+        req.path === "/readyz"
+      ) {
+        next();
+        return;
+      }
+      res.sendFile(path.join(clientPath, "index.html"));
+    });
+  } else {
+    app.get("/", (_req, res) => {
+      res.json({ service: config.serviceName, version: APP_VERSION });
+    });
+  }
+
   app.use(errorHandler);
 
   return app;

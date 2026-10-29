@@ -96,6 +96,7 @@ export const envSchema = z.object({
   TRUST_PROXY: integerFromEnv(0, 0),
   ORIGIN_SECRET: optionalString,
   SERVE_CLIENT: optionalBoolean(false),
+  CLIENT_DIR: z.string().min(1).default("client-dist"),
   LOG_LEVEL: z
     .enum(["trace", "debug", "info", "warn", "error", "fatal", "silent"])
     .default("info"),
@@ -131,6 +132,7 @@ export const appConfigSchema = envSchema.transform((env) => ({
   trustProxy: env.TRUST_PROXY,
   originSecret: env.ORIGIN_SECRET,
   serveClient: env.SERVE_CLIENT,
+  clientDir: env.CLIENT_DIR,
   logLevel: env.LOG_LEVEL,
   logFormat:
     env.LOG_FORMAT ?? (env.NODE_ENV === "production" ? "json" : "pretty"),
