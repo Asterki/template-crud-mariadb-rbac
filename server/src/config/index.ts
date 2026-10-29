@@ -1,4 +1,10 @@
-import { appConfigSchema, loadEnvFile, type AppConfig } from "./env.js";
+import {
+  appConfigSchema,
+  loadEnvFile,
+  seedEnvSchema,
+  type AppConfig,
+  type SeedAppConfig,
+} from "./env.js";
 
 function reportConfigErrors(error: {
   issues: Array<{ path: PropertyKey[]; message: string }>;
@@ -32,4 +38,21 @@ export function loadConfig(
   return Object.freeze(parsed.data);
 }
 
-export { loadEnvFile, type AppConfig };
+/** Minimal configuration for migration/seed one-shot jobs. */
+export function loadSeedConfig(
+  env: NodeJS.ProcessEnv = process.env,
+): Readonly<SeedAppConfig> {
+  if (env === process.env) {
+    loadEnvFile(env);
+  }
+
+  const parsed = seedEnvSchema.safeParse(env);
+  if (!parsed.success) {
+    reportConfigErrors(parsed.error);
+    process.exit(1);
+  }
+
+  return Object.freeze(parsed.data);
+}
+
+export { loadEnvFile, type AppConfig, type SeedAppConfig };

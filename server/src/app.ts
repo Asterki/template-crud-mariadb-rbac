@@ -10,6 +10,7 @@ import { errorHandler } from "./http/error-handler.js";
 import { notFound } from "./http/not-found.js";
 import { csrfProtection } from "./middleware/csrf.js";
 import { originSecret } from "./middleware/origin-secret.js";
+import { enforcePasswordChange } from "./middleware/password-change.js";
 import { globalRateLimit } from "./middleware/rate-limit.js";
 import { requestLogger } from "./middleware/request-logger.js";
 import { corsMiddleWare, securityHeaders } from "./middleware/security.js";
@@ -52,6 +53,7 @@ export function createApp({
   const sessions = createSessionManager({ config, prisma, logger });
   sessions.loadToServer(app);
 
+  app.use(enforcePasswordChange);
   app.use("/api", originSecret(config));
   app.use("/api", globalRateLimit(config));
   app.use(csrfProtection(config));

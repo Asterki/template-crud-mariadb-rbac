@@ -53,6 +53,13 @@ export class ValidationError extends AppError {
   }
 }
 
+export class PasswordChangeRequiredError extends AppError {
+  constructor() {
+    super("password-change-required", 403, "password-change-required");
+    this.name = "PasswordChangeRequiredError";
+  }
+}
+
 export class ServiceUnavailableError extends AppError {
   constructor(message = "Service unavailable", details?: unknown) {
     super("service-unavailable", 503, message, details);

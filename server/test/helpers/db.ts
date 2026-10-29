@@ -74,6 +74,7 @@ export async function seedAccount(
     status?: "active" | "inactive";
     deleted?: boolean;
     password?: string;
+    mustChangePassword?: boolean;
   },
 ) {
   const metadata = await prisma.metadata.create({
@@ -88,6 +89,7 @@ export async function seedAccount(
       password,
       role: input.role,
       status: input.status ?? "active",
+      mustChangePassword: input.mustChangePassword ?? false,
       metadataId: metadata.id,
     },
     include: { metadata: true },

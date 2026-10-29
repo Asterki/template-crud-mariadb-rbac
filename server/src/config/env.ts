@@ -60,8 +60,7 @@ const databaseUrl = z
   .string()
   .min(1, "is required")
   .refine(
-    (value) =>
-      value.startsWith("mysql://") || value.startsWith("mariadb://"),
+    (value) => value.startsWith("mysql://") || value.startsWith("mariadb://"),
     "must start with mysql:// or mariadb://",
   );
 
@@ -78,18 +77,21 @@ const corsOrigins = z.preprocess(
           .map((origin) => origin.trim())
           .filter(Boolean)
       : value,
-  z.array(z.url("must be a valid URL")).optional().transform((v) => v ?? []),
+  z
+    .array(z.url("must be a valid URL"))
+    .optional()
+    .transform((v) => v ?? []),
 );
 
 export const envSchema = z.object({
-  NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  NODE_ENV: z
+    .enum(["development", "test", "production"])
+    .default("development"),
   PORT: integerFromEnv(3000, 1, 65535),
   DATABASE_URL: databaseUrl,
   MIGRATE_DATABASE_URL: optionalDatabaseUrl,
   DB_POOL_LIMIT: integerFromEnv(10, 1),
-  SESSION_SECRET: z
-    .string()
-    .min(32, "must be at least 32 characters long"),
+  SESSION_SECRET: z.string().min(32, "must be at least 32 characters long"),
   CORS_ORIGINS: corsOrigins,
   TRUST_PROXY: integerFromEnv(0, 0),
   ORIGIN_SECRET: optionalString,
@@ -146,5 +148,30 @@ export const appConfigSchema = envSchema.transform((env) => ({
   cookieDomain: env.COOKIE_DOMAIN,
 }));
 
+export const seedEnvSchema = envSchema
+  .pick({
+    NODE_ENV: true,
+    DATABASE_URL: true,
+    MIGRATE_DATABASE_URL: true,
+    DB_POOL_LIMIT: true,
+    BOOTSTRAP_ADMIN_EMAIL: true,
+    BOOTSTRAP_ADMIN_PASSWORD: true,
+    BOOTSTRAP_ADMIN_NAME: true,
+    LOG_LEVEL: true,
+    LOG_FORMAT: true,
+  })
+  .transform((env) => ({
+    nodeEnv: env.NODE_ENV,
+    databaseUrl: env.DATABASE_URL,
+    migrateDatabaseUrl: env.MIGRATE_DATABASE_URL,
+    dbPoolLimit: env.DB_POOL_LIMIT,
+    bootstrapAdminEmail: env.BOOTSTRAP_ADMIN_EMAIL,
+    bootstrapAdminPassword: env.BOOTSTRAP_ADMIN_PASSWORD,
+    bootstrapAdminName: env.BOOTSTRAP_ADMIN_NAME,
+    logLevel: env.LOG_LEVEL,
+    logFormat: env.LOG_FORMAT,
+  }));
+
 export type AppConfig = z.infer<typeof appConfigSchema>;
+export type SeedAppConfig = z.infer<typeof seedEnvSchema>;
 export type Env = z.infer<typeof envSchema>;
