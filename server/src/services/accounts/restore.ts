@@ -1,3 +1,4 @@
+import { logger } from "../../logger.js";
 import retry from "async-retry";
 import { performance } from "perf_hooks";
 
@@ -10,8 +11,6 @@ import {
 } from "@prisma/client";
 type MetadataUpdateHistoryCreateWithoutMetadataInput =
   Prisma.MetadataUpdateHistoryCreateWithoutMetadataInput;
-
-import LoggingService from "../../services/logging.js";
 
 type RestoreAccountOptions = {
   traceId?: string;
@@ -114,22 +113,25 @@ export async function restoreAccount(
 
   const durationMs = Number((performance.now() - startTime).toFixed(3));
 
-  LoggingService.log({
-    source: "services:accounts:restore",
-    level: "important",
-    message: "Account restored",
-    traceId: options.traceId,
-    details: {
-      accountId: String(restored.id),
-      name: restored.name,
-      ...(userAccountId !== null ? { restoredBy: String(userAccountId) } : {}),
+  logger.info(
+    {
+      source: "services:accounts:restore",
+      traceId: options.traceId,
+      details: {
+        accountId: String(restored.id),
+        name: restored.name,
+        ...(userAccountId !== null
+          ? { restoredBy: String(userAccountId) }
+          : {}),
+      },
+      duration: durationMs,
+      _references: {
+        accountId: "Account",
+        ...(userAccountId !== null ? { restoredBy: "Account" } : {}),
+      },
     },
-    duration: durationMs,
-    _references: {
-      accountId: "Account",
-      ...(userAccountId !== null ? { restoredBy: "Account" } : {}),
-    },
-  });
+    "Account restored",
+  );
 
   return restored;
 }
@@ -148,17 +150,18 @@ export async function restoreAccountWithRetry(
           bail(error);
         }
 
-        LoggingService.log({
-          source: "services:accounts:restore:retry",
-          level: "warning",
-          traceId: options.traceId,
-          duration: Number((performance.now() - startTime).toFixed(3)),
-          message: `Retryable error during account restoration (attempt ${attempt})`,
-          details: {
-            error: error?.message,
-            stack: error?.stack,
+        logger.warn(
+          {
+            source: "services:accounts:restore:retry",
+            traceId: options.traceId,
+            duration: Number((performance.now() - startTime).toFixed(3)),
+            details: {
+              error: error?.message,
+              stack: error?.stack,
+            },
           },
-        });
+          `Retryable error during account restoration (attempt ${attempt})`,
+        );
 
         throw error;
       }

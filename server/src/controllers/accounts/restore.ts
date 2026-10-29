@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 
 import { accountApi as AccountAPITypes } from "@template/shared";
-import LoggingService from "../../services/logging.js";
 import {
   restoreAccountWithRetry,
   AccountNotFoundError,
@@ -20,7 +19,7 @@ const handler = async (
 
   try {
     const restoredAccount = await restoreAccountWithRetry(accountId, {
-      traceId: req.traceId,
+      traceId: req.id,
       userAccount,
     });
 
@@ -39,29 +38,31 @@ const handler = async (
     }
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      LoggingService.log({
-        source: "api:accounts:restore",
-        level: "error",
-        message: "Prisma error during account restore",
-        traceId: req.traceId,
-        details: {
-          code: error,
-          meta: error,
+      req.log.error(
+        {
+          source: "api:accounts:restore",
+          traceId: req.id,
+          details: {
+            code: error,
+            meta: error,
+          },
+          duration,
         },
-        duration,
-      });
+        "Prisma error during account restore",
+      );
     } else if (error instanceof Error) {
-      LoggingService.log({
-        source: "api:accounts:restore",
-        level: "error",
-        message: "Error during account restore",
-        traceId: req.traceId,
-        details: {
-          error: error.message,
-          stack: error.stack,
+      req.log.error(
+        {
+          source: "api:accounts:restore",
+          traceId: req.id,
+          details: {
+            error: error.message,
+            stack: error.stack,
+          },
+          duration,
         },
-        duration,
-      });
+        "Error during account restore",
+      );
     }
 
     res.status(500).json({

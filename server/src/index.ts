@@ -12,29 +12,32 @@ const __dirname = path.dirname(__filename);
 
 import { loadConfig } from "./config/index.js";
 import { registerRoutes } from "./routes/index.js";
-import { traceIdMiddleware } from "./middleware/traceId.js";
+import { requestLogger } from "./middleware/request-logger.js";
+import { createLogger, logger, setRootLogger } from "./logger.js";
 import SessionsService from "./services/sessions.js";
 import SocketServer from "./services/socket.js";
 
 export async function startServer() {
-  loadConfig();
+  const config = loadConfig();
+  const rootLogger = createLogger(config);
+  setRootLogger(rootLogger);
 
-  const dev = process.env.NODE_ENV !== "production";
-  const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+  const dev = config.nodeEnv !== "production";
+  const port = config.port;
 
   const app = express();
   const httpServer = createServer(app);
 
   // Middleware
+  app.use(requestLogger(rootLogger));
   app.use(express.json({ limit: "50mb" }));
-  app.use(cookie(process.env.SESSION_SECRET as string));
-  app.use(traceIdMiddleware);
+  app.use(cookie(config.sessionSecret));
   app.use("/uploads/", express.static(path.join(__dirname, "../uploads")));
 
   if (dev) {
     app.use(
       cors({
-        origin: process.env.ALLOWED_ORIGINS?.split(",") || [],
+        origin: config.corsOrigins,
         credentials: true,
         exposedHeaders: ["set-cookie"],
       }),
@@ -53,7 +56,7 @@ export async function startServer() {
 
   registerRoutes(app);
   httpServer.listen(port, () => {
-    console.log(`[SERVER] Listening on port ${port}`);
+    rootLogger.info(`[SERVER] Listening on port ${port}`);
   });
 
   const socketServer = SocketServer.getInstance();
@@ -61,6 +64,6 @@ export async function startServer() {
 }
 
 startServer().catch((error) => {
-  console.error("[SERVER] Failed to start server:", error);
+  logger.error({ err: error }, "Failed to start server");
   process.exit(1);
 });

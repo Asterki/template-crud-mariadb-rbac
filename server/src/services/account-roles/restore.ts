@@ -1,3 +1,4 @@
+import { logger } from "../../logger.js";
 import retry from "async-retry";
 import { performance } from "perf_hooks";
 
@@ -11,8 +12,6 @@ import {
 } from "@prisma/client";
 type MetadataUpdateHistoryCreateWithoutMetadataInput =
   Prisma.MetadataUpdateHistoryCreateWithoutMetadataInput;
-
-import LoggingService from "../../services/logging.js";
 
 type RestoreAccountRoleOptions = {
   traceId?: string;
@@ -117,22 +116,25 @@ export async function restoreAccountRole(
 
   const durationMs = Number((performance.now() - startTime).toFixed(3));
 
-  LoggingService.log({
-    source: "services:account-roles:restore",
-    level: "important",
-    message: "Account role restored",
-    traceId: options.traceId,
-    details: {
-      accountRoleId: String(deleted.id),
-      name: deleted.name,
-      ...(userAccountId !== null ? { restoredBy: String(userAccountId) } : {}),
+  logger.info(
+    {
+      source: "services:account-roles:restore",
+      traceId: options.traceId,
+      details: {
+        accountRoleId: String(deleted.id),
+        name: deleted.name,
+        ...(userAccountId !== null
+          ? { restoredBy: String(userAccountId) }
+          : {}),
+      },
+      duration: durationMs,
+      _references: {
+        accountRoleId: "AccountRole",
+        ...(userAccountId !== null ? { restoredBy: "Account" } : {}),
+      },
     },
-    duration: durationMs,
-    _references: {
-      accountRoleId: "AccountRole",
-      ...(userAccountId !== null ? { restoredBy: "Account" } : {}),
-    },
-  });
+    "Account role restored",
+  );
 
   return deleted;
 }
@@ -151,17 +153,18 @@ export async function restoreAccountRoleWithRetry(
           bail(error);
         }
 
-        LoggingService.log({
-          source: "services:account-roles:restore:retry",
-          level: "warning",
-          traceId: options.traceId,
-          duration: Number((performance.now() - startTime).toFixed(3)),
-          message: `Retryable error during account role restoration (attempt ${attempt})`,
-          details: {
-            error: error?.message,
-            stack: error?.stack,
+        logger.warn(
+          {
+            source: "services:account-roles:restore:retry",
+            traceId: options.traceId,
+            duration: Number((performance.now() - startTime).toFixed(3)),
+            details: {
+              error: error?.message,
+              stack: error?.stack,
+            },
           },
-        });
+          `Retryable error during account role restoration (attempt ${attempt})`,
+        );
 
         throw error;
       }

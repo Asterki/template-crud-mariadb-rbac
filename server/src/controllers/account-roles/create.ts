@@ -3,7 +3,6 @@ import { AccountRole, Prisma } from "@prisma/client";
 
 import { accountRoleApi as AccountRolesAPITypes } from "@template/shared";
 
-import LoggingService from "../../services/logging.js";
 import { createAccountRoleWithRetry } from "../../services/account-roles/create.js";
 
 import prismaClient from "../../config/prisma.js";
@@ -73,29 +72,30 @@ const handler = async (
       },
       {
         userAccount,
-        traceId: req.traceId,
+        traceId: req.id,
       },
     );
 
     const duration = performance.now() - start;
 
-    LoggingService.log({
-      source: "api:account-roles:create",
-      level: "info",
-      message: "Account role created successfully",
-      traceId: req.traceId,
-      duration,
-      details: {
-        accountRoleId: createdRole.id,
-        createdById: userAccount.id,
-        name,
-        level,
+    req.log.info(
+      {
+        source: "api:account-roles:create",
+        traceId: req.id,
+        duration,
+        details: {
+          accountRoleId: createdRole.id,
+          createdById: userAccount.id,
+          name,
+          level,
+        },
+        _references: {
+          accountRoleId: "AccountRole",
+          createdById: "Account",
+        },
       },
-      _references: {
-        accountRoleId: "AccountRole",
-        createdById: "Account",
-      },
-    });
+      "Account role created successfully",
+    );
 
     res.status(201).json({
       status: "success",
@@ -117,27 +117,29 @@ const handler = async (
     }
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      LoggingService.log({
-        source: "api:account-roles:create",
-        level: "error",
-        message: "Prisma error during account role creation",
-        traceId: req.traceId,
-        details: {
-          code: error,
-          meta: error,
+      req.log.error(
+        {
+          source: "api:account-roles:create",
+          traceId: req.id,
+          details: {
+            code: error,
+            meta: error,
+          },
         },
-      });
+        "Prisma error during account role creation",
+      );
     } else if (error instanceof Error) {
-      LoggingService.log({
-        source: "api:account-roles:create",
-        level: "error",
-        message: "Error during account role creation",
-        traceId: req.traceId,
-        details: {
-          error: error.message,
-          stack: error.stack,
+      req.log.error(
+        {
+          source: "api:account-roles:create",
+          traceId: req.id,
+          details: {
+            error: error.message,
+            stack: error.stack,
+          },
         },
-      });
+        "Error during account role creation",
+      );
     }
 
     res.status(500).json({

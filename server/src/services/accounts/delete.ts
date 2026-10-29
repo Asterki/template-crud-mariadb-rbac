@@ -1,3 +1,4 @@
+import { logger } from "../../logger.js";
 import retry from "async-retry";
 import { performance } from "perf_hooks";
 
@@ -10,8 +11,6 @@ import {
 } from "@prisma/client";
 type MetadataUpdateHistoryCreateWithoutMetadataInput =
   Prisma.MetadataUpdateHistoryCreateWithoutMetadataInput;
-
-import LoggingService from "../../services/logging.js";
 
 type DeleteAccountRoleOptions = {
   traceId?: string;
@@ -117,22 +116,23 @@ export async function deleteAccount(
 
   const durationMs = Number((performance.now() - startTime).toFixed(3));
 
-  LoggingService.log({
-    source: "services:accounts:delete",
-    level: "important",
-    message: "Account deleted",
-    traceId: options.traceId,
-    details: {
-      accountId: String(deleted.id),
-      name: deleted.name,
-      email: deleted.email,
-      ...(userAccountId !== null ? { deletedBy: String(userAccountId) } : {}),
+  logger.info(
+    {
+      source: "services:accounts:delete",
+      traceId: options.traceId,
+      details: {
+        accountId: String(deleted.id),
+        name: deleted.name,
+        email: deleted.email,
+        ...(userAccountId !== null ? { deletedBy: String(userAccountId) } : {}),
+      },
+      duration: durationMs,
+      _references: {
+        accountId: "Account",
+      },
     },
-    duration: durationMs,
-    _references: {
-      accountId: "Account",
-    },
-  });
+    "Account deleted",
+  );
 
   return deleted;
 }
@@ -151,17 +151,18 @@ export async function deleteAccountWithRetry(
           bail(error);
         }
 
-        LoggingService.log({
-          source: "services:accounts:delete:retry",
-          level: "warning",
-          traceId: options.traceId,
-          duration: Number((performance.now() - startTime).toFixed(3)),
-          message: `Retryable error during account deletion (attempt ${attempt})`,
-          details: {
-            error: error?.message,
-            stack: error?.stack,
+        logger.warn(
+          {
+            source: "services:accounts:delete:retry",
+            traceId: options.traceId,
+            duration: Number((performance.now() - startTime).toFixed(3)),
+            details: {
+              error: error?.message,
+              stack: error?.stack,
+            },
           },
-        });
+          `Retryable error during account deletion (attempt ${attempt})`,
+        );
 
         throw error;
       }

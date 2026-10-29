@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { accountRoleApi as AccountRolesAPITypes } from "@template/shared";
 
-import LoggingService from "../../services/logging.js";
 import {
   AccountRoleNotFoundError,
   updateAccountRoleWithRetry,
@@ -98,27 +97,28 @@ const handler = async (
         permissions,
       },
       {
-        traceId: req.traceId,
+        traceId: req.id,
         userAccount: userAccount,
       },
     );
 
     const duration = performance.now() - start;
-    LoggingService.log({
-      source: "api:account-roles:update",
-      level: "info",
-      message: "Account role updated successfully",
-      traceId: req.traceId,
-      duration,
-      details: {
-        updatedById: userAccount.id,
-        accountRole: updatedRole.id,
+    req.log.info(
+      {
+        source: "api:account-roles:update",
+        traceId: req.id,
+        duration,
+        details: {
+          updatedById: userAccount.id,
+          accountRole: updatedRole.id,
+        },
+        _references: {
+          updatedById: "Account",
+          accountRoleId: "AccountRole",
+        },
       },
-      _references: {
-        updatedById: "Account",
-        accountRoleId: "AccountRole",
-      },
-    });
+      "Account role updated successfully",
+    );
 
     res.status(200).json({
       status: "success",
@@ -143,23 +143,25 @@ const handler = async (
     }
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      LoggingService.log({
-        source: "api:account-roles:update",
-        level: "error",
-        message: "Prisma error during account role update",
-        traceId: req.traceId,
-        details: { code: error, meta: error },
-        duration,
-      });
+      req.log.error(
+        {
+          source: "api:account-roles:update",
+          traceId: req.id,
+          details: { code: error, meta: error },
+          duration,
+        },
+        "Prisma error during account role update",
+      );
     } else if (error instanceof Error) {
-      LoggingService.log({
-        source: "api:account-roles:update",
-        level: "error",
-        message: "Error during account role update",
-        traceId: req.traceId,
-        details: { error: error.message, stack: error.stack },
-        duration,
-      });
+      req.log.error(
+        {
+          source: "api:account-roles:update",
+          traceId: req.id,
+          details: { error: error.message, stack: error.stack },
+          duration,
+        },
+        "Error during account role update",
+      );
     }
 
     res.status(500).json({ status: "internal-error" });

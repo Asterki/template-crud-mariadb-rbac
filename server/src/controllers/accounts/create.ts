@@ -2,8 +2,6 @@ import { Request, Response, NextFunction } from "express";
 
 import { accountApi as AccountsAPITypes } from "@template/shared";
 
-import LoggingService from "../../services/logging.js";
-
 import prismaClient from "../../config/prisma.js";
 import { createAccountWithRetry } from "../../services/accounts/create.js";
 
@@ -47,9 +45,6 @@ const handler = async (
       );
     }
 
-    console.log("Admin account role level:", adminAccount.role?.level);
-    console.log("Role level to assign:", role.level);
-
     const createdByAccountLevel = adminAccount.role?.level;
     if (
       role.level <= createdByAccountLevel &&
@@ -70,7 +65,7 @@ const handler = async (
         roleId,
       },
       {
-        traceId: req.traceId,
+        traceId: req.id,
         userAccount: adminAccount,
       },
     );
@@ -87,16 +82,17 @@ const handler = async (
     }
 
     if (error instanceof Error) {
-      LoggingService.log({
-        source: "api:accounts:create",
-        level: "error",
-        message: "Error during user creation",
-        traceId: req.traceId,
-        details: {
-          error: error.message,
-          stack: error.stack,
+      req.log.error(
+        {
+          source: "api:accounts:create",
+          traceId: req.id,
+          details: {
+            error: error.message,
+            stack: error.stack,
+          },
         },
-      });
+        "Error during user creation",
+      );
       res.status(500).json({
         status: "internal-error",
       });

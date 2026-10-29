@@ -84,9 +84,7 @@ class SocketServer {
 
     // Load each event here
 
-    this.io.on("listening", () => {
-      console.log("Socket server ready");
-    });
+    this.io.on("listening", () => {});
   }
 }
 

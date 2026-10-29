@@ -1,3 +1,4 @@
+import { logger } from "../../logger.js";
 import bcrypt from "bcrypt";
 import retry from "async-retry";
 import { performance } from "perf_hooks";
@@ -14,7 +15,6 @@ type MetadataUpdateHistoryCreateWithoutMetadataInput =
   Prisma.MetadataUpdateHistoryCreateWithoutMetadataInput;
 
 import prismaClient from "../../config/prisma.js";
-import LoggingService from "../../services/logging.js";
 
 type UpdateAccountOptions = {
   traceId?: string;
@@ -143,21 +143,22 @@ export async function updateAccount(
       include: { metadata: { include: { updateHistory: true } } },
     });
 
-    LoggingService.log({
-      source: "services:accounts:update",
-      level: "important",
-      message: "Admin updated user account",
-      traceId: options.traceId,
-      duration: Number((performance.now() - startTime).toFixed(3)),
-      details: {
-        accountId: updated.id,
-        updatedBy: userAccountId != null ? userAccountId : undefined,
+    logger.info(
+      {
+        source: "services:accounts:update",
+        traceId: options.traceId,
+        duration: Number((performance.now() - startTime).toFixed(3)),
+        details: {
+          accountId: updated.id,
+          updatedBy: userAccountId != null ? userAccountId : undefined,
+        },
+        _references: {
+          accountId: "Account",
+          updatedBy: "Account",
+        },
       },
-      _references: {
-        accountId: "Account",
-        updatedBy: "Account",
-      },
-    });
+      "Admin updated user account",
+    );
 
     return updated;
   } catch (err: any) {
@@ -189,17 +190,18 @@ export async function updateAccountWithRetry(
           bail(err);
         }
 
-        LoggingService.log({
-          source: "services:accounts:update:retry",
-          level: "warning",
-          traceId: options.traceId,
-          duration: Number((performance.now() - startTime).toFixed(3)),
-          message: `Retryable error during account update (attempt ${attempt})`,
-          details: {
-            error: err?.message,
-            stack: err?.stack,
+        logger.warn(
+          {
+            source: "services:accounts:update:retry",
+            traceId: options.traceId,
+            duration: Number((performance.now() - startTime).toFixed(3)),
+            details: {
+              error: err?.message,
+              stack: err?.stack,
+            },
           },
-        });
+          `Retryable error during account update (attempt ${attempt})`,
+        );
 
         throw err;
       }

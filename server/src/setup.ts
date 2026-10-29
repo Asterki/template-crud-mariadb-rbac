@@ -1,5 +1,5 @@
-import bcrypt from "bcrypt";
 import prismaClient from "./config/prisma.js";
+import { logger } from "./logger.js";
 import { createAccountWithRetry } from "./services/accounts/create.js";
 
 /**
@@ -8,14 +8,14 @@ import { createAccountWithRetry } from "./services/accounts/create.js";
 const setupServer = async () => {
   // Check if system is fresh
   const existingAccounts = await prismaClient.account.count({});
-  console.log(`[SETUP] Existing accounts in system: ${existingAccounts}`);
+  logger.info(`Existing accounts in system: ${existingAccounts}`);
 
   if (existingAccounts > 0) {
-    console.log("[SETUP] System already initialized, skipping bootstrap.");
+    logger.info("System already initialized, skipping bootstrap");
     return;
   }
 
-  console.log("[SETUP] Fresh system detected, running bootstrap...");
+  logger.info("Fresh system detected, running bootstrap");
 
   // 1. Create Admin Role
   let adminRole = await prismaClient.accountRole.findFirst({
@@ -47,9 +47,9 @@ const setupServer = async () => {
         },
       },
     });
-    console.log("[SETUP] Created default Admin role");
+    logger.info("Created default Admin role");
   } else {
-    console.log("[SETUP] Admin role already exists");
+    logger.info("Admin role already exists");
   }
 
   // 2. Create Primary Admin Account
@@ -64,9 +64,7 @@ const setupServer = async () => {
     {},
   );
 
-  console.log(
-    "[SETUP] Created default admin account (admin@local.test / admin123)",
-  );
+  logger.info("Created default admin account");
 };
 
 export default setupServer;

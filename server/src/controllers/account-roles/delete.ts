@@ -1,8 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { accountRoleApi as AccountRolesAPITypes } from "@template/shared";
 
-import LoggingService from "../../services/logging.js";
-
 import {
   AccountRoleNotFoundError,
   deleteAccountRoleWithRetry,
@@ -21,7 +19,7 @@ const handler = async (
 
   try {
     const deletedRole = await deleteAccountRoleWithRetry(roleId, {
-      traceId: req.traceId,
+      traceId: req.id,
       userAccount: userAccount,
     });
 
@@ -40,29 +38,31 @@ const handler = async (
     }
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      LoggingService.log({
-        source: "api:account-roles:delete",
-        level: "error",
-        message: "Prisma error during account role deletion",
-        traceId: req.traceId,
-        details: {
-          code: error,
-          meta: error,
+      req.log.error(
+        {
+          source: "api:account-roles:delete",
+          traceId: req.id,
+          details: {
+            code: error,
+            meta: error,
+          },
+          duration,
         },
-        duration,
-      });
+        "Prisma error during account role deletion",
+      );
     } else if (error instanceof Error) {
-      LoggingService.log({
-        source: "api:account-roles:delete",
-        level: "error",
-        message: "Error during account role deletion",
-        traceId: req.traceId,
-        details: {
-          error: error.message,
-          stack: error.stack,
+      req.log.error(
+        {
+          source: "api:account-roles:delete",
+          traceId: req.id,
+          details: {
+            error: error.message,
+            stack: error.stack,
+          },
+          duration,
         },
-        duration,
-      });
+        "Error during account role deletion",
+      );
     }
 
     res.status(500).json({

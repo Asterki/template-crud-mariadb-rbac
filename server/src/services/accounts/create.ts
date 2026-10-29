@@ -1,3 +1,4 @@
+import { logger } from "../../logger.js";
 import bcrypt from "bcrypt";
 import retry from "async-retry";
 import { performance } from "perf_hooks";
@@ -9,8 +10,6 @@ import {
   Account,
   Prisma,
 } from "@prisma/client";
-
-import LoggingService from "../../services/logging.js";
 
 type CreateUserOptions = {
   traceId?: string; // Unique identifier for tracing requests
@@ -77,25 +76,26 @@ export async function createAccount(
       },
     });
 
-    LoggingService.log({
-      source: "services:accounts:create",
-      level: "important",
-      message: "User account created successfully",
-      traceId: options.traceId,
-      details: {
-        accountId: account.id,
-        createdBy: createdById ? createdById : null,
-        roleId: roleId,
-        email,
-        name,
+    logger.info(
+      {
+        source: "services:accounts:create",
+        traceId: options.traceId,
+        details: {
+          accountId: account.id,
+          createdBy: createdById ? createdById : null,
+          roleId: roleId,
+          email,
+          name,
+        },
+        duration: Number((performance.now() - startTime).toFixed(3)),
+        _references: {
+          accountId: "Account",
+          createdBy: "Account",
+          roleId: "AccountRole",
+        },
       },
-      duration: Number((performance.now() - startTime).toFixed(3)),
-      _references: {
-        accountId: "Account",
-        createdBy: "Account",
-        roleId: "AccountRole",
-      },
-    });
+      "User account created successfully",
+    );
 
     return account;
   } catch (err: any) {
@@ -127,17 +127,18 @@ export async function createAccountWithRetry(
           bail(error);
         }
 
-        LoggingService.log({
-          source: "services:accounts:create:retry",
-          level: "warning",
-          traceId: options.traceId,
-          duration: Number((performance.now() - startTime).toFixed(3)),
-          message: `Retryable error during account creation (attempt ${attempt})`,
-          details: {
-            error: error?.message,
-            stack: error?.stack,
+        logger.warn(
+          {
+            source: "services:accounts:create:retry",
+            traceId: options.traceId,
+            duration: Number((performance.now() - startTime).toFixed(3)),
+            details: {
+              error: error?.message,
+              stack: error?.stack,
+            },
           },
-        });
+          `Retryable error during account creation (attempt ${attempt})`,
+        );
 
         throw error; // retryable error
       }

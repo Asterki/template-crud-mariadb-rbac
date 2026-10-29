@@ -3,7 +3,6 @@ import { accountApi as AccountsAPITypes } from "@template/shared";
 
 import prismaClient from "../../config/prisma.js";
 
-import LoggingService from "../../services/logging.js";
 import {
   AccountNotFoundError,
   deleteAccountWithRetry,
@@ -23,10 +22,6 @@ const handler = async (
     const adminId = userAccount.id;
 
     if (adminId === accountId) {
-      console.log(
-        "some jackass is trying to delete their own account, blame on",
-        userAccount.email,
-      );
       throw new APIError<AccountsAPITypes.DeleteResponseData["status"]>(
         "cannot-delete-self",
         400,
@@ -62,7 +57,7 @@ const handler = async (
 
     await deleteAccountWithRetry(accountId, {
       userAccount: userAccount,
-      traceId: req.traceId,
+      traceId: req.id,
     });
 
     res.status(200).json({ status: "success" });
@@ -73,16 +68,17 @@ const handler = async (
     }
 
     if (error instanceof Error) {
-      LoggingService.log({
-        source: "api:accounts:delete",
-        level: "error",
-        message: "Unexpected error during user deletion",
-        details: {
-          error: error.message,
-          stack: error.stack,
-          traceId: req.traceId,
+      req.log.error(
+        {
+          source: "api:accounts:delete",
+          details: {
+            error: error.message,
+            stack: error.stack,
+            traceId: req.id,
+          },
         },
-      });
+        "Unexpected error during user deletion",
+      );
     }
 
     res.status(500).json({ status: "internal-error" });

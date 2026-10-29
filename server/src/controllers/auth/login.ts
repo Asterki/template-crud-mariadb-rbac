@@ -1,7 +1,5 @@
 import passport from "passport";
 
-import LoggingService from "../../services/logging.js";
-
 import AccountUtils from "../../utils/accounts.js";
 
 import { NextFunction, Request, Response } from "express";
@@ -44,13 +42,14 @@ const handler = (
       },
     )(req, res, next);
   } catch (error: any) {
-    LoggingService.log({
-      source: "api:auth:change-email",
-      level: "error",
-      message: "Unexpected error during email change",
-      traceId: req.traceId,
-      details: { error: error.message, stack: error.stack },
-    });
+    req.log.error(
+      {
+        source: "api:auth:change-email",
+        traceId: req.id,
+        details: { error: error.message, stack: error.stack },
+      },
+      "Unexpected error during email change",
+    );
     res.status(500).send({ status: "internal-error" });
   }
 };

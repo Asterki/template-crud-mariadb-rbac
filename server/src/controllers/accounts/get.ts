@@ -3,8 +3,6 @@ import prismaClient from "../../config/prisma.js";
 
 import { accountApi as AccountAPITypes } from "@template/shared";
 
-import LoggingService from "../../services/logging.js";
-
 import { Prisma } from "@prisma/client";
 
 type AccountInclude = Prisma.AccountInclude;
@@ -59,22 +57,22 @@ const handler = async (
       accounts: accounts,
     });
   } catch (error: unknown) {
-    console.log(error);
     const duration = performance.now() - start;
 
     if (error instanceof Error) {
-      LoggingService.log({
-        source: "api:accounts:get",
-        level: "error",
-        message: "Error during accounts retrieval",
-        traceId: req.traceId,
-        duration,
-        details: {
-          error: error.message,
-          stack: error.stack,
-          accountIds: accountIds,
+      req.log.error(
+        {
+          source: "api:accounts:get",
+          traceId: req.id,
+          duration,
+          details: {
+            error: error.message,
+            stack: error.stack,
+            accountIds: accountIds,
+          },
         },
-      });
+        "Error during accounts retrieval",
+      );
     }
 
     res.status(500).json({

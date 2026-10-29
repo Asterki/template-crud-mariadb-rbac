@@ -4,7 +4,6 @@ import { accountRoleApi as AccountRolesAPITypes } from "@template/shared";
 
 import prismaClient from "../../config/prisma.js";
 
-import LoggingService from "../../services/logging.js";
 import { getFieldsToPopulate, getFieldsToSelect } from "../../utils/prisma.js";
 
 import { Prisma } from "@prisma/client";
@@ -77,18 +76,18 @@ const handler = async (
       totalAccountRoles: totalAccountRoles,
     });
   } catch (error: unknown) {
-    console.log(error);
     const duration = performance.now() - start;
 
     if (error instanceof Error) {
-      LoggingService.log({
-        source: "api:accounts-roles:list",
-        level: "error",
-        traceId: req.traceId,
-        message: "Unexpected error during account roles listing",
-        details: { error: error.message, stack: error.stack },
-        duration,
-      });
+      req.log.error(
+        {
+          source: "api:accounts-roles:list",
+          traceId: req.id,
+          details: { error: error.message, stack: error.stack },
+          duration,
+        },
+        "Unexpected error during account roles listing",
+      );
     }
 
     res.status(500).json({ status: "internal-error" });

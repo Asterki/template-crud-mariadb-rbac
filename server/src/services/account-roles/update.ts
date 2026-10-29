@@ -1,3 +1,4 @@
+import { logger } from "../../logger.js";
 import { performance } from "perf_hooks";
 import retry from "async-retry";
 
@@ -10,8 +11,6 @@ import {
   Prisma,
 } from "@prisma/client";
 import prismaClient from "../../config/prisma.js";
-
-import LoggingService from "../../services/logging.js";
 
 type AccountRoleUpdateInput = Prisma.AccountRoleUpdateInput;
 type MetadataUpdateHistoryCreateWithoutMetadataInput =
@@ -149,21 +148,22 @@ export async function updateAccountRole(
       include: { metadata: { include: { updateHistory: true } } },
     });
 
-    LoggingService.log({
-      source: "services:account-roles:update",
-      level: "important",
-      message: "Admin updated account role",
-      traceId: options.traceId,
-      duration: Number((performance.now() - startTime).toFixed(3)),
-      details: {
-        roleId: updated.id,
-        updatedBy: userAccountId != null ? userAccountId : undefined,
+    logger.info(
+      {
+        source: "services:account-roles:update",
+        traceId: options.traceId,
+        duration: Number((performance.now() - startTime).toFixed(3)),
+        details: {
+          roleId: updated.id,
+          updatedBy: userAccountId != null ? userAccountId : undefined,
+        },
+        _references: {
+          roleId: "AccountRole",
+          updatedBy: "Account",
+        },
       },
-      _references: {
-        roleId: "AccountRole",
-        updatedBy: "Account",
-      },
-    });
+      "Admin updated account role",
+    );
 
     return updated;
   } catch (err: any) {
@@ -194,14 +194,15 @@ export async function updateAccountRoleWithRetry(
           bail(error);
         }
 
-        LoggingService.log({
-          source: "services:account-roles:update:retry",
-          level: "warning",
-          traceId: options.traceId,
-          duration: Number((performance.now() - startTime).toFixed(3)),
-          message: `Retryable error during account role update (attempt ${attempt})`,
-          details: { error: error?.message, stack: error?.stack },
-        });
+        logger.warn(
+          {
+            source: "services:account-roles:update:retry",
+            traceId: options.traceId,
+            duration: Number((performance.now() - startTime).toFixed(3)),
+            details: { error: error?.message, stack: error?.stack },
+          },
+          `Retryable error during account role update (attempt ${attempt})`,
+        );
 
         throw error;
       }

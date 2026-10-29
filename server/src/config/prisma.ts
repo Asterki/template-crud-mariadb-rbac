@@ -3,6 +3,7 @@ import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import { PrismaClient } from "@prisma/client";
 
 import setupServer from "../setup.js";
+import { logger } from "../logger.js";
 import { loadEnvFile } from "./env.js";
 
 loadEnvFile();
@@ -12,10 +13,10 @@ const adapter = new PrismaMariaDb(process.env.DATABASE_URL as string, {});
 (async () => {
   try {
     await adapter.connect();
-    console.log("[PRISMA] Connected to MariaDB successfully");
+    logger.info("Connected to MariaDB successfully");
     await setupServer();
   } catch (err) {
-    console.error("[PRISMA] Connection failed:", (err as Error).message);
+    logger.error({ err }, "Database connection failed");
     process.exit(1);
   }
 })();

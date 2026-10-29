@@ -7,7 +7,6 @@ import {
   EmailInUseError,
   AccountNotFoundError,
 } from "../../services/accounts/update.js";
-import LoggingService from "../../services/logging.js";
 import { APIError } from "../../errors/api.js";
 
 import prismaClient from "../../config/prisma.js";
@@ -56,7 +55,7 @@ const handler = async (
         name: name?.trim(),
       },
       {
-        traceId: req.traceId,
+        traceId: req.id,
         userAccount: userAccount,
       },
     );
@@ -83,18 +82,19 @@ const handler = async (
       return;
     }
 
-    LoggingService.log({
-      source: "api:accounts:update",
-      level: "error",
-      message: "Unexpected error during user update",
-      traceId: req.traceId,
-      duration,
-      details: {
-        error: (error as any)?.message,
-        stack: (error as any)?.stack,
-        accountId,
+    req.log.error(
+      {
+        source: "api:accounts:update",
+        traceId: req.id,
+        duration,
+        details: {
+          error: (error as any)?.message,
+          stack: (error as any)?.stack,
+          accountId,
+        },
       },
-    });
+      "Unexpected error during user update",
+    );
 
     res.status(500).json({ status: "internal-error" });
   }

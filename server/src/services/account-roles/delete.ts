@@ -1,3 +1,4 @@
+import { logger } from "../../logger.js";
 import retry from "async-retry";
 import { performance } from "perf_hooks";
 
@@ -11,8 +12,6 @@ import {
 } from "@prisma/client";
 type MetadataUpdateHistoryCreateWithoutMetadataInput =
   Prisma.MetadataUpdateHistoryCreateWithoutMetadataInput;
-
-import LoggingService from "../../services/logging.js";
 
 type DeleteAccountRoleOptions = {
   traceId?: string;
@@ -116,22 +115,23 @@ export async function deleteAccountRole(
 
   const durationMs = Number((performance.now() - startTime).toFixed(3));
 
-  LoggingService.log({
-    source: "services:account-roles:delete",
-    level: "important",
-    message: "Account role deleted",
-    traceId: options.traceId,
-    details: {
-      accountRoleId: String(deleted.id),
-      name: deleted.name,
-      ...(userAccountId !== null ? { deletedBy: String(userAccountId) } : {}),
+  logger.info(
+    {
+      source: "services:account-roles:delete",
+      traceId: options.traceId,
+      details: {
+        accountRoleId: String(deleted.id),
+        name: deleted.name,
+        ...(userAccountId !== null ? { deletedBy: String(userAccountId) } : {}),
+      },
+      duration: durationMs,
+      _references: {
+        accountRoleId: "AccountRole",
+        ...(userAccountId !== null ? { deletedBy: "Account" } : {}),
+      },
     },
-    duration: durationMs,
-    _references: {
-      accountRoleId: "AccountRole",
-      ...(userAccountId !== null ? { deletedBy: "Account" } : {}),
-    },
-  });
+    "Account role deleted",
+  );
 
   return deleted;
 }
@@ -150,17 +150,18 @@ export async function deleteAccountRoleWithRetry(
           bail(error);
         }
 
-        LoggingService.log({
-          source: "services:account-roles:delete:retry",
-          level: "warning",
-          traceId: options.traceId,
-          duration: Number((performance.now() - startTime).toFixed(3)),
-          message: `Retryable error during account role deletion (attempt ${attempt})`,
-          details: {
-            error: error?.message,
-            stack: error?.stack,
+        logger.warn(
+          {
+            source: "services:account-roles:delete:retry",
+            traceId: options.traceId,
+            duration: Number((performance.now() - startTime).toFixed(3)),
+            details: {
+              error: error?.message,
+              stack: error?.stack,
+            },
           },
-        });
+          `Retryable error during account role deletion (attempt ${attempt})`,
+        );
 
         throw error;
       }

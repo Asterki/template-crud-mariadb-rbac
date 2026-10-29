@@ -1,3 +1,4 @@
+import { logger } from "../logger.js";
 import { Express } from "express";
 import passport from "passport";
 import passportLocal from "passport-local";
@@ -6,7 +7,6 @@ import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 
 import bcrypt from "bcrypt";
 
-import LoggingService from "./logging.js";
 import prismaClient from "../config/prisma.js";
 
 class SessionManager {
@@ -68,11 +68,12 @@ class SessionManager {
               });
 
             // Log the account creation
-            LoggingService.log({
-              message: `Account login for ${req.body.email}`,
-              level: "info",
-              source: "application",
-            });
+            logger.info(
+              {
+                source: "application",
+              },
+              `Account login for ${req.body.email}`,
+            );
 
             return done(null, account);
           } catch (err: unknown) {

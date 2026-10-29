@@ -3,7 +3,6 @@ import prismaClient from "../../config/prisma.js";
 
 import { accountRoleApi as AccountRolesAPITypes } from "@template/shared";
 
-import LoggingService from "../../services/logging.js";
 import { Prisma } from "@prisma/client";
 
 type AccountRoleSelect = Prisma.AccountRoleSelect;
@@ -57,22 +56,22 @@ const handler = async (
       accountRoles: roles,
     });
   } catch (error: unknown) {
-    console.log(error);
     const duration = performance.now() - start;
 
     if (error instanceof Error) {
-      LoggingService.log({
-        source: "api:account-roles:get",
-        level: "error",
-        message: "Error during account roles retrieval",
-        traceId: req.traceId,
-        duration,
-        details: {
-          error: error.message,
-          stack: error.stack,
-          roleIds,
+      req.log.error(
+        {
+          source: "api:account-roles:get",
+          traceId: req.id,
+          duration,
+          details: {
+            error: error.message,
+            stack: error.stack,
+            roleIds,
+          },
         },
-      });
+        "Error during account roles retrieval",
+      );
     }
 
     res.status(500).json({

@@ -4,7 +4,6 @@ import { accountApi as AccountAPITypes } from "@template/shared";
 
 import prismaClient from "../../config/prisma.js";
 
-import LoggingService from "../../services/logging.js";
 import { getFieldsToPopulate, getFieldsToSelect } from "../../utils/prisma.js";
 
 import { Prisma } from "@prisma/client";
@@ -88,18 +87,18 @@ const handler = async (
       totalAccounts,
     });
   } catch (error: unknown) {
-    console.log(error);
     const duration = performance.now() - start;
 
     if (error instanceof Error) {
-      LoggingService.log({
-        source: "api:accounts:list",
-        level: "error",
-        traceId: req.traceId,
-        message: "Unexpected error during account listing",
-        details: { error: error.message, stack: error.stack },
-        duration,
-      });
+      req.log.error(
+        {
+          source: "api:accounts:list",
+          traceId: req.id,
+          details: { error: error.message, stack: error.stack },
+          duration,
+        },
+        "Unexpected error during account listing",
+      );
     }
 
     res.status(500).json({ status: "internal-error" });

@@ -1,3 +1,4 @@
+import { logger } from "../../logger.js";
 import retry from "async-retry";
 import { performance } from "perf_hooks";
 
@@ -9,8 +10,6 @@ import {
   MetadataStatus,
   Prisma,
 } from "@prisma/client";
-
-import LoggingService from "../../services/logging.js";
 
 type CreateAccountRoleParameters = {
   name: string;
@@ -86,20 +85,21 @@ export async function createAccountRole(
 
     const duration = Number((performance.now() - startTime).toFixed(3));
 
-    LoggingService.log({
-      source: "services:account-roles:create",
-      level: "important",
-      message: "Account role created successfully",
-      traceId: options.traceId,
-      duration,
-      details: {
-        accountRoleId: role.id,
-        name,
+    logger.info(
+      {
+        source: "services:account-roles:create",
+        traceId: options.traceId,
+        duration,
+        details: {
+          accountRoleId: role.id,
+          name,
+        },
+        _references: {
+          accountRoleId: "AccountRole",
+        },
       },
-      _references: {
-        accountRoleId: "AccountRole",
-      },
-    });
+      "Account role created successfully",
+    );
 
     return role;
   } catch (err: any) {
@@ -131,17 +131,18 @@ export async function createAccountRoleWithRetry(
           bail(error);
         }
 
-        LoggingService.log({
-          source: "services:account-roles:create:retry",
-          level: "warning",
-          traceId: options.traceId,
-          duration: Number((performance.now() - startTime).toFixed(3)),
-          message: `Retryable error during account role creation (attempt ${attempt})`,
-          details: {
-            error: error?.message,
-            stack: error?.stack,
+        logger.warn(
+          {
+            source: "services:account-roles:create:retry",
+            traceId: options.traceId,
+            duration: Number((performance.now() - startTime).toFixed(3)),
+            details: {
+              error: error?.message,
+              stack: error?.stack,
+            },
           },
-        });
+          `Retryable error during account role creation (attempt ${attempt})`,
+        );
 
         throw error;
       }
