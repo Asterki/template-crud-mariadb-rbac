@@ -1,5 +1,5 @@
-import { IMetadata } from "@shared/models/metadata.js";
-import { ILog } from "@shared/models/log.js";
+import { IMetadata } from "@template/shared";
+import { ILog } from "@template/shared";
 
 type LogLevel = "info" | "warning" | "important" | "error" | "critical";
 

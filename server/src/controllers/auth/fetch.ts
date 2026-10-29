@@ -1,7 +1,7 @@
 import AccountUtils from "../../utils/accounts.js";
 
 import { NextFunction, Request, Response } from "express";
-import * as AccountAPITypes from "../../../../shared/api/auth.js";
+import { authApi as AccountAPITypes } from "@template/shared";
 
 const handler = async (
   req: Request,

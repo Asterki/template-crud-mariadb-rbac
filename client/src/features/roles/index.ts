@@ -1,7 +1,7 @@
 import api from "./api";
-import * as schemas from "../../../../shared/schemas/account-roles";
+import { accountRoleSchemas as schemas } from "@template/shared";
 
-import * as RolesAPITypes from "../../../../shared/api/account-roles";
+import { accountRoleApi as RolesAPITypes } from "@template/shared";
 import { AccountRole } from "@prisma/client";
 
 export interface ListAccountRole {

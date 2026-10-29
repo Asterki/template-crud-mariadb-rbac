@@ -1,4 +1,4 @@
-import { AccountRole, Prisma } from "@prisma/client";
+import type { IAccountRole } from "../models/account-role.js";
 import { ResponseStatus } from "./index.js";
 import { z } from "zod";
 
@@ -22,39 +22,31 @@ export type ListRequestBody = z.infer<typeof listSchema>;
 // Response types
 export interface GetResponseData {
   status: ResponseStatus;
-  accountRoles?: Prisma.AccountRoleGetPayload<{
-    include: {
-      metadata: true;
-    };
-  }>[];
+  accountRoles?: IAccountRole[];
 }
 
 export interface ListResponseData {
   status: ResponseStatus;
-  accountRoles?: Prisma.AccountRoleGetPayload<{
-    include: {
-      metadata: true;
-    };
-  }>[];
+  accountRoles?: IAccountRole[];
   totalAccountRoles?: number;
 }
 
 export interface DeleteResponseData {
   status: ResponseStatus | "role-not-found";
-  accountRole?: AccountRole;
+  accountRole?: IAccountRole;
 }
 
 export interface RestoreResponseData {
   status: ResponseStatus | "role-not-found";
-  accountRole?: AccountRole;
+  accountRole?: IAccountRole;
 }
 
 export interface CreateResponseData {
   status: ResponseStatus | "level-in-use" | "level-too-high";
-  accountRole?: AccountRole;
+  accountRole?: IAccountRole;
 }
 
 export interface UpdateResponseData {
   status: ResponseStatus | "level-in-use" | "level-too-high" | "role-not-found";
-  accountRole?: AccountRole;
+  accountRole?: IAccountRole;
 }

@@ -1,4 +1,4 @@
-import { Permission } from "@shared/types/permissions.js";
+import { Permission } from "@template/shared";
 
 export const hasPermissions = (
   accountPermissions: Permission[],

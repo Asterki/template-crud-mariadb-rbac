@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { Permission } from "@shared/types/permissions.js";
+import { Permission } from "@template/shared";
 
 const ensureAuthenticated = (
   req: Request,

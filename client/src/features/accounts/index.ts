@@ -1,8 +1,8 @@
 import api from "./api";
-import * as schemas from "../../../../shared/schemas/accounts";
+import { accountSchemas as schemas } from "@template/shared";
 
 // Types
-import * as AccountAPITypes from "../../../../shared/api/accounts";
+import { accountApi as AccountAPITypes } from "@template/shared";
 import { Account } from "@prisma/client";
 
 type ListAccount = {

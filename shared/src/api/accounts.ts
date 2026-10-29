@@ -1,4 +1,4 @@
-import { Account, Prisma } from "@prisma/client";
+import type { IAccount } from "../models/account.js";
 import { ResponseStatus } from "./index.js";
 import { z } from "zod";
 
@@ -26,22 +26,12 @@ export type UpdateStatusRequestBody = z.infer<typeof updateStatusSchema>;
 
 export interface GetResponseData {
   status: ResponseStatus;
-  accounts?: Prisma.AccountGetPayload<{
-    include: {
-      metadata: true;
-      role: true;
-    };
-  }>[];
+  accounts?: IAccount[];
 }
 
 export interface ListResponseData {
   status: ResponseStatus;
-  accounts?: Prisma.AccountGetPayload<{
-    include: {
-      metadata: true;
-      role: true;
-    };
-  }>[];
+  accounts?: IAccount[];
   totalAccounts?: number;
 }
 
@@ -51,12 +41,12 @@ export interface DeleteResponseData {
     | "account-not-found"
     | "cannot-delete-self"
     | "cannot-delete-due-to-role-level";
-  account?: Account;
+  account?: IAccount;
 }
 
 export interface RestoreResponseData {
   status: ResponseStatus | "account-not-found";
-  account?: Account;
+  account?: IAccount;
 }
 
 export interface CreateResponseData {
@@ -65,7 +55,7 @@ export interface CreateResponseData {
     | "role-not-found"
     | "email-in-use"
     | "role-cannot-be-assigned";
-  account?: Account;
+  account?: IAccount;
 }
 
 export interface UpdateResponseData {
@@ -75,7 +65,7 @@ export interface UpdateResponseData {
     | "role-not-found"
     | "role-cannot-be-assigned"
     | "email-in-use";
-  account?: Account;
+  account?: IAccount;
 }
 
 export interface UpdatePasswordResponseData {

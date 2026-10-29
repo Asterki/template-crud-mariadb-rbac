@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
-import { ISessionAccount } from "@shared/types/sessions.js";
+import { ISessionAccount } from "@template/shared";
 
 import { AccountWithRole } from "../types/index.js";
 
-import { Permission } from "@shared/types/permissions.js";
+import { Permission } from "@template/shared";
 
 const verifyPassword = (passwordHash: string, password: string): boolean => {
   return bcrypt.compareSync(password, passwordHash);

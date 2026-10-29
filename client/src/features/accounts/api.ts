@@ -1,5 +1,5 @@
 import axios from "axios";
-import * as AccountsAPITypes from "../../../../shared/api/accounts";
+import { accountApi as AccountsAPITypes } from "@template/shared";
 import ApiUtils from "../../utils/api";
 
 const baseUrl =

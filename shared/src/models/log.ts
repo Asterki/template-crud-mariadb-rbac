@@ -1,4 +1,4 @@
-import { IMetadata } from "../schemas/metadata";
+import { IMetadata } from "./metadata";
 
 export type ILog = {
   id: number;

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 
-import * as AccountAPITypes from "../../../../shared/api/accounts.js";
+import { accountApi as AccountAPITypes } from "@template/shared";
 import LoggingService from "../../services/logging.js";
 import {
   restoreAccountWithRetry,

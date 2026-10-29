@@ -16,14 +16,16 @@ import {
 } from "../middleware/authMiddleware.js";
 
 // Schemas
-import {
+import { accountRoleSchemas } from "@template/shared";
+
+const {
   getSchema,
   createSchema,
   deleteSchema,
   listSchema,
   updateSchema,
   restoreSchema,
-} from "@shared/schemas/account-roles.js";
+} = accountRoleSchemas;
 
 const router = express.Router();
 

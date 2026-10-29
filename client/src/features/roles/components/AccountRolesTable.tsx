@@ -8,8 +8,8 @@ import {
 } from "react-icons/fa";
 import { ListAccountRole } from "..";
 import { useSelector } from "react-redux";
-import { RootState } from "client/src/store";
-import { hasPermissions } from "client/src/utils/permissions";
+import { RootState } from "../../../store";
+import { hasPermissions } from "../../../utils/permissions";
 
 type AccountRolesTableProps = {
   accountRoles: { accountRoles: ListAccountRole[]; totalAccountRoles: number };

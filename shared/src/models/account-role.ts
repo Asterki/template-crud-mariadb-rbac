@@ -1,4 +1,4 @@
-import { IMetadata } from "../types/metadata";
+import { IMetadata } from "./metadata";
 import { Permission } from "../types/permissions";
 
 export type IAccountRole = {

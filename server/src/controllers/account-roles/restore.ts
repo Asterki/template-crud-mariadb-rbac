@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 
-import * as AccountRolesAPITypes from "../../../../shared/api/account-roles.js";
+import { accountRoleApi as AccountRolesAPITypes } from "@template/shared";
 
 import LoggingService from "../../services/logging.js";
 import {

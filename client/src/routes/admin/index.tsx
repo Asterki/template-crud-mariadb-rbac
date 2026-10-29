@@ -14,7 +14,7 @@ import AuthFeature from "../../features/auth/";
 import AdminLayout from "../../layouts/Admin";
 import type { AccountRole } from "../../features/roles";
 
-import type { Permission } from "../../../../shared/types/permissions";
+import type { Permission } from "@template/shared";
 import { FaDiamondTurnRight } from "react-icons/fa6";
 
 export const Route = createFileRoute("/admin/")({

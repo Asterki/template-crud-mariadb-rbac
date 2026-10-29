@@ -10,7 +10,7 @@ import type { RootState } from "../../store";
 import { unwrapResult } from "@reduxjs/toolkit";
 
 import { Button, Card } from "antd";
-import AdminLayout from "client/src/layouts/Admin";
+import AdminLayout from "../../layouts/Admin";
 
 export const Route = createFileRoute("/auth/logout")({
 	component: RouteComponent,

@@ -5,10 +5,10 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 
 import authApi from "./api";
 
-import type { ISessionAccount } from "../../../../shared/types/sessions";
+import type { ISessionAccount } from "@template/shared";
 import { AxiosError } from "axios";
 
-import * as AuthAPITypes from "../../../../shared/api/auth";
+import { authApi as AuthAPITypes } from "@template/shared";
 
 export interface AccountsState {
   account: ISessionAccount | null;

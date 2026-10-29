@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "../../store";
 
 import AuthFeature, { type AuthAPITypes } from "../../features/auth/";
-import GeneralLayout from "client/src/layouts/General";
+import GeneralLayout from "../../layouts/General";
 
 // import TerminalFeature from "../../features/terminals/";
 

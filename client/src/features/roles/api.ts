@@ -1,5 +1,5 @@
 import axios from "axios";
-import * as RolesAPITypes from "../../../../shared/api/account-roles";
+import { accountRoleApi as RolesAPITypes } from "@template/shared";
 import ApiUtils from "../../utils/api";
 
 const baseUrl =

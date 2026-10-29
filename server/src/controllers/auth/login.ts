@@ -5,7 +5,7 @@ import LoggingService from "../../services/logging.js";
 import AccountUtils from "../../utils/accounts.js";
 
 import { NextFunction, Request, Response } from "express";
-import type * as AuthAPITypes from "../../../../shared/api/auth.js";
+import { authApi as AuthAPITypes } from "@template/shared";
 
 import { AccountWithRole } from "../../types/index.js";
 

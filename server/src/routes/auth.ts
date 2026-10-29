@@ -10,7 +10,9 @@ import { validateRequestBody } from "../middleware/validationMiddleware.js";
 import { ensureAuthenticated } from "../middleware/authMiddleware.js";
 
 // Schemas
-import { loginAccountSchema } from "@shared/schemas/auth.js";
+import { authSchemas } from "@template/shared";
+
+const { loginAccountSchema } = authSchemas;
 
 const router = express.Router();
 

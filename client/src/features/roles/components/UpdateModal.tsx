@@ -5,7 +5,7 @@ import { Button, Checkbox, Collapse, Drawer, Input, InputNumber, Switch } from "
 import { FaSave } from "react-icons/fa";
 import type { Dispatch, SetStateAction } from "react";
 
-import permissionsArray from "../../../../../shared/constants/permissions";
+import { permissions as permissionsArray } from "@template/shared";
 import type { UpdateDrawerState } from "../hooks/useUpdateDrawer";
 
 type UpdateDrawerProps = {

@@ -15,11 +15,11 @@ import {
 import type { ListAccount } from "..";
 import { FetchAccountsFn, NullableAccountsListState } from "../hooks/useAccountsList";
 
-import type { Permission } from "../../../../../shared/types/permissions";
+import type { Permission } from "@template/shared";
 import { useSelector } from "react-redux";
-import { RootState } from "client/src/store";
-import { hasPermissions } from "client/src/utils/permissions";
-import { CampusCode } from "@shared/models";
+import { RootState } from "../../../store";
+import { hasPermissions } from "../../../utils/permissions";
+import type { CampusCode } from "@template/shared";
 
 type AccountsTableProps = {
   accounts: { accounts: ListAccount[]; totalAccounts: number };

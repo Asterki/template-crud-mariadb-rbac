@@ -18,7 +18,9 @@ import {
 const router = express.Router();
 
 // Import the schemas and types
-import {
+import { accountSchemas } from "@template/shared";
+
+const {
   createSchema,
   deleteSchema,
   getSchema,
@@ -26,7 +28,7 @@ import {
   listSchema,
   updatePasswordSchema,
   updateStatusSchema,
-} from "@shared/schemas/accounts.js";
+} = accountSchemas;
 
 // Apply global middlewares
 router.use(ensureAuthenticated);

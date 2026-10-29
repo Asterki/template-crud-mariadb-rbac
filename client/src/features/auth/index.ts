@@ -2,8 +2,8 @@
 import slice, { login, logout, fetch } from "./slice";
 
 // API
-import * as AuthAPITypes from "../../../../shared/api/auth";
-import * as schemas from "../../../../shared/schemas/auth";
+import { authApi as AuthAPITypes } from "@template/shared";
+import { authSchemas as schemas } from "@template/shared";
 import authApi from "./api";
 
 export type { AuthAPITypes };
