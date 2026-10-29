@@ -53,6 +53,10 @@ const translation = {
     actions: "Acciones",
     loading: "Cargando...",
     retry: "Reintentar",
+    theme: {
+      toDark: "Cambiar a modo oscuro",
+      toLight: "Cambiar a modo claro",
+    },
   },
 
   permissions: {
@@ -263,6 +267,12 @@ const translation = {
       title: "Página no encontrada",
       description: "La página que busca no existe.",
       back: "Volver al inicio",
+    },
+    boundary: {
+      title: "Algo salió mal",
+      description:
+        "Se produjo un error inesperado al mostrar esta página. Puede reintentar la operación.",
+      retry: "Reintentar",
     },
     offline: {
       title: "Sin conexión",

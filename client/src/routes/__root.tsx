@@ -1,10 +1,8 @@
 import { Outlet, createRootRoute } from "@tanstack/react-router";
-import { App } from "antd";
+
+import { NotFoundPage } from "../components/NotFoundPage";
 
 export const Route = createRootRoute({
-  component: () => (
-    <App>
-      <Outlet />
-    </App>
-  ),
+  component: Outlet,
+  notFoundComponent: NotFoundPage,
 });

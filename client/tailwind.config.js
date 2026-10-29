@@ -1,7 +1,7 @@
-// tailwind.config.js
+// Tailwind v4 configuration. The dark variant is declared in index.css with
+// @custom-variant; `darkMode` is not a valid nested theme key.
 module.exports = {
   theme: {
-    darkMode: "class",
     extend: {
       keyframes: {
         gradient: {
@@ -16,10 +16,10 @@ module.exports = {
         gradient: "gradient 6s ease-in-out infinite",
       },
 
-      // Custom colors
+      // Brand colour comes from the ThemeProvider's CSS variable.
       colors: {
         primary: {
-          DEFAULT: "#1e3976",
+          DEFAULT: "var(--brand-primary)",
         },
       },
     },

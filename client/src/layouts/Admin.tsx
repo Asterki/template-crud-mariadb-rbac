@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 
 import {
-  ConfigProvider,
   Drawer,
   Layout,
   Menu,
@@ -12,7 +11,6 @@ import {
   Typography,
 } from "antd";
 const { Title } = Typography;
-import esES from "antd/locale/es_ES";
 
 import {
   FaBars,
@@ -29,6 +27,7 @@ import { useTranslation } from "react-i18next";
 import { APP_LOGO, APP_NAME } from "@template/shared";
 
 import AuthFeature from "../features/auth";
+import { ThemeModeToggle } from "../components/ThemeModeToggle";
 import { Can, useCan } from "../rbac";
 import { authRedirect } from "../rbac/guards";
 import type { RootState } from "../store";
@@ -140,7 +139,7 @@ export default function PageLayout({
   }, [account, can, t]);
 
   return (
-    <ConfigProvider locale={esES}>
+    <>
       <Header
         className="px-4 flex items-center justify-between color-white"
         style={{ paddingInline: 16 }}
@@ -165,6 +164,7 @@ export default function PageLayout({
             {APP_NAME}
           </Title>
         </Space>
+        <ThemeModeToggle />
       </Header>
 
       <Layout hasSider>
@@ -214,7 +214,7 @@ export default function PageLayout({
           </div>
         </Layout>
       </Layout>
-    </ConfigProvider>
+    </>
   );
 }
 
