@@ -10,14 +10,14 @@ import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-import { loadEnv } from "./config/env.js";
+import { loadConfig } from "./config/index.js";
 import { registerRoutes } from "./routes/index.js";
 import { traceIdMiddleware } from "./middleware/traceId.js";
 import SessionsService from "./services/sessions.js";
 import SocketServer from "./services/socket.js";
 
 export async function startServer() {
-  loadEnv();
+  loadConfig();
 
   const dev = process.env.NODE_ENV !== "production";
   const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;

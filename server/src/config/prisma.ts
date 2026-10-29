@@ -2,20 +2,11 @@ import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 
 import { PrismaClient } from "@prisma/client";
 
-import dotenv from "dotenv";
-import path from "path";
 import setupServer from "../setup.js";
+import { loadEnvFile } from "./env.js";
 
-const envFile =
-  process.env.NODE_ENV === "production" ? "../.env.prod" : "../.env.dev";
+loadEnvFile();
 
-dotenv.config({
-  path: path.resolve(process.cwd(), envFile),
-  debug: false,
-  quiet: true,
-});
-
-console.log(path.resolve(process.cwd(), envFile));
 const adapter = new PrismaMariaDb(process.env.DATABASE_URL as string, {});
 
 (async () => {
