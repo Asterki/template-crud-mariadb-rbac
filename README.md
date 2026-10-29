@@ -41,7 +41,8 @@ npm run dev
 ```
 
 The API listens on `http://localhost:3000`; the SPA runs on
-`http://localhost:2173`.
+`http://localhost:2173`. Run `npm run doctor` to check Node/npm, the env files,
+the database handshake, migration status, ports and Docker.
 
 ## Commands
 
@@ -58,6 +59,7 @@ Root scripts only delegate to the three packages; the root has no dependencies.
 | Generate Prisma client | — | — | `npm run db:generate` | — |
 | Apply migrations | — | — | `npm run db:deploy` | — |
 | Seed first admin | — | — | `npm run db:seed` | — |
+| Diagnostics | `npm run doctor` | — | — | — |
 
 Full gate:
 
