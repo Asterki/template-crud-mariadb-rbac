@@ -1,94 +1,63 @@
 import { z } from "zod";
-import { metadataFields, metadataPopulateFields } from "./index.js";
 
-const populateFields = z.enum([...metadataPopulateFields, "role"]);
-const accountFields = z.enum(
-  [
-    "id",
-    "lastLogin",
-    "role",
-    "status",
-    "email",
-    "emailVerified",
-    "emailLastChanged",
-    "name",
-    "lastPasswordChange",
-    ...metadataFields,
-  ],
-  "invalid-field",
+import { ROLES } from "../rbac/roles.js";
+import { pageSchema, pageSizeSchema } from "./pagination.js";
+
+export const accountIdSchema = z.string().min(1).max(191);
+
+const emailSchema = z.email("invalid-email");
+const nameSchema = z
+  .string()
+  .min(1, "name-too-short")
+  .max(100, "name-too-long");
+
+export const passwordSchema = z
+  .string()
+  .min(12, "password-too-short")
+  .max(256, "password-too-long");
+
+const optionalBooleanQuery = z.preprocess(
+  (value) =>
+    value === "true" ? true : value === "false" ? false : undefined,
+  z.boolean().optional(),
 );
 
-const createSchema = z.object({
-  email: z.email("invalid-email"),
-  name: z.string().min(1, "name-too-short").max(100, "name-too-long"),
-  password: z
-    .string()
-    .min(8, "password-too-short")
-    .max(256, "password-too-long"),
-  roleId: z.cuid("invalid-role-id"),
+export const createAccountSchema = z.object({
+  email: emailSchema,
+  name: nameSchema,
+  password: passwordSchema,
+  role: z.enum(ROLES, "invalid-role"),
 });
 
-const deleteSchema = z.object({
-  accountId: z.cuid("invalid-account-id"),
+export const updateAccountSchema = z
+  .object({
+    email: emailSchema.optional(),
+    name: nameSchema.optional(),
+    role: z.enum(ROLES, "invalid-role").optional(),
+  })
+  .refine((value) => Object.values(value).some((v) => v !== undefined), {
+    message: "no-fields",
+  });
+
+export const setAccountStatusSchema = z.object({
+  status: z.enum(["active", "inactive"], "invalid-status"),
 });
 
-const updateSchema = z.object({
-  accountId: z.cuid("invalid-account-id"),
-  name: z
-    .string()
-    .min(2, "name-too-short")
-    .max(100, "name-too-long")
-    .optional(),
-  email: z.email("invalid-email").optional(),
-  roleId: z.cuid("invalid-role-id").optional(),
-  disableTwoFactor: z.boolean().optional(),
+export const setAccountPasswordSchema = z.object({
+  newPassword: passwordSchema,
 });
 
-const getSchema = z.object({
-  accountIds: z.array(z.cuid("invalid-account-id")),
-  fields: z.array(accountFields, "invalid-field").optional(),
-  populate: z.array(populateFields, "invalid-field").optional(),
+export const listAccountsQuerySchema = z.object({
+  page: pageSchema,
+  pageSize: pageSizeSchema,
+  search: z.string().max(100, "query-too-long").optional(),
+  role: z.enum(ROLES, "invalid-role").optional(),
+  status: z.enum(["active", "inactive"], "invalid-status").optional(),
+  includeDeleted: optionalBooleanQuery,
 });
 
-const listSchema = z.object({
-  count: z.number().min(0, "count-too-low"),
-  page: z.number().nonnegative("page-too-low"),
-  filters: z
-    .object({
-      role: z.cuid("invalid-role-id").optional(),
-      status: z.enum(["active", "inactive"], "invalid-status").optional(),
-    })
-    .optional(),
-  search: z
-    .object({
-      query: z.string().max(100, "query-too-long"),
-      searchIn: z.array(z.enum(["name", "email"], "invalid-search-field")),
-    })
-    .optional(),
-  includeDeleted: z.boolean().optional(),
-  fields: z.array(accountFields, "invalid-field").optional(),
-  populate: z.array(populateFields, "invalid-field").optional(),
-});
-
-const updatePasswordSchema = z.object({
-  accountId: z.cuid("invalid-account-id"),
-  newPassword: z
-    .string()
-    .min(8, "password-too-short")
-    .max(256, "password-too-long"),
-});
-
-const updateStatusSchema = z.object({
-  accountId: z.cuid("invalid-account-id"),
-  newStatus: z.enum(["active", "inactive"], "invalid-status"),
-});
-
-export {
-  createSchema,
-  deleteSchema,
-  getSchema,
-  updateSchema,
-  listSchema,
-  updatePasswordSchema,
-  updateStatusSchema,
-};
+export type CreateAccountRequest = z.infer<typeof createAccountSchema>;
+export type UpdateAccountRequest = z.infer<typeof updateAccountSchema>;
+export type SetAccountStatusRequest = z.infer<typeof setAccountStatusSchema>;
+export type SetAccountPasswordRequest = z.infer<typeof setAccountPasswordSchema>;
+export type ListAccountsQuery = z.infer<typeof listAccountsQuerySchema>;

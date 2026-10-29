@@ -1,41 +1,16 @@
-import { ResponseStatus } from "./index.js";
+import type { SessionAccountDto } from "../dto/accounts.js";
+import type { DataResponse } from "../dto/pagination.js";
+import type { ChangePasswordRequest, LoginRequest } from "../schemas/auth.js";
 
-import { z } from "zod";
-import { loginAccountSchema } from "../schemas/auth.js";
-import { ISessionAccount } from "../types/sessions.js";
+export type { ChangePasswordRequest, LoginRequest };
 
-export interface RegisterResponseData {
-  status: "email-in-use" | "no-roles-defined" | ResponseStatus;
-  account?: any;
-}
+export type LoginResponse = DataResponse<SessionAccountDto>;
+export type MeResponse = DataResponse<SessionAccountDto>;
 
-export interface DeleteResponseData {
-  status:
-    | ResponseStatus
-    | "invalid-credentials"
-    | "invalid-tfa-code"
-    | "missing-tfa-code";
-}
-// #endregion
+export type CsrfResponse = {
+  csrfToken: string;
+};
 
-// #region Account access
-export type LoginRequestBody = z.infer<typeof loginAccountSchema>;
-
-export interface LoginResponseData {
-  status:
-    | ResponseStatus
-    | "invalid-credentials"
-    | "requires-tfa"
-    | "invalid-tfa-code";
-  account?: ISessionAccount;
-}
-
-export interface FetchResponseData {
-  status: ResponseStatus;
-  account?: ISessionAccount;
-}
-
-export interface LogoutResponseData {
-  status: ResponseStatus;
-}
-// #endregion
+export type LogoutResponse = {
+  data: { success: true };
+};

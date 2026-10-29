@@ -1,15 +1,21 @@
 import { z } from "zod";
 
-const passwordSchema = z
-  .string()
-  .min(8, "password-too-short")
-  .max(256, "password-too-long");
+import { passwordSchema } from "./accounts.js";
 
-const tfaCodeSchema = z.string().regex(/^\d{6,8}$/, "invalid-tfa-code");
-
-// Account access
 export const loginAccountSchema = z.object({
   email: z.email("invalid-email"),
-  password: passwordSchema,
-  tfaCode: tfaCodeSchema.optional(),
+  password: z.string().min(1, "password-required").max(256),
 });
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "password-required").max(256),
+    newPassword: passwordSchema,
+  })
+  .refine((value) => value.currentPassword !== value.newPassword, {
+    message: "password-unchanged",
+    path: ["newPassword"],
+  });
+
+export type LoginRequest = z.infer<typeof loginAccountSchema>;
+export type ChangePasswordRequest = z.infer<typeof changePasswordSchema>;
