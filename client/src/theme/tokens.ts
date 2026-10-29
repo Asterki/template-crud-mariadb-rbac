@@ -45,7 +45,7 @@ export function buildTheme(
     },
     components: {
       Layout: {
-        headerBg: surfaces.surface,
+        headerBg: brand.brandColor,
         bodyBg: surfaces.layout,
         siderBg: surfaces.surface,
         headerHeight: 64,

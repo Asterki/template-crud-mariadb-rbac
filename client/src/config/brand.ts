@@ -1,11 +1,12 @@
 import {
-  APP_LOGO,
   APP_NAME,
   APP_SLUG,
   BRAND_COLOR,
   DEFAULT_LOCALE,
   type AppBranding,
 } from "@template/shared";
+
+import logoUrl from "../assets/logo.svg";
 
 const HEX_COLOR = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
 
@@ -48,7 +49,7 @@ export type Brand = Readonly<
 export const brand: Brand = Object.freeze({
   name: env.VITE_APP_NAME?.trim() || APP_NAME,
   slug: env.VITE_APP_SLUG?.trim() || APP_SLUG,
-  logo: APP_LOGO,
+  logo: logoUrl,
   defaultLocale: resolveDefaultLocale(env.VITE_DEFAULT_LOCALE),
   brandColor: resolveBrandColor(env.VITE_BRAND_COLOR),
 });

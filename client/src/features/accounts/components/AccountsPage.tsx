@@ -420,7 +420,7 @@ export default function AccountsPage() {
 
           <Input.Search
             allowClear
-            style={{ maxWidth: 360 }}
+            className="max-w-[360px]"
             placeholder={t("searchPlaceholder")}
             loading={loading}
             onSearch={(value) => setSearch(value)}

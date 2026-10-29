@@ -1,6 +1,6 @@
 import { Layout, Space } from "antd";
 import { useTranslation } from "react-i18next";
-import { APP_LOGO, APP_NAME } from "@template/shared";
+import { brand } from "../config/brand";
 
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
 
@@ -15,18 +15,14 @@ export default function GeneralLayout({ children }: LayoutProps) {
   return (
     <Layout className="min-h-screen">
       {/* Top Navbar */}
-      <Header className="px-4 flex items-center justify-between bg-white">
+      <Header className="flex items-center justify-between">
         <Space align="center" className="" size={14}>
           <img
-            src={APP_LOGO}
-            alt=""
-            style={{ width: 42, height: 42, objectFit: "contain" }}
+            src={brand.logo}
+            alt={brand.name}
+            className="h-[42px] w-[42px] object-contain"
           />
-          <div className="text-white">
-            <h1 style={{ margin: 0 }} className="text-white font-bold text-lg">
-              {APP_NAME}
-            </h1>
-          </div>
+          <h1 className="!m-0 text-white font-bold text-lg">{brand.name}</h1>
         </Space>
         <LanguageSwitcher />
       </Header>
@@ -35,7 +31,7 @@ export default function GeneralLayout({ children }: LayoutProps) {
         {children}
       </Content>
 
-      <Footer className="text-center border-t border-[#262a33] bg-transparent">
+      <Footer className="text-center border-t border-gray-200 dark:border-gray-700 bg-transparent">
         {t("footer.madeBy")}{" "}
         <a href="https://asterki.xyz" target="_blank" className="underline">
           {t("footer.author")}

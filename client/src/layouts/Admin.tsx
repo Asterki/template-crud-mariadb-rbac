@@ -24,12 +24,13 @@ import {
 
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { APP_LOGO, APP_NAME } from "@template/shared";
+import { brand } from "../config/brand";
 
 import AuthFeature from "../features/auth";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { ThemeModeToggle } from "../components/ThemeModeToggle";
 import { Can, useCan } from "../rbac";
+import { useThemeMode } from "../theme";
 import { authRedirect } from "../rbac/guards";
 import type { RootState } from "../store";
 
@@ -53,6 +54,7 @@ export default function PageLayout({
   const dispatch = useDispatch<AppDispatch>();
   const { t } = useTranslation("common");
   const { can } = useCan();
+  const { isDark } = useThemeMode();
 
   const { account } = useSelector((state: RootState) => state.auth);
 
@@ -141,10 +143,7 @@ export default function PageLayout({
 
   return (
     <>
-      <Header
-        className="px-4 flex items-center justify-between color-white"
-        style={{ paddingInline: 16 }}
-      >
+      <Header className="flex items-center justify-between">
         <div className="md:hidden block">
           <button
             type="button"
@@ -157,12 +156,12 @@ export default function PageLayout({
         </div>
         <Space align="center" size={14}>
           <img
-            src={APP_LOGO}
-            alt=""
-            style={{ width: 42, height: 42, objectFit: "contain" }}
+            src={brand.logo}
+            alt={brand.name}
+            className="h-[42px] w-[42px] object-contain"
           />
-          <Title level={1} style={{ margin: 0 }} className="text-white text-lg">
-            {APP_NAME}
+          <Title level={1} className="!m-0 !text-white text-lg">
+            {brand.name}
           </Title>
         </Space>
         <Space align="center" size={12}>
@@ -178,7 +177,7 @@ export default function PageLayout({
           collapsed={collapsed}
           onCollapse={(value) => setCollapsed(value)}
           className="hidden md:block"
-          theme="light"
+          theme={isDark ? "dark" : "light"}
           width={220}
         >
           <Menu
@@ -204,7 +203,7 @@ export default function PageLayout({
           />
         </Drawer>
 
-        <Layout style={{ background: "transparent" }} className="min-h-screen">
+        <Layout className="min-h-screen bg-transparent">
           <div
             className={`${removePadding ? "" : "p-4"} dark:text-white min-h-[calc(100vh-64px)] z-10`}
           >

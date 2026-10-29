@@ -15,6 +15,7 @@ export function ThemeModeToggle() {
       <Button
         type="text"
         aria-label={label}
+        className="!text-white"
         icon={isDark ? <FaSun /> : <FaMoon />}
         onClick={toggleMode}
       />

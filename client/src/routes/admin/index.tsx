@@ -30,7 +30,7 @@ function RouteComponent() {
 
   return (
     <AdminLayout>
-      <Title level={2} style={{ marginBottom: 24 }}>
+      <Title level={2} className="!mb-6">
         {greeting}, {account?.name}
       </Title>
       <Paragraph>{t("dashboard.description")}</Paragraph>
@@ -50,7 +50,7 @@ function RouteComponent() {
                 <p className="text-2xl font-bold text-primary">
                   {tAccounts("title")}
                 </p>
-                <Paragraph type="secondary" style={{ margin: 0 }}>
+                <Paragraph type="secondary" className="!m-0">
                   {tAccounts("description")}
                 </Paragraph>
               </Col>
@@ -72,7 +72,7 @@ function RouteComponent() {
                 <p className="text-2xl font-bold text-primary">
                   {tRoles("title")}
                 </p>
-                <Paragraph type="secondary" style={{ margin: 0 }}>
+                <Paragraph type="secondary" className="!m-0">
                   {tRoles("description")}
                 </Paragraph>
               </Col>
