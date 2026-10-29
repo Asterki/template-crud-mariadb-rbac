@@ -44,7 +44,7 @@ export function sanitizeBody(
   next: NextFunction,
 ): void {
   if (req.body && typeof req.body === "object") {
-    // TODO: Apply this to the parsedBody instead of the raw body, to avoid issues with non-JSON content types
+    // TODO: Apply this to the validated body instead of the raw body, to avoid issues with non-JSON content types
     // req.body = sanitizeObject(req.body as Record<string, unknown>);
   }
   next();

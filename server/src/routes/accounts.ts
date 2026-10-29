@@ -9,7 +9,7 @@ import restoreHandler from "../controllers/accounts/restore.js";
 import updatePasswordHandler from "../controllers/accounts/update-password.js";
 import updateStatusHandler from "../controllers/accounts/update-status.js";
 
-import { validateRequestBody } from "../middleware/validationMiddleware.js";
+import { validateBody } from "../http/validation.js";
 import {
   ensureAuthenticated,
   ensurePermissions,
@@ -37,47 +37,47 @@ router.use(ensureAuthenticated);
 router.post(
   "/create",
   ensurePermissions(["accounts:create"]),
-  validateRequestBody(createSchema),
+  validateBody(createSchema),
   createHandler,
 );
 
 router.post(
   "/update",
   ensurePermissions(["accounts:update"]),
-  validateRequestBody(updateSchema),
+  validateBody(updateSchema),
   updateHandler,
 );
 
 router.post(
   "/update-status",
   ensurePermissions(["accounts:update-status"]),
-  validateRequestBody(updateStatusSchema),
+  validateBody(updateStatusSchema),
   updateStatusHandler,
 );
 
 router.post(
   "/update-password",
   ensurePermissions(["accounts:change-password"]),
-  validateRequestBody(updatePasswordSchema),
+  validateBody(updatePasswordSchema),
   updatePasswordHandler,
 );
 
 router.post(
   "/delete",
   ensurePermissions(["accounts:delete"]),
-  validateRequestBody(deleteSchema),
+  validateBody(deleteSchema),
   deleteHandler,
 );
 
 router.post(
   "/restore",
   ensurePermissions(["accounts:restore"]),
-  validateRequestBody(deleteSchema),
+  validateBody(deleteSchema),
   restoreHandler,
 );
 
-router.post("/get", validateRequestBody(getSchema), getHandler);
+router.post("/get", validateBody(getSchema), getHandler);
 
-router.post("/list", validateRequestBody(listSchema), listHandler);
+router.post("/list", validateBody(listSchema), listHandler);
 
 export default router;

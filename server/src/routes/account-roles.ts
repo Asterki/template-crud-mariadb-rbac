@@ -9,7 +9,7 @@ import listHandler from "../controllers/account-roles/list.js";
 import restoreHandler from "../controllers/account-roles/restore.js";
 
 // Middleware
-import { validateRequestBody } from "../middleware/validationMiddleware.js";
+import { validateBody } from "../http/validation.js";
 import {
   ensureAuthenticated,
   ensurePermissions,
@@ -36,7 +36,7 @@ router.use(ensureAuthenticated);
 router.post(
   "/create",
   ensurePermissions(["account-roles:create"]),
-  validateRequestBody(createSchema),
+  validateBody(createSchema),
   createHandler,
 );
 
@@ -44,7 +44,7 @@ router.post(
 router.post(
   "/update",
   ensurePermissions(["account-roles:update"]),
-  validateRequestBody(updateSchema),
+  validateBody(updateSchema),
   updateHandler,
 );
 
@@ -52,7 +52,7 @@ router.post(
 router.post(
   "/delete",
   ensurePermissions(["account-roles:delete"]),
-  validateRequestBody(deleteSchema),
+  validateBody(deleteSchema),
   deleteHandler,
 );
 
@@ -60,14 +60,14 @@ router.post(
 router.post(
   "/restore",
   ensurePermissions(["account-roles:restore"]),
-  validateRequestBody(restoreSchema),
+  validateBody(restoreSchema),
   restoreHandler,
 );
 
 // Get role(s)
-router.post("/get", validateRequestBody(getSchema), getHandler);
+router.post("/get", validateBody(getSchema), getHandler);
 
 // List roles
-router.post("/list", validateRequestBody(listSchema), listHandler);
+router.post("/list", validateBody(listSchema), listHandler);
 
 export default router;
