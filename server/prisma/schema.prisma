@@ -7,106 +7,72 @@ datasource db {
   provider = "mysql"
 }
 
-//#region AccountRole
-model AccountRole {
-  id                String  @id @default(cuid())
-  name              String  @unique
-  description       String? @db.VarChar(1000)
-  isSystemRole      Boolean @default(false)
-  level             Int
-  requiresTwoFactor Boolean @default(false)
-
-  permissions String?   @db.Text // comma-separated or JSON string 
-  accounts    Account[]
-
-  metadataId String?   @unique
-  metadata   Metadata? @relation("AccountRoleMetadata", fields: [metadataId], references: [id])
+enum Role {
+  admin
+  manager
+  staff
+  viewer
 }
 
-//#endregion
-
-//#region Account
 enum AccountStatus {
   active
   inactive
 }
 
-model Account {
-  id String @id @default(cuid())
-
-  // data
-  lastLogin DateTime
-  roleId    String
-  role      AccountRole   @relation(fields: [roleId], references: [id])
-  status    AccountStatus @default(active)
-
-  // email
-  email                         String    @unique
-  emailVerified                 Boolean   @default(false)
-  emailLastChanged              DateTime
-  emailVerificationToken        String?
-  emailVerificationTokenExpires DateTime?
-
-  // profile
-  name String
-
-  // security
-  tfaSecret                  String?
-  password                   String
-  forgotPasswordToken        String?
-  forgotPasswordTokenExpires DateTime?
-  lastPasswordChange         DateTime
-
-  metadataId String?   @unique
-  metadata   Metadata? @relation("AccountMetadata", fields: [metadataId], references: [id])
-
-  // Back-relations for Metadata authorship
-  metadataCreated         Metadata[]              @relation("MetadataCreatedBy")
-  metadataUpdated         Metadata[]              @relation("MetadataUpdatedBy")
-  metadataDeleted         Metadata[]              @relation("MetadataDeletedBy")
-  metadataUpdateHistories MetadataUpdateHistory[] @relation("MetadataUpdateHistoryUpdatedBy")
-}
-
-//#region Metadata
-enum MetadataStatus {
+enum ItemStatus {
   active
-  inactive
-}
-
-enum MetadataSource {
-  manual
-  imported
+  archived
 }
 
 model Metadata {
   id String @id @default(cuid())
 
-  documentVersion Int?
-  syncVersion     Int?
+  createdBy String?
+  updatedBy String?
+  deletedBy String?
 
-  createdAt   DateTime?
-  createdById String?
-  createdBy   Account?  @relation("MetadataCreatedBy", fields: [createdById], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deleted   Boolean   @default(false)
+  deletedAt DateTime?
 
-  updatedAt     DateTime?
-  updatedById   String?
-  updatedBy     Account?                @relation("MetadataUpdatedBy", fields: [updatedById], references: [id])
-  updateHistory MetadataUpdateHistory[]
+  account Account?
+  item    Item?
+  history MetadataUpdateHistory[]
 
-  deleted     Boolean?  @default(false)
-  deletedAt   DateTime?
-  deletedById String?
-  deletedBy   Account?  @relation("MetadataDeletedBy", fields: [deletedById], references: [id])
+  @@index([deleted])
+}
 
-  status MetadataStatus?
-  source MetadataSource?
-  notes  String?         @db.VarChar(2000)
-  tags   String?         @db.Text // comma-separated or JSON string — no array type in MySQL
+model Account {
+  id String @id @default(cuid())
 
-  // Back-relations
-  account        Account?        @relation("AccountMetadata")
-  accountRole    AccountRole?    @relation("AccountRoleMetadata")
-  config         Config?         @relation("ConfigMetadata")
+  email    String @unique
+  name     String
+  password String
+
+  role               Role          @default(viewer)
+  status             AccountStatus @default(active)
+  mustChangePassword Boolean       @default(false)
+  lastLogin          DateTime?
+
+  metadataId String?   @unique
+  metadata   Metadata? @relation(fields: [metadataId], references: [id], onDelete: SetNull)
+
+  @@index([role])
+  @@index([status])
+}
+
+model Item {
+  id String @id @default(cuid())
+
+  name        String
+  description String?    @db.Text
+  status      ItemStatus @default(active)
+
+  metadataId String?   @unique
+  metadata   Metadata? @relation(fields: [metadataId], references: [id], onDelete: SetNull)
+
+  @@index([status])
 }
 
 model MetadataUpdateHistory {
@@ -115,70 +81,20 @@ model MetadataUpdateHistory {
   metadataId String
   metadata   Metadata @relation(fields: [metadataId], references: [id], onDelete: Cascade)
 
-  updatedAt   DateTime
+  updatedAt   DateTime @default(now())
   updatedById String?
-  updatedBy   Account? @relation("MetadataUpdateHistoryUpdatedBy", fields: [updatedById], references: [id])
+  changes     Json
 
-  changes Json
+  @@index([metadataId])
+  @@index([updatedAt])
 }
 
-//#endregion
-
-//#region Config
-model Config {
-  id String @id @default(cuid())
-
-  metadataId String?   @unique
-  metadata   Metadata? @relation("ConfigMetadata", fields: [metadataId], references: [id])
-}
-
-//#endregion
-
-//#region File
-// TODO: We aint got no file storage yet
-//#endregion
-
-//#region Session 
 model Session {
   id        String   @id
   sid       String   @unique
   data      String   @db.Text
   expiresAt DateTime
 
+  @@index([expiresAt])
   @@map("sessions")
 }
-
-//#endregion
-
-//#region Chat
-//#endregion
-
-//#region Logs
-enum LogLevel {
-  info
-  warning
-  error
-  critical
-  debug
-  important
-}
-
-model Log {
-  id         String   @id @default(cuid())
-  date       DateTime
-  source     String
-  level      LogLevel
-  message    String   @db.Text
-  duration   Int? // milliseconds
-  details    Json?
-  traceId    String?
-  references Json? // e.g. { "accountId": "Account", "roleId": "Role" }
-
-  @@index([date])
-  @@index([level])
-  @@index([traceId])
-  @@index([source])
-}
-
-//#endregion
-
