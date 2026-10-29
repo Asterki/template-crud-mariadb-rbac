@@ -2,8 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import { ROLE_PERMISSIONS } from "./matrix.js";
 import { canAssignRole, canManage, roleHasPermission } from "./policy.js";
-import { PERMISSIONS, type Permission } from "./permissions.js";
-import { ROLE_RANK, ROLES, type Role } from "./roles.js";
+import {
+  isPermission,
+  PERMISSIONS,
+  type Permission,
+} from "./permissions.js";
+import { isRole, ROLE_RANK, ROLES, type Role } from "./roles.js";
 
 const expected: Record<Role, readonly Permission[]> = {
   admin: PERMISSIONS,
@@ -60,6 +64,26 @@ describe("role permission matrix", () => {
     expect(roleHasPermission("staff", "accounts:read")).toBe(true);
     expect(roleHasPermission("staff", "accounts:create")).toBe(false);
     expect(roleHasPermission("staff", "accounts:update")).toBe(false);
+  });
+});
+
+describe("runtime guards", () => {
+  it("recognises every role and rejects anything else", () => {
+    for (const role of ROLES) {
+      expect(isRole(role)).toBe(true);
+    }
+    for (const value of ["owner", "Admin", "", null, undefined, 1, {}]) {
+      expect(isRole(value)).toBe(false);
+    }
+  });
+
+  it("recognises every permission and rejects anything else", () => {
+    for (const permission of PERMISSIONS) {
+      expect(isPermission(permission)).toBe(true);
+    }
+    for (const value of ["accounts:write", "*", "", null, undefined, 1, {}]) {
+      expect(isPermission(value)).toBe(false);
+    }
   });
 });
 

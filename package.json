@@ -12,6 +12,7 @@
     "lint": "npm --prefix shared run lint && npm --prefix server run lint && npm --prefix client run lint",
     "typecheck": "npm --prefix shared run typecheck && npm --prefix server run typecheck && npm --prefix client run typecheck",
     "test": "node --test scripts/init.test.mjs && npm --prefix shared run test && npm --prefix server run test && npm --prefix client run test",
+    "test:coverage": "node --test scripts/init.test.mjs && npm --prefix shared run test:coverage && npm --prefix server run test:coverage && npm --prefix client run test:coverage",
     "legacy:export": "server/node_modules/.bin/tsx scripts/legacy/export-legacy-data.ts",
     "legacy:import": "server/node_modules/.bin/tsx scripts/legacy/import-legacy-data.ts",
     "init": "node scripts/init.mjs",

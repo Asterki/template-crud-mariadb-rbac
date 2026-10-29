@@ -11,6 +11,11 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov"],
+      thresholds: {
+        "src/rbac/**": { lines: 80 },
+        "src/http/**": { lines: 80 },
+        "src/middleware/**": { lines: 80 },
+      },
     },
   },
 });

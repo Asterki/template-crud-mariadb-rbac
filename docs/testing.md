@@ -9,6 +9,7 @@ From the repository root:
 
 ```bash
 npm run test                 # all three packages
+npm run test:coverage        # all three packages, enforces thresholds
 npm --prefix shared run test
 npm --prefix server run test
 npm --prefix client run test
@@ -29,6 +30,11 @@ npm --prefix shared run test:coverage
 npm --prefix server run test:coverage
 npm --prefix client run test:coverage
 ```
+
+`shared` and `server` enforce 80 percent line coverage for the security-critical
+directories (`shared/src/rbac`, `server/src/rbac`, `server/src/http`,
+`server/src/middleware`). There is no global threshold. CI uploads each
+package's coverage report as an artifact.
 
 ## Unit tests
 
@@ -85,7 +91,7 @@ the axios API modules, not the shared permission map.
 npm ci
 npm run lint
 npm run typecheck
-npm test
+npm run test:coverage
 npm run build
 ```
 
