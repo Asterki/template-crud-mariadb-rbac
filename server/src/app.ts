@@ -12,6 +12,7 @@ import { notFound } from "./http/not-found.js";
 import { requestLogger } from "./middleware/request-logger.js";
 import { createHealthRouter } from "./routes/health.js";
 import { registerRoutes } from "./routes/index.js";
+import { createAccountService } from "./services/account-service.js";
 import { createSessionManager } from "./services/sessions.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -63,7 +64,7 @@ export function createApp({
   const sessions = createSessionManager({ config, prisma, logger });
   sessions.loadToServer(app);
 
-  registerRoutes(app);
+  registerRoutes(app, { accounts: createAccountService(prisma) });
   app.use("/api", notFound);
   app.use(errorHandler);
 

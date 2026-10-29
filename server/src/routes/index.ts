@@ -1,11 +1,19 @@
 import type { Express } from "express";
 
-/**
- * Application routes.
- *
- * The REST API is registered here from P2-04 onward. Health probes are mounted
- * separately in `app.ts` so they stay independent from application security.
- */
-export function registerRoutes(_app: Express): void {
-  // Routes are added by the REST API task.
+import type { AccountService } from "../services/account-service.js";
+import { createAccountsRouter } from "./accounts.js";
+import { createAuthRouter } from "./auth.js";
+import { createRolesRouter } from "./roles.js";
+
+export type RouteDependencies = {
+  accounts: AccountService;
+};
+
+export function registerRoutes(
+  app: Express,
+  { accounts }: RouteDependencies,
+): void {
+  app.use("/api/auth", createAuthRouter(accounts));
+  app.use("/api/accounts", createAccountsRouter(accounts));
+  app.use("/api/roles", createRolesRouter());
 }

@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: [shared, server, client]
+        package: [shared, client]
     defaults:
       run:
         working-directory: ${{ matrix.package }}
@@ -46,7 +46,55 @@ jobs:
 
       - name: Build
         run: npm run build
-        continue-on-error: ${{ matrix.package == 'server' }} # remove in P2-08
+
+  server:
+    name: server
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:11.4
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: app
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    env:
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/app
+      MIGRATE_DATABASE_URL: mysql://root:root@127.0.0.1:3306/app
+      SESSION_SECRET: ci-session-secret-ci-session-secret
+      CORS_ORIGINS: http://localhost:2173
+      LOG_LEVEL: silent
+      LOG_FORMAT: json
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - name: Build shared for server
+        working-directory: shared
+        run: npm ci && npm run build
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npx prisma migrate deploy
+      - run: npm test
+
+      - name: Build
+        run: npm run build
+        continue-on-error: true # remove in P2-08
 
   gitleaks:
     name: Secret scan

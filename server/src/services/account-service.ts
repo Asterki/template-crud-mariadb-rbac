@@ -16,7 +16,11 @@ import {
   softDelete,
 } from "../db/audit.js";
 import { runInTransaction, type TransactionClient } from "../db/tx.js";
-import { ConflictError, NotFoundError } from "../http/errors.js";
+import {
+  ConflictError,
+  NotFoundError,
+  ValidationError,
+} from "../http/errors.js";
 import { toAccountDto } from "../http/dto/accounts.js";
 import { paginated, toPrismaPagination } from "../http/pagination.js";
 import {
@@ -246,6 +250,46 @@ export function createAccountService(prisma: PrismaClient) {
 
         await appendHistory(tx, metadataId, actor.id, {
           status: { from: target.status, to: status },
+        });
+
+        return toAccountDto(updated);
+      });
+    },
+
+    async changeOwnPassword(
+      id: string,
+      currentPassword: string,
+      newPassword: string,
+    ): Promise<AccountDto> {
+      const account = await prisma.account.findUnique({ where: { id } });
+      if (!account) {
+        throw new NotFoundError("account-not-found");
+      }
+
+      const valid = await bcrypt.compare(currentPassword, account.password);
+      if (!valid) {
+        throw new ValidationError("invalid-current-password");
+      }
+
+      const password = await bcrypt.hash(newPassword, BCRYPT_COST);
+
+      return runInTransaction(prisma, async (tx) => {
+        const current = await findAccount(tx, id);
+        const metadataId = await metadataIdFor(tx, current, id);
+
+        const updated = await tx.account.update({
+          where: { id },
+          data: {
+            password,
+            mustChangePassword: false,
+            metadata: { update: { updatedBy: id } },
+          },
+          include: { metadata: true },
+        });
+
+        await appendHistory(tx, metadataId, id, {
+          password: "[changed]",
+          mustChangePassword: false,
         });
 
         return toAccountDto(updated);
