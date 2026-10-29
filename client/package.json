@@ -9,5 +9,9 @@
     "test": "vitest run"
   },
   "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {},
+  "engines": {
+    "node": ">=24 <25",
+    "npm": ">=10"
+  }
 }

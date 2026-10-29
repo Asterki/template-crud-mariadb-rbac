@@ -113,5 +113,9 @@
   "bugs": {
     "url": "https://github.com/Asterki/pumai/issues"
   },
-  "homepage": "https://github.com/Asterki/pumai#readme"
+  "homepage": "https://github.com/Asterki/pumai#readme",
+  "engines": {
+    "node": ">=24 <25",
+    "npm": ">=10"
+  }
 }
