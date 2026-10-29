@@ -146,6 +146,20 @@ at `100`. `PageMeta` is `{ "page", "pageSize", "total" }`.
 be removed with `node scripts/remove-example.mjs --dry-run`; see
 [example module](example-module.md).
 
+## In-app documentation
+
+| Method | Path | Permission | Response |
+|---|---|---|---|
+| `GET` | `/api/docs` | `docs:read` | `200 [{ "slug": "index", "title": "Operator documentation" }, ...]` |
+| `GET` | `/api/docs/:slug` | `docs:read` | `200 { "slug", "title", "markdown" }` |
+
+The manifest is the allowlist in `docs/in-app/manifest.json`; the server never
+scans the directory. Slugs must match `^[a-z0-9-]{1,64}$` and exist in the
+manifest. The resolved file is checked with `realpath` and must stay inside the
+real `DOCS_DIR`; `..`, encoded traversal, absolute paths, null bytes and
+symlinks that escape the directory return `404`. Unknown slugs return `404`.
+Responses are cached in memory when `NODE_ENV=production`.
+
 ## Roles
 
 | Method | Path | Permission | Response |

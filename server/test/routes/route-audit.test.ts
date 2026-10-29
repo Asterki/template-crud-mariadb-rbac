@@ -7,6 +7,8 @@ import { createAuthRouter } from "../../src/routes/auth.js";
 import { createAccountsRouter } from "../../src/routes/accounts.js";
 import { createItemsRouter } from "../../src/routes/items.js";
 import { createRolesRouter } from "../../src/routes/roles.js";
+import { createDocsRouter } from "../../src/routes/docs.js";
+import { createDocsService } from "../../src/services/docs-service.js";
 import type { AccountService } from "../../src/services/account-service.js";
 import type { ItemService } from "../../src/services/item-service.js";
 
@@ -82,6 +84,10 @@ const routers = [
   { prefix: "/api/accounts", router: createAccountsRouter(service) },
   { prefix: "/api/items", router: createItemsRouter(itemService) },
   { prefix: "/api/roles", router: createRolesRouter() },
+  {
+    prefix: "/api/docs",
+    router: createDocsRouter(createDocsService({ docsDir: "docs/in-app" })),
+  },
 ] as Array<{ prefix: string; router: Router }>;
 
 describe("route policy audit", () => {

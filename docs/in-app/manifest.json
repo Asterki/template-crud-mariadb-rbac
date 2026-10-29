@@ -1,0 +1,6 @@
+[
+  { "slug": "index", "title": "Operator documentation" },
+  { "slug": "database", "title": "Switching the database" },
+  { "slug": "rbac", "title": "Roles and permissions" },
+  { "slug": "deployment", "title": "Deployment" }
+]

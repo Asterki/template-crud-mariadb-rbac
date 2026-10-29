@@ -18,6 +18,7 @@ import { corsMiddleWare, securityHeaders } from "./middleware/security.js";
 import { createHealthRouter } from "./routes/health.js";
 import { registerRoutes } from "./routes/index.js";
 import { createAccountService } from "./services/account-service.js";
+import { createDocsService } from "./services/docs-service.js";
 import { createItemService } from "./services/item-service.js";
 import { createSessionManager } from "./services/sessions.js";
 
@@ -68,6 +69,7 @@ export function createApp({
 
   registerRoutes(app, {
     accounts: createAccountService(prisma),
+    docs: createDocsService({ docsDir: config.docsDir }),
     items: createItemService(prisma),
     config,
   });
