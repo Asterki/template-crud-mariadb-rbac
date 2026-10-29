@@ -169,6 +169,9 @@ the project documentation.
 
 ## CI/CD
 
+GitHub Actions is the only CI. The legacy CI configuration was removed; there
+is no second pipeline to keep in sync.
+
 GitHub Actions runs lint, typecheck, tests and the SPA build on pull requests,
 and builds the Docker image for scanning. Pushes to `main` publish
 `linux/amd64` and `linux/arm64` images to GHCR; release-please adds semver tags

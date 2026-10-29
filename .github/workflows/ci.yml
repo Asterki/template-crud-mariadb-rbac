@@ -95,6 +95,34 @@ jobs:
       - name: Build
         run: npm run build
 
+  docker:
+    name: Docker image
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: template-api:ci
+          cache-from: type=gha
+
+      - name: Scan image for fixed HIGH and CRITICAL vulnerabilities
+        uses: aquasecurity/trivy-action@0.36.0
+        with:
+          image-ref: template-api:ci
+          format: table
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: HIGH,CRITICAL
+
   gitleaks:
     name: Secret scan
     runs-on: ubuntu-latest
