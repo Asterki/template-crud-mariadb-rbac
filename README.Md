@@ -41,8 +41,19 @@ docker compose -f compose.dev.yaml down -v
 
 ## Production
 
-See `docs/deployment.md` for the production compose file, the GHCR pull-only
-deployment and the Vercel SPA configuration.
+Build and run the API, MariaDB and the one-shot migration job:
+
+```bash
+cp .env.example .env
+# edit .env: database passwords, SESSION_SECRET, CORS_ORIGINS, ORIGIN_SECRET
+docker compose -f compose.prod.yaml up -d --build
+curl -fsS "http://127.0.0.1:${PORT:-3000}/readyz"
+```
+
+The `migrate` service runs `prisma migrate deploy` and the idempotent seed once,
+then exits. The `api` service starts only after it succeeds. See
+`docs/deployment.md` for the GHCR pull-only deployment and the Vercel SPA
+configuration.
 
 ## Author
 
