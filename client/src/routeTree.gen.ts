@@ -11,12 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
-import { Route as ErrorsOfflineRouteImport } from './routes/errors/offline'
-import { Route as Errors404RouteImport } from './routes/errors/404'
-import { Route as AuthLogoutRouteImport } from './routes/auth/logout'
-import { Route as AuthLoginRouteImport } from './routes/auth/login'
-import { Route as AdminLogsRouteImport } from './routes/admin/logs'
 import { Route as AdminConfigRouteImport } from './routes/admin/config'
+import { Route as AdminLogsRouteImport } from './routes/admin/logs'
+import { Route as AuthLoginRouteImport } from './routes/auth/login'
+import { Route as AuthLogoutRouteImport } from './routes/auth/logout'
+import { Route as Errors404RouteImport } from './routes/errors/404'
+import { Route as ErrorsOfflineRouteImport } from './routes/errors/offline'
 import { Route as AdminAccountsIndexRouteImport } from './routes/admin/accounts/index'
 import { Route as AdminAccountsRolesRouteImport } from './routes/admin/accounts/roles'
 
@@ -30,24 +30,9 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/admin/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ErrorsOfflineRoute = ErrorsOfflineRouteImport.update({
-  id: '/errors/offline',
-  path: '/errors/offline',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const Errors404Route = Errors404RouteImport.update({
-  id: '/errors/404',
-  path: '/errors/404',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthLogoutRoute = AuthLogoutRouteImport.update({
-  id: '/auth/logout',
-  path: '/auth/logout',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthLoginRoute = AuthLoginRouteImport.update({
-  id: '/auth/login',
-  path: '/auth/login',
+const AdminConfigRoute = AdminConfigRouteImport.update({
+  id: '/admin/config',
+  path: '/admin/config',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminLogsRoute = AdminLogsRouteImport.update({
@@ -55,9 +40,24 @@ const AdminLogsRoute = AdminLogsRouteImport.update({
   path: '/admin/logs',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminConfigRoute = AdminConfigRouteImport.update({
-  id: '/admin/config',
-  path: '/admin/config',
+const AuthLoginRoute = AuthLoginRouteImport.update({
+  id: '/auth/login',
+  path: '/auth/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthLogoutRoute = AuthLogoutRouteImport.update({
+  id: '/auth/logout',
+  path: '/auth/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Errors404Route = Errors404RouteImport.update({
+  id: '/errors/404',
+  path: '/errors/404',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ErrorsOfflineRoute = ErrorsOfflineRouteImport.update({
+  id: '/errors/offline',
+  path: '/errors/offline',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminAccountsIndexRoute = AdminAccountsIndexRouteImport.update({
@@ -79,9 +79,9 @@ export interface FileRoutesByFullPath {
   '/auth/logout': typeof AuthLogoutRoute
   '/errors/404': typeof Errors404Route
   '/errors/offline': typeof ErrorsOfflineRoute
-  '/admin': typeof AdminIndexRoute
+  '/admin/': typeof AdminIndexRoute
   '/admin/accounts/roles': typeof AdminAccountsRolesRoute
-  '/admin/accounts': typeof AdminAccountsIndexRoute
+  '/admin/accounts/': typeof AdminAccountsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -118,9 +118,9 @@ export interface FileRouteTypes {
     | '/auth/logout'
     | '/errors/404'
     | '/errors/offline'
-    | '/admin'
+    | '/admin/'
     | '/admin/accounts/roles'
-    | '/admin/accounts'
+    | '/admin/accounts/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -172,43 +172,8 @@ declare module '@tanstack/react-router' {
     '/admin/': {
       id: '/admin/'
       path: '/admin'
-      fullPath: '/admin'
+      fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/errors/offline': {
-      id: '/errors/offline'
-      path: '/errors/offline'
-      fullPath: '/errors/offline'
-      preLoaderRoute: typeof ErrorsOfflineRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/errors/404': {
-      id: '/errors/404'
-      path: '/errors/404'
-      fullPath: '/errors/404'
-      preLoaderRoute: typeof Errors404RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth/logout': {
-      id: '/auth/logout'
-      path: '/auth/logout'
-      fullPath: '/auth/logout'
-      preLoaderRoute: typeof AuthLogoutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth/login': {
-      id: '/auth/login'
-      path: '/auth/login'
-      fullPath: '/auth/login'
-      preLoaderRoute: typeof AuthLoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/logs': {
-      id: '/admin/logs'
-      path: '/admin/logs'
-      fullPath: '/admin/logs'
-      preLoaderRoute: typeof AdminLogsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/config': {
@@ -218,10 +183,45 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminConfigRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/logs': {
+      id: '/admin/logs'
+      path: '/admin/logs'
+      fullPath: '/admin/logs'
+      preLoaderRoute: typeof AdminLogsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/login': {
+      id: '/auth/login'
+      path: '/auth/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/logout': {
+      id: '/auth/logout'
+      path: '/auth/logout'
+      fullPath: '/auth/logout'
+      preLoaderRoute: typeof AuthLogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/errors/404': {
+      id: '/errors/404'
+      path: '/errors/404'
+      fullPath: '/errors/404'
+      preLoaderRoute: typeof Errors404RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/errors/offline': {
+      id: '/errors/offline'
+      path: '/errors/offline'
+      fullPath: '/errors/offline'
+      preLoaderRoute: typeof ErrorsOfflineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/accounts/': {
       id: '/admin/accounts/'
       path: '/admin/accounts'
-      fullPath: '/admin/accounts'
+      fullPath: '/admin/accounts/'
       preLoaderRoute: typeof AdminAccountsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }

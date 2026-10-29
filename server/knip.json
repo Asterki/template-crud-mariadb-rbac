@@ -2,5 +2,5 @@
   "entry": ["src/index.ts"],
   "project": ["src/**/*.ts"],
   "ignore": ["dist/**"],
-  "ignoreDependencies": ["module-alias", "tsconfig-paths", "tsx"]
+  "ignoreDependencies": ["module-alias", "tsconfig-paths", "tsx", "pino-pretty"]
 }
