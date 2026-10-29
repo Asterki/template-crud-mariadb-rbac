@@ -22,10 +22,21 @@ describe("createApp", () => {
     const prisma = {} as PrismaClient;
 
     const app = createApp({ config, logger, prisma });
+    const response = await request(app).get("/healthz");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ status: "ok" });
+  });
+
+  it("returns a JSON 404 for an unknown API route", async () => {
+    const logger = createLogger(config);
+    const prisma = {} as PrismaClient;
+
+    const app = createApp({ config, logger, prisma });
     const response = await request(app).get("/api/auth/fetch");
 
-    expect(response.status).toBe(401);
-    expect(response.body).toEqual({ status: "unauthenticated" });
+    expect(response.status).toBe(404);
+    expect(response.body.error.code).toBe("not_found");
   });
 
   it("importing the Prisma module does not connect", async () => {

@@ -12,7 +12,6 @@ import {
   installProcessHandlers,
   setRootLogger,
 } from "./logger.js";
-import { setupServer } from "./setup.js";
 
 const SHUTDOWN_TIMEOUT_MS = 10_000;
 
@@ -91,16 +90,6 @@ export async function main(): Promise<void> {
     logger.fatal(
       { code: errorCode(error) },
       "Database connection failed. Check DATABASE_URL and that MariaDB is reachable.",
-    );
-    process.exit(1);
-  }
-
-  try {
-    await setupServer(prisma, logger);
-  } catch (error) {
-    logger.fatal(
-      { code: errorCode(error) },
-      "Bootstrap failed. The database was reachable but the seed did not complete.",
     );
     process.exit(1);
   }

@@ -56,9 +56,6 @@ export function createSessionManager({
           where: {
             email: req.body.email.toLowerCase(),
           },
-          include: {
-            role: true,
-          },
         });
 
         if (!account)
@@ -94,9 +91,6 @@ export function createSessionManager({
   passport.deserializeUser(async (id: string, done) => {
     const user = await prisma.account.findUnique({
       where: { id: id },
-      include: {
-        role: true,
-      },
     });
     if (user == null) {
       done(null, null);
