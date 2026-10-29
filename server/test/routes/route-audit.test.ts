@@ -5,8 +5,10 @@ import { loadConfig } from "../../src/config/index.js";
 import { createHealthRouter } from "../../src/routes/health.js";
 import { createAuthRouter } from "../../src/routes/auth.js";
 import { createAccountsRouter } from "../../src/routes/accounts.js";
+import { createItemsRouter } from "../../src/routes/items.js";
 import { createRolesRouter } from "../../src/routes/roles.js";
 import type { AccountService } from "../../src/services/account-service.js";
+import type { ItemService } from "../../src/services/item-service.js";
 
 type Handle = {
   authenticatedGuard?: boolean;
@@ -60,6 +62,7 @@ function collect(
 }
 
 const service = {} as AccountService;
+const itemService = {} as ItemService;
 const config = loadConfig({
   NODE_ENV: "test",
   PORT: "3000",
@@ -77,6 +80,7 @@ const routers = [
   },
   { prefix: "/api/auth", router: createAuthRouter(service, config) },
   { prefix: "/api/accounts", router: createAccountsRouter(service) },
+  { prefix: "/api/items", router: createItemsRouter(itemService) },
   { prefix: "/api/roles", router: createRolesRouter() },
 ] as Array<{ prefix: string; router: Router }>;
 
