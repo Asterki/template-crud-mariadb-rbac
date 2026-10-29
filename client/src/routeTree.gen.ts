@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminChangePasswordRouteImport } from './routes/admin/change-password'
+import { Route as AdminDocsRouteImport } from './routes/admin/docs'
 import { Route as AdminItemsRouteImport } from './routes/admin/items'
 import { Route as AdminRolesRouteImport } from './routes/admin/roles'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
@@ -33,6 +34,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const AdminChangePasswordRoute = AdminChangePasswordRouteImport.update({
   id: '/admin/change-password',
   path: '/admin/change-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminDocsRoute = AdminDocsRouteImport.update({
+  id: '/admin/docs',
+  path: '/admin/docs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminItemsRoute = AdminItemsRouteImport.update({
@@ -74,6 +80,7 @@ const AdminAccountsIndexRoute = AdminAccountsIndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin/change-password': typeof AdminChangePasswordRoute
+  '/admin/docs': typeof AdminDocsRoute
   '/admin/items': typeof AdminItemsRoute
   '/admin/roles': typeof AdminRolesRoute
   '/auth/login': typeof AuthLoginRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin/change-password': typeof AdminChangePasswordRoute
+  '/admin/docs': typeof AdminDocsRoute
   '/admin/items': typeof AdminItemsRoute
   '/admin/roles': typeof AdminRolesRoute
   '/auth/login': typeof AuthLoginRoute
@@ -99,6 +107,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin/change-password': typeof AdminChangePasswordRoute
+  '/admin/docs': typeof AdminDocsRoute
   '/admin/items': typeof AdminItemsRoute
   '/admin/roles': typeof AdminRolesRoute
   '/auth/login': typeof AuthLoginRoute
@@ -113,6 +122,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin/change-password'
+    | '/admin/docs'
     | '/admin/items'
     | '/admin/roles'
     | '/auth/login'
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin/change-password'
+    | '/admin/docs'
     | '/admin/items'
     | '/admin/roles'
     | '/auth/login'
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin/change-password'
+    | '/admin/docs'
     | '/admin/items'
     | '/admin/roles'
     | '/auth/login'
@@ -150,6 +162,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminChangePasswordRoute: typeof AdminChangePasswordRoute
+  AdminDocsRoute: typeof AdminDocsRoute
   AdminItemsRoute: typeof AdminItemsRoute
   AdminRolesRoute: typeof AdminRolesRoute
   AuthLoginRoute: typeof AuthLoginRoute
@@ -181,6 +194,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/change-password'
       fullPath: '/admin/change-password'
       preLoaderRoute: typeof AdminChangePasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/docs': {
+      id: '/admin/docs'
+      path: '/admin/docs'
+      fullPath: '/admin/docs'
+      preLoaderRoute: typeof AdminDocsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/items': {
@@ -238,6 +258,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminChangePasswordRoute: AdminChangePasswordRoute,
+  AdminDocsRoute: AdminDocsRoute,
   AdminItemsRoute: AdminItemsRoute,
   AdminRolesRoute: AdminRolesRoute,
   AuthLoginRoute: AuthLoginRoute,

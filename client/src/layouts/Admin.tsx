@@ -14,6 +14,7 @@ const { Title } = Typography;
 
 import {
   FaBars,
+  FaBook,
   FaBoxes,
   FaCompressArrowsAlt,
   FaKey,
@@ -30,6 +31,7 @@ import AuthFeature from "../features/auth";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { ThemeModeToggle } from "../components/ThemeModeToggle";
 import { Can, useCan } from "../rbac";
+import { docsNavVisible } from "../features/docs/nav";
 import { useThemeMode } from "../theme";
 import { authRedirect } from "../rbac/guards";
 import type { RootState } from "../store";
@@ -115,6 +117,14 @@ export default function PageLayout({
         key: "roles",
         label: <Link to="/admin/roles">{t("nav.roles")}</Link>,
         icon: <FaUserShield />,
+      });
+    }
+
+    if (docsNavVisible(account.role)) {
+      items.push({
+        key: "docs",
+        label: <Link to="/admin/docs">{t("nav.docs")}</Link>,
+        icon: <FaBook />,
       });
     }
 

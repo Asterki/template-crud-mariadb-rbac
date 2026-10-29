@@ -25,6 +25,7 @@ const common = {
     accounts: "Accounts",
     items: "Items",
     roles: "Roles & Permissions",
+    docs: "Documentation",
     changePassword: "Change Password",
     logout: "Sign Out",
   },
