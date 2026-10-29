@@ -15,7 +15,7 @@ export function UpdateStatusModal({
   state,
   setState,
   onClose,
-  onUpdateStatus
+  onUpdateStatus,
 }: UpdateAccountStatusFormProps) {
   const { t } = useTranslation(["features"], {
     keyPrefix: "accounts.components.updateStatusModal",
@@ -37,7 +37,7 @@ export function UpdateStatusModal({
       okText={t("title")}
     >
       <Form layout="vertical">
-        <Form.Item label={t("fields.status")} required >
+        <Form.Item label={t("fields.status")} required>
           <Select
             value={state.newStatus}
             placeholder={t("fields.statusPlaceholder")}
@@ -45,13 +45,15 @@ export function UpdateStatusModal({
               setState((prev) => ({ ...prev, newStatus: value }))
             }
           >
-            <Select.Option value="active">{t("fields.statuses.active")}</Select.Option>
-            <Select.Option value="inactive">{t("fields.statuses.inactive")}</Select.Option>
+            <Select.Option value="active">
+              {t("fields.statuses.active")}
+            </Select.Option>
+            <Select.Option value="inactive">
+              {t("fields.statuses.inactive")}
+            </Select.Option>
           </Select>
         </Form.Item>
       </Form>
     </Modal>
   );
 }
-
-

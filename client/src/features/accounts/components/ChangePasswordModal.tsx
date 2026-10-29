@@ -15,7 +15,7 @@ export function UpdatePasswordModal({
   state,
   setState,
   onClose,
-  onUpdatePassword
+  onUpdatePassword,
 }: UpdateAccountPasswordFormProps) {
   const { t } = useTranslation(["features"], {
     keyPrefix: "accounts.components.updatePasswordModal",
@@ -37,7 +37,7 @@ export function UpdatePasswordModal({
       okText={t("title")}
     >
       <Form layout="vertical">
-        <Form.Item label={t("fields.password")} required >
+        <Form.Item label={t("fields.password")} required>
           <Input.Password
             maxLength={256}
             showCount
@@ -52,4 +52,3 @@ export function UpdatePasswordModal({
     </Modal>
   );
 }
-

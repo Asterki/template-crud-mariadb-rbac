@@ -1,11 +1,11 @@
 /**
  * Transforms an array of field strings (with optional dot notation) into a Prisma select object
- * 
+ *
  * @template T - The Prisma model type (e.g., Prisma.AccountRoleSelect)
  * @param fields - Array of field names, can include dot notation for nested fields (e.g., "metadata.createdAt")
  * @param defaultSelect - Default fields to select if no fields provided. Defaults to { id: true }
  * @returns Partial<T> - A Prisma select object
- * 
+ *
  * @example
  * const select = getFieldsToSelect<Prisma.AccountRoleSelect>(
  *   ["id", "name", "metadata.createdAt"],
@@ -13,7 +13,7 @@
  * );
  * // Returns: { id: true, name: true, metadata: { select: { createdAt: true } } }
  */
-export const getFieldsToSelect = <T,>(
+export const getFieldsToSelect = <T>(
   fields: string[] | undefined,
   defaultSelect?: Partial<T>,
 ): Partial<T> => {
@@ -49,7 +49,7 @@ export const getFieldsToSelect = <T,>(
 /**
  * Transforms an array of field strings into a Prisma include object with selective field loading
  * Allows you to specify which fields to include from related models
- * 
+ *
  * @template T - The Prisma model type (e.g., Prisma.AccountRoleInclude)
  * @template K - The populate field array type (inferred from populate parameter)
  * @param populate - Array of field names with dot notation for relations (e.g., ["metadata.createdBy"])
@@ -57,7 +57,7 @@ export const getFieldsToSelect = <T,>(
  *                          Keys must match values from populate array
  *                          Example: { "metadata.createdBy": ["id", "name"], "metadata.updatedBy": ["id", "email"] }
  * @returns Partial<T> - A Prisma include object
- * 
+ *
  * @example
  * const include = getFieldsToPopulate<Prisma.AccountRoleInclude, typeof populate>(
  *   ["metadata.createdBy", "metadata.updatedBy"],
@@ -88,7 +88,7 @@ export const getFieldsToPopulate = <T, K extends readonly string[]>(
       if (relationFieldMap[field as K[number]]) {
         select[parent].select[relation] = {
           select: Object.fromEntries(
-            relationFieldMap[field as K[number]].map((f) => [f, true])
+            relationFieldMap[field as K[number]].map((f) => [f, true]),
           ),
         };
       } else {
@@ -99,4 +99,3 @@ export const getFieldsToPopulate = <T, K extends readonly string[]>(
 
   return select as Partial<T>;
 };
-

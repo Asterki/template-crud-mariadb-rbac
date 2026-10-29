@@ -6,8 +6,7 @@ import { App } from "antd";
 
 type NullableAccountsListState = {
   [K in keyof RolesAPITypes.ListRequestBody]?:
-    | RolesAPITypes.ListRequestBody[K]
-    | null;
+    RolesAPITypes.ListRequestBody[K] | null;
 };
 
 type UseAccountRolesListOptions = {

@@ -35,8 +35,9 @@ function RouteComponent() {
   const { accounts, fetchAccounts, accountsListState } =
     AccountsFeature.hooks.useAccountsList({});
 
-  const { accountRoles, fetchAccountRoles } =
-    AccountRolesFeature.hooks.useList({});
+  const { accountRoles, fetchAccountRoles } = AccountRolesFeature.hooks.useList(
+    {},
+  );
 
   //#region Create Account
   const {
@@ -62,7 +63,7 @@ function RouteComponent() {
   });
   //#endregion
 
-  //#region Update State 
+  //#region Update State
   const {
     setState: setUpdateStatusModalState,
     closeModal: closeUpdateStatusModal,

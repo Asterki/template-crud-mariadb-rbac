@@ -11,12 +11,16 @@
   "scripts": {
     "dev": "nodemon --config nodemon.json",
     "build": "tsc && tsc-alias -p tsconfig.json",
+    "bundle": "tsup",
     "start": "cross-env NODE_ENV=production node ./dist/index.js",
     "db:generate": "prisma generate",
-    "lint": "echo \"lint added in P0-04\"",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "test": "echo \"tests added in P0-04\"",
-    "bundle": "tsup"
+    "test": "vitest run --passWithNoTests",
+    "test:coverage": "vitest run --coverage --passWithNoTests",
+    "knip": "knip --no-exit-code"
   },
   "dependencies": {
     "@prisma/adapter-mariadb": "^7.4.1",
@@ -48,6 +52,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/async-retry": "^1.4.9",
     "@types/bcrypt": "^6.0.0",
     "@types/cookie-parser": "^1.4.10",
@@ -59,13 +64,21 @@
     "@types/passport": "^1.0.17",
     "@types/passport-local": "^1.0.38",
     "@types/speakeasy": "^2.0.10",
+    "@vitest/coverage-v8": "^5.0.5",
+    "eslint": "^10.13.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.13.0",
+    "knip": "^6.43.0",
     "module-alias": "^2.2.3",
     "nodemon": "^3.1.11",
+    "prettier": "^3.9.10",
     "prisma": "^7.4.1",
     "tsc-alias": "^1.8.17",
     "tsconfig-paths": "^4.2.0",
     "tsup": "^8.5.1",
     "tsx": "^4.20.6",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.72.1",
+    "vitest": "^5.0.5"
   }
 }

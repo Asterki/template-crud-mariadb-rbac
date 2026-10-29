@@ -26,27 +26,27 @@ class LoggingService {
     string,
     string
   > = {
-      accountId: "Account",
-      createdByAccountId: "Account",
-      updatedByAccountId: "Account",
-      deletedByAccountId: "Account",
-      restoredByAccountId: "Account",
-      roleId: "AccountRole",
-      accountRoleId: "AccountRole",
-      patientId: "Patient",
-      recordId: "Record",
-      surgeryId: "Surgery",
-      terminalId: "Terminal",
-      createdByTerminalId: "Terminal",
-      updatedByTerminalId: "Terminal",
-      deletedByTerminalId: "Terminal",
-      restoredByTerminalId: "Terminal",
-      activationKeyId: "ActivationKey",
-      configId: "Config",
-      logId: "Log",
-      fileId: "File",
-      sessionId: "Session",
-    };
+    accountId: "Account",
+    createdByAccountId: "Account",
+    updatedByAccountId: "Account",
+    deletedByAccountId: "Account",
+    restoredByAccountId: "Account",
+    roleId: "AccountRole",
+    accountRoleId: "AccountRole",
+    patientId: "Patient",
+    recordId: "Record",
+    surgeryId: "Surgery",
+    terminalId: "Terminal",
+    createdByTerminalId: "Terminal",
+    updatedByTerminalId: "Terminal",
+    deletedByTerminalId: "Terminal",
+    restoredByTerminalId: "Terminal",
+    activationKeyId: "ActivationKey",
+    configId: "Config",
+    logId: "Log",
+    fileId: "File",
+    sessionId: "Session",
+  };
 
   private static hasReferenceableValue(value: unknown): boolean {
     if (value === null || value === undefined) {
@@ -180,7 +180,10 @@ class LoggingService {
     try {
       const enrichedDetails = LoggingService.buildEnrichedDetails(log);
 
-      console.log(`[${log.level.toUpperCase()}] ${log.source}: ${log.message}`, enrichedDetails);
+      console.log(
+        `[${log.level.toUpperCase()}] ${log.source}: ${log.message}`,
+        enrichedDetails,
+      );
 
       const resolvedReferences = LoggingService.buildResolvedReferences(
         enrichedDetails,

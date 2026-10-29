@@ -389,8 +389,7 @@ const translation = {
           afternoon: "Buenas tardes",
           evening: "Buenas noches",
         },
-        description:
-          "Bienvenido al sistema administrativo de Sistema Random.",
+        description: "Bienvenido al sistema administrativo de Sistema Random.",
 
         items: {
           index: "Panel De Control",

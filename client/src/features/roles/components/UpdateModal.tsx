@@ -1,6 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button, Checkbox, Collapse, Drawer, Input, InputNumber, Switch } from "antd";
+import {
+  Button,
+  Checkbox,
+  Collapse,
+  Drawer,
+  Input,
+  InputNumber,
+  Switch,
+} from "antd";
 
 import { FaSave } from "react-icons/fa";
 import type { Dispatch, SetStateAction } from "react";
@@ -66,7 +74,9 @@ export function UpdateDrawer({
 
   useEffect(() => {
     const selectedCategories = Array.from(
-      new Set(selectedPermissions.map((permission) => permission.split(":")[0])),
+      new Set(
+        selectedPermissions.map((permission) => permission.split(":")[0]),
+      ),
     );
 
     setActivePermissionKeys(
@@ -75,11 +85,11 @@ export function UpdateDrawer({
   }, [selectedPermissions]);
 
   const getPermissionLabel = (permission: string) => {
-    let separated = permission.split(":");
+    const separated = permission.split(":");
     if (separated.length == 1) {
       return tPermissions(`permissions.${permission}`);
     } else {
-      return tPermissions(`permissions:${separated.join(".")}`)
+      return tPermissions(`permissions:${separated.join(".")}`);
     }
   };
 
@@ -173,10 +183,7 @@ export function UpdateDrawer({
                 children: (
                   <div style={{ display: "flex", flexDirection: "column" }}>
                     {permissionItems[category].map((permission) => (
-                      <Checkbox
-                        key={permission}
-                        value={permission}
-                      >
+                      <Checkbox key={permission} value={permission}>
                         {getPermissionLabel(permission)}
                       </Checkbox>
                     ))}
@@ -196,7 +203,9 @@ export function UpdateDrawer({
               setState((prev) => ({ ...prev, requiresTwoFactor: checked }))
             }
           />
-          <span>{t("fields.requiresTwoFactor", { defaultValue: "Requiere 2FA" })}</span>
+          <span>
+            {t("fields.requiresTwoFactor", { defaultValue: "Requiere 2FA" })}
+          </span>
         </div>
       </div>
     </Drawer>

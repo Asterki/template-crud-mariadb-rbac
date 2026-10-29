@@ -1,8 +1,5 @@
 import { z } from "zod";
-import {
-  metadataFields,
-  metadataPopulateFields,
-} from "./index.js";
+import { metadataFields, metadataPopulateFields } from "./index.js";
 
 const populateFields = z.enum([...metadataPopulateFields, "role"]);
 const accountFields = z.enum(

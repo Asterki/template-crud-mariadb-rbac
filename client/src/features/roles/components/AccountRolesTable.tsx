@@ -97,32 +97,32 @@ export function AccountRolesTable({
 
               const menuItems = !record.deleted
                 ? [
-                  {
-                    key: "update",
-                    label: t("actionButtons.update"),
-                    icon: <FaPencilAlt />,
-                    disabled: !canUpdate,
-                    onClick: () => onUpdate(record),
-                  },
-                  {
-                    key: "delete",
-                    label: t("actionButtons.delete"),
-                    danger: true,
-                    icon: <FaTrash />,
-                    disabled: !canDelete,
-                    onClick: () => onDelete(record),
-                  },
-                ]
+                    {
+                      key: "update",
+                      label: t("actionButtons.update"),
+                      icon: <FaPencilAlt />,
+                      disabled: !canUpdate,
+                      onClick: () => onUpdate(record),
+                    },
+                    {
+                      key: "delete",
+                      label: t("actionButtons.delete"),
+                      danger: true,
+                      icon: <FaTrash />,
+                      disabled: !canDelete,
+                      onClick: () => onDelete(record),
+                    },
+                  ]
                 : [
-                  {
-                    key: "restore",
-                    label: t("actionButtons.restore"),
-                    icon: <FaTrashRestore />,
-                    disabled: !canRestore || !record.deleted,
-                    className: record.deleted ? "hidden" : "",
-                    onClick: () => onRestore(record),
-                  },
-                ];
+                    {
+                      key: "restore",
+                      label: t("actionButtons.restore"),
+                      icon: <FaTrashRestore />,
+                      disabled: !canRestore || !record.deleted,
+                      className: record.deleted ? "hidden" : "",
+                      onClick: () => onRestore(record),
+                    },
+                  ];
 
               return (
                 <Space>

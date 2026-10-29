@@ -13,7 +13,10 @@ import {
 } from "react-icons/fa";
 
 import type { ListAccount } from "..";
-import { FetchAccountsFn, NullableAccountsListState } from "../hooks/useAccountsList";
+import {
+  FetchAccountsFn,
+  NullableAccountsListState,
+} from "../hooks/useAccountsList";
 
 import type { Permission } from "@template/shared";
 import { useSelector } from "react-redux";
@@ -23,7 +26,11 @@ import type { CampusCode } from "@template/shared";
 
 type AccountsTableProps = {
   accounts: { accounts: ListAccount[]; totalAccounts: number };
-  accountsListState: NullableAccountsListState & { loading: boolean; count: number; page: number };
+  accountsListState: NullableAccountsListState & {
+    loading: boolean;
+    count: number;
+    page: number;
+  };
   fetchAccounts: FetchAccountsFn;
   onUpdate: (account: ListAccount) => void;
   onChangePassword: (account: ListAccount) => void;
@@ -106,10 +113,12 @@ export function AccountsTable({
                       });
                     }}
                     value={(accountsListState.filters ?? {}).status}
-                    options={[
-                      { label: tComponent("active"), value: "active" },
-                      { label: tComponent("inactive"), value: "inactive" },
-                    ] as { label: string; value: string }[]}
+                    options={
+                      [
+                        { label: tComponent("active"), value: "active" },
+                        { label: tComponent("inactive"), value: "inactive" },
+                      ] as { label: string; value: string }[]
+                    }
                     onChange={(val) => {
                       fetchAccounts({
                         page: 0,
@@ -181,76 +190,69 @@ export function AccountsTable({
             key: "actions",
             fixed: "right",
             render: (_: any, record: ListAccount) => {
-              const canUpdateStatus = hasPermissions(accountPermissions, [
-                "accounts:update-status",
-              ]) &&
-                record.role.level > accountLevel;
+              const canUpdateStatus =
+                hasPermissions(accountPermissions, [
+                  "accounts:update-status",
+                ]) && record.role.level > accountLevel;
 
               const canChangePassword =
                 hasPermissions(accountPermissions, [
                   "accounts:change-password",
-                ]) &&
-                record.role.level > accountLevel;
+                ]) && record.role.level > accountLevel;
               const canUpdate =
-                hasPermissions(accountPermissions, [
-                  "accounts:update",
-                ]) &&
+                hasPermissions(accountPermissions, ["accounts:update"]) &&
                 record.role.level > accountLevel;
               const canDelete =
-                hasPermissions(accountPermissions, [
-                  "accounts:delete",
-                ]) &&
+                hasPermissions(accountPermissions, ["accounts:delete"]) &&
                 record.role.level > accountLevel &&
                 !record.deleted;
               const canRestore =
-                hasPermissions(accountPermissions, [
-                  "accounts:restore",
-                ]) &&
+                hasPermissions(accountPermissions, ["accounts:restore"]) &&
                 record.role.level > accountLevel &&
                 record.deleted;
 
               const menuItems = !record.deleted
                 ? [
-                  {
-                    key: "update",
-                    label: tComponent("actionButtons.update"),
-                    icon: <FaPencilAlt />,
-                    disabled: !canUpdate,
-                    onClick: () => onUpdate(record),
-                  },
-                  {
-                    key: "change-password",
-                    label: tComponent("actionButtons.changePassword"),
-                    icon: <FaKey />,
-                    disabled: !canChangePassword,
-                    onClick: () => onChangePassword(record),
-                  },
-                  {
-                    key: "update-status",
-                    label: tComponent("actionButtons.updateStatus"),
-                    icon: <FaFlag />,
-                    disabled: !canUpdateStatus,
-                    onClick: () => onUpdateStatus(record),
-                  },
-                  {
-                    key: "delete",
-                    label: tComponent("actionButtons.delete"),
-                    danger: true,
-                    icon: <FaTrash />,
-                    disabled: !canDelete,
-                    onClick: () => onDelete(record),
-                  },
-                ]
+                    {
+                      key: "update",
+                      label: tComponent("actionButtons.update"),
+                      icon: <FaPencilAlt />,
+                      disabled: !canUpdate,
+                      onClick: () => onUpdate(record),
+                    },
+                    {
+                      key: "change-password",
+                      label: tComponent("actionButtons.changePassword"),
+                      icon: <FaKey />,
+                      disabled: !canChangePassword,
+                      onClick: () => onChangePassword(record),
+                    },
+                    {
+                      key: "update-status",
+                      label: tComponent("actionButtons.updateStatus"),
+                      icon: <FaFlag />,
+                      disabled: !canUpdateStatus,
+                      onClick: () => onUpdateStatus(record),
+                    },
+                    {
+                      key: "delete",
+                      label: tComponent("actionButtons.delete"),
+                      danger: true,
+                      icon: <FaTrash />,
+                      disabled: !canDelete,
+                      onClick: () => onDelete(record),
+                    },
+                  ]
                 : [
-                  {
-                    key: "restore",
-                    label: tComponent("actionButtons.restore"),
-                    icon: <FaTrashRestore />,
-                    disabled: !canRestore || !record.deleted,
-                    className: record.deleted ? "hidden" : "",
-                    onClick: () => onRestore(record),
-                  },
-                ];
+                    {
+                      key: "restore",
+                      label: tComponent("actionButtons.restore"),
+                      icon: <FaTrashRestore />,
+                      disabled: !canRestore || !record.deleted,
+                      className: record.deleted ? "hidden" : "",
+                      onClick: () => onRestore(record),
+                    },
+                  ];
 
               return (
                 <Space>

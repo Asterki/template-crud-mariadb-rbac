@@ -21,7 +21,7 @@ import {
   MenuProps,
   Space,
   Spin,
-  Typography
+  Typography,
 } from "antd";
 const { Title } = Typography;
 import esES from "antd/locale/es_ES";
@@ -45,7 +45,12 @@ interface LayoutProps {
   removePadding?: boolean;
 }
 
-export default function PageLayout({ children, selectedPage, removePadding, defaultCollapsed }: LayoutProps) {
+export default function PageLayout({
+  children,
+  selectedPage,
+  removePadding,
+  defaultCollapsed,
+}: LayoutProps) {
   const navigate = useNavigate();
   const dispatch = useDispatch<typeof import("../store").store.dispatch>();
 
@@ -100,9 +105,7 @@ export default function PageLayout({ children, selectedPage, removePadding, defa
         key: "reports-group",
         label: t("sidebar.reports-group.title"),
         icon: <FaChartArea />,
-        children: [
-
-        ],
+        children: [],
       },
 
       {
@@ -146,7 +149,9 @@ export default function PageLayout({ children, selectedPage, removePadding, defa
               <Link to="/admin/config">{t("sidebar.management.config")}</Link>
             ),
             style: {
-              display: hasPermissions(userPermissions, ["config:read"]) ? "block" : "none",
+              display: hasPermissions(userPermissions, ["config:read"])
+                ? "block"
+                : "none",
             },
             icon: <FaCog />,
           },
@@ -179,9 +184,7 @@ export default function PageLayout({ children, selectedPage, removePadding, defa
   const isDark = false;
 
   return (
-    <ConfigProvider
-      locale={esES}
-    >
+    <ConfigProvider locale={esES}>
       {/* Top Navbar */}
       <Header
         className={`px-4 flex items-center justify-between color-white`}
@@ -223,10 +226,7 @@ export default function PageLayout({ children, selectedPage, removePadding, defa
         >
           <Menu
             mode="inline"
-            defaultOpenKeys={[
-              "reports-group",
-              "management",
-            ]}
+            defaultOpenKeys={["reports-group", "management"]}
             defaultSelectedKeys={[selectedPage || "dashboard"]}
             items={menuItems}
             className="h-full"
@@ -243,10 +243,7 @@ export default function PageLayout({ children, selectedPage, removePadding, defa
           <Menu
             mode="inline"
             defaultSelectedKeys={[selectedPage || "dashboard"]}
-            defaultOpenKeys={[
-              "reports-group",
-              "management",
-            ]}
+            defaultOpenKeys={["reports-group", "management"]}
             style={{
               color: "white",
             }}
@@ -255,14 +252,14 @@ export default function PageLayout({ children, selectedPage, removePadding, defa
           />
         </Drawer>
 
-
-
         {/* Main Content */}
         <Layout
           style={{ background: "transparent" }}
           className={`min-h-screen ${isDark ? "dark" : ""} relative`}
         >
-          <div className={`${removePadding ? "" : "p-4"} dark:text-white min-h-[calc(100vh-64px)] z-10`}>
+          <div
+            className={`${removePadding ? "" : "p-4"} dark:text-white min-h-[calc(100vh-64px)] z-10`}
+          >
             {account && children}
             {!account && (
               <div className="text-center text-lg text-gray-500">
@@ -271,7 +268,6 @@ export default function PageLayout({ children, selectedPage, removePadding, defa
             )}
           </div>
         </Layout>
-
       </Layout>
     </ConfigProvider>
   );

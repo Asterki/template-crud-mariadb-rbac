@@ -6,8 +6,7 @@ import { App } from "antd";
 
 export type NullableAccountsListState = {
   [K in keyof AccountAPITypes.ListRequestBody]?:
-  | AccountAPITypes.ListRequestBody[K]
-  | null;
+    AccountAPITypes.ListRequestBody[K] | null;
 };
 export type FetchAccountsFn = (
   params?: NullableAccountsListState,
@@ -29,14 +28,7 @@ export function useAccountsList({
     AccountAPITypes.ListRequestBody & { loading: boolean }
   >({
     loading: true,
-    fields: [
-      "name",
-      "email",
-      "role",
-      "id",
-      "status",
-      "metadata.deleted",
-    ],
+    fields: ["name", "email", "role", "id", "status", "metadata.deleted"],
     populate: ["role"],
     count: 50,
     page: 0,

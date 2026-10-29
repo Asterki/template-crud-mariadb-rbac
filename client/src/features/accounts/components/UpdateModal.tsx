@@ -40,7 +40,7 @@ export function UpdateModal({
       okText={t("title")}
     >
       <Form layout="vertical">
-        <Form.Item label={t("fields.name")} required >
+        <Form.Item label={t("fields.name")} required>
           <Input
             value={state.name}
             onChange={(e) =>
@@ -49,7 +49,7 @@ export function UpdateModal({
             disabled={state.loading}
           />
         </Form.Item>
-        <Form.Item label={t("fields.email")} required >
+        <Form.Item label={t("fields.email")} required>
           <Input
             value={state.email}
             onChange={(e) =>
@@ -58,12 +58,10 @@ export function UpdateModal({
             disabled={state.loading}
           />
         </Form.Item>
-        <Form.Item label={t("fields.role")} required >
+        <Form.Item label={t("fields.role")} required>
           <Select
             value={state.roleId}
-            onChange={(val) =>
-              setState((prev) => ({ ...prev, roleId: val }))
-            }
+            onChange={(val) => setState((prev) => ({ ...prev, roleId: val }))}
             defaultValue={state.roleId}
             disabled={state.loading}
             options={accountRoles.map((role) => ({
@@ -72,27 +70,28 @@ export function UpdateModal({
             }))}
           />
         </Form.Item>
-        <Form.Item label={t("fields.campus")} required >
+        <Form.Item label={t("fields.campus")} required>
           <Select
             placeholder={t("fields.campusPlaceholder")}
-            options={[
-              { label: "Comayagua", value: "COMAYAGUA" },
-              { label: "Tegucigalpa", value: "TEGUCIGALPA" },
-              { label: "San Pedro Sula", value: "SANPEDRO" },
-              { label: "Olancho", value: "OLANCHO" },
-              { label: "La Ceiba", value: "LA_CEIBA" },
-              { label: "Choluteca", value: "CHOLUTECA" },
-              { label: "Danlí", value: "DANLI" },
-              { label: "Santa Rosa de Copán", value: "SANTA_ROSA" },
-            ] as { label: string; value: CampusCode }[]}
+            options={
+              [
+                { label: "Comayagua", value: "COMAYAGUA" },
+                { label: "Tegucigalpa", value: "TEGUCIGALPA" },
+                { label: "San Pedro Sula", value: "SANPEDRO" },
+                { label: "Olancho", value: "OLANCHO" },
+                { label: "La Ceiba", value: "LA_CEIBA" },
+                { label: "Choluteca", value: "CHOLUTECA" },
+                { label: "Danlí", value: "DANLI" },
+                { label: "Santa Rosa de Copán", value: "SANTA_ROSA" },
+              ] as { label: string; value: CampusCode }[]
+            }
             value={state.campus}
             onChange={(value) =>
               setState((prev) => ({ ...prev, campus: value }))
-            } />
+            }
+          />
         </Form.Item>
       </Form>
     </Modal>
   );
 }
-
-

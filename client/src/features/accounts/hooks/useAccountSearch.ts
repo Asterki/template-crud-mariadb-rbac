@@ -19,7 +19,9 @@ export function useAccountSearch({
   message,
   apiList = AccountsFeature.api.list,
 }: UseAccountsListOptions) {
-  const { t } = useTranslation(['features'], { keyPrefix: 'accounts.hooks.useAccountSearch' });
+  const { t } = useTranslation(["features"], {
+    keyPrefix: "accounts.hooks.useAccountSearch",
+  });
 
   const [accounts, setAccounts] = useState<SearchAccountResult[]>([]);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);

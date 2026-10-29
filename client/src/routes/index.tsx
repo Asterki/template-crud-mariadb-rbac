@@ -12,5 +12,5 @@ function Page() {
 
   navigate({
     to: "/admin",
-  })
+  });
 }

@@ -29,14 +29,14 @@ const handler = async (
     });
     const fieldsToPopulate = populate
       ? getFieldsToPopulate<
-        AccountInclude,
-        NonNullable<AccountAPITypes.ListRequestBody["populate"]>
-      >(populate, {
-        "metadata.createdBy": ["id", "name"],
-        "metadata.updatedBy": ["id", "name"],
-        "metadata.deletedBy": ["id", "name"],
-        role: ["id", "name", "level"],
-      })
+          AccountInclude,
+          NonNullable<AccountAPITypes.ListRequestBody["populate"]>
+        >(populate, {
+          "metadata.createdBy": ["id", "name"],
+          "metadata.updatedBy": ["id", "name"],
+          "metadata.deletedBy": ["id", "name"],
+          role: ["id", "name", "level"],
+        })
       : {};
 
     if (search && search.query.length > 0 && search.searchIn.length > 0) {

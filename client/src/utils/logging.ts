@@ -1,12 +1,5 @@
 type LogLevel =
-  | "trace"
-  | "debug"
-  | "info"
-  | "warn"
-  | "error"
-  | "fatal"
-  | "offline"
-  | "cache";
+  "trace" | "debug" | "info" | "warn" | "error" | "fatal" | "offline" | "cache";
 
 const LEVEL_COLORS: Record<LogLevel, string> = {
   trace: "color: #95a5a6", // gray

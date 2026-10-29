@@ -21,7 +21,7 @@ const handler = async (
   const { accountIds, fields, populate } = req.body;
 
   try {
-    let fieldsToSelect = getFieldsToSelect<AccountSelect>(fields, {
+    const fieldsToSelect = getFieldsToSelect<AccountSelect>(fields, {
       id: true,
       name: true,
     });

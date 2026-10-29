@@ -20,7 +20,7 @@ const handler = async (
   const { roleIds, fields, populate } = req.body;
 
   try {
-    let fieldsToSelect = getFieldsToSelect<AccountRoleSelect>(fields, {
+    const fieldsToSelect = getFieldsToSelect<AccountRoleSelect>(fields, {
       id: true,
       name: true,
     });

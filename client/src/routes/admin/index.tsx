@@ -61,28 +61,28 @@ function RouteComponent() {
     style?: React.CSSProperties;
     icon: React.ReactNode;
   }> = [
-      {
-        key: "accounts",
-        link: "/admin/accounts",
-        label: tPage("items.accounts.title"),
-        description: tPage("items.accounts.description"),
-        style: {
-          display: hasPermission("accounts:read") ? "block" : "none",
-        },
-        icon: <FaUser className="text-6xl" />, // Better for dashboards
+    {
+      key: "accounts",
+      link: "/admin/accounts",
+      label: tPage("items.accounts.title"),
+      description: tPage("items.accounts.description"),
+      style: {
+        display: hasPermission("accounts:read") ? "block" : "none",
       },
+      icon: <FaUser className="text-6xl" />, // Better for dashboards
+    },
 
-      {
-        key: "account-roles",
-        link: "/admin/accounts/roles",
-        label: tPage("items.account-roles.title"),
-        description: tPage("items.account-roles.description"),
-        style: {
-          display: hasPermission("account-roles:read") ? "block" : "none",
-        },
-        icon: <FaUserShield className="text-6xl" />, // Better for dashboards
+    {
+      key: "account-roles",
+      link: "/admin/accounts/roles",
+      label: tPage("items.account-roles.title"),
+      description: tPage("items.account-roles.description"),
+      style: {
+        display: hasPermission("account-roles:read") ? "block" : "none",
       },
-    ];
+      icon: <FaUserShield className="text-6xl" />, // Better for dashboards
+    },
+  ];
 
   const greeting =
     new Date().getHours() < 12

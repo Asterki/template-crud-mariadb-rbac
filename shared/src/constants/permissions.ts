@@ -34,7 +34,6 @@ const permissions: Permission[] = [
   // Profile
   "profile:update",
 
-
   // Logs
   "logs:read",
   "logs:export",

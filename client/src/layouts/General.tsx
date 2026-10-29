@@ -1,10 +1,4 @@
-import {
-  Button,
-  ConfigProvider,
-  Layout,
-  Space,
-  Typography,
-} from "antd";
+import { Button, ConfigProvider, Layout, Space, Typography } from "antd";
 import esES from "antd/locale/es_ES";
 import { useNavigate } from "@tanstack/react-router";
 
@@ -19,9 +13,7 @@ export default function GeneralLayout({ children }: LayoutProps) {
   const { Title, Text } = Typography;
 
   return (
-    <ConfigProvider
-      locale={esES}
-    >
+    <ConfigProvider locale={esES}>
       <Layout
         style={{
           minHeight: "100vh",
@@ -40,23 +32,41 @@ export default function GeneralLayout({ children }: LayoutProps) {
               style={{ width: 42, height: 42, objectFit: "contain" }}
             />
             <div className="text-white">
-              <h1 style={{ margin: 0 }} className="text-white font-bold text-lg">
+              <h1
+                style={{ margin: 0 }}
+                className="text-white font-bold text-lg"
+              >
                 Plantilla de Proyectos
               </h1>
             </div>
           </Space>
         </Header>
 
-        <Content style={{ padding: 20, display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <Content
+          style={{
+            padding: 20,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
           {children}
         </Content>
 
-        <Footer style={{ textAlign: "center", borderTop: "1px solid #262a33", background: "transparent" }}>
-          Hecho por <a href="https://asterki.xyz" target="_blank" className="underline">Fernando Rivera</a> | {new Date().getFullYear()}
+        <Footer
+          style={{
+            textAlign: "center",
+            borderTop: "1px solid #262a33",
+            background: "transparent",
+          }}
+        >
+          Hecho por{" "}
+          <a href="https://asterki.xyz" target="_blank" className="underline">
+            Fernando Rivera
+          </a>{" "}
+          | {new Date().getFullYear()}
         </Footer>
       </Layout>
     </ConfigProvider>
   );
 }
-
-

@@ -39,7 +39,7 @@ export function CreateAccountModal({
       okText={t("title")}
     >
       <Form layout="vertical">
-        <Form.Item label={t("fields.name")} required >
+        <Form.Item label={t("fields.name")} required>
           <Input
             maxLength={100}
             showCount
