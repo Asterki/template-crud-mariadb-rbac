@@ -7,6 +7,8 @@ import type { PrismaClient } from "@prisma/client";
 import type { Logger } from "pino";
 
 import type { AppConfig } from "./config/index.js";
+import { errorHandler } from "./http/error-handler.js";
+import { notFound } from "./http/not-found.js";
 import { requestLogger } from "./middleware/request-logger.js";
 import { registerRoutes } from "./routes/index.js";
 import { createSessionManager } from "./services/sessions.js";
@@ -60,6 +62,8 @@ export function createApp({
   sessions.loadToServer(app);
 
   registerRoutes(app);
+  app.use("/api", notFound);
+  app.use(errorHandler);
 
   return app;
 }
