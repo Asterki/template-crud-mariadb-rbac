@@ -58,6 +58,11 @@ COPY --from=server-build /app/server/prisma.config.ts ./prisma.config.ts
 COPY server/package.json ./package.json
 COPY docs/in-app ./docs/in-app
 
+# npm is a build-time tool. Removing it drops its bundled dependencies from the
+# runtime attack surface; the image starts and migrates with node and
+# node_modules/.bin/prisma only.
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
+
 USER node
 EXPOSE 3000
 

@@ -35,7 +35,9 @@ Browser --HTTPS--> Vercel SPA
 The published Docker image is **headless**. `SERVE_CLIENT` defaults to `false`
 and the image does not contain `client/dist`. In headless mode `GET /` returns a
 small JSON banner (`{"service":"...","version":"..."}`) and only `/api/*` and
-the health endpoints are served.
+the health endpoints are served. The runtime image also drops the npm CLI, which
+is only needed while building; the `migrate` job calls
+`node_modules/.bin/prisma` directly.
 
 Serving the SPA from the API is optional and intended for small all-in-one
 deployments. Build the client, set `SERVE_CLIENT=true`, and point `CLIENT_DIR`
