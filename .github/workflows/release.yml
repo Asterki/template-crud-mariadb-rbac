@@ -20,19 +20,41 @@ concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
-env:
-  # P5-09 wires release-please's real output here. Until then only edge and
-  # sha-* tags are produced.
-  RELEASE_CREATED: "false"
-
 jobs:
+  release-please:
+    name: Release please
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
   image:
     name: Build, scan and publish image
+    needs: release-please
+    # On push the image job waits for release-please. A manual dispatch skips
+    # release-please and builds the tag supplied in the workflow input.
+    if: >-
+      always() &&
+      (github.event_name == 'workflow_dispatch' ||
+      needs.release-please.result == 'success')
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
       id-token: write
+    env:
+      RELEASE_CREATED: ${{ needs.release-please.outputs.release_created || 'false' }}
+      RELEASE_TAG: ${{ needs.release-please.outputs.tag_name }}
     steps:
       - uses: actions/checkout@v7
 
@@ -62,8 +84,8 @@ jobs:
               echo "type=raw,value=${MANUAL_TAG}"
             fi
             if [ "${RELEASE_CREATED}" = "true" ]; then
-              echo "type=semver,pattern={{version}}"
-              echo "type=semver,pattern={{major}}.{{minor}}"
+              echo "type=semver,pattern={{version}},value=${RELEASE_TAG}"
+              echo "type=semver,pattern={{major}}.{{minor}},value=${RELEASE_TAG}"
               echo "type=raw,value=latest"
             fi
             echo "EOF"

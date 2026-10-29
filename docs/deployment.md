@@ -173,3 +173,12 @@ GitHub Actions runs lint, typecheck, tests and the SPA build on pull requests,
 and builds the Docker image for scanning. Pushes to `main` publish
 `linux/amd64` and `linux/arm64` images to GHCR; release-please adds semver tags
 and `latest` when it creates a release.
+
+### Manual image release
+
+If release-please is unavailable, run the **Release** workflow manually
+(`workflow_dispatch`) with the desired `tag` input. The workflow builds, scans
+and pushes that tag (plus `sha-*`) without waiting for a release PR. Do not
+push a tag from a separate workflow: tags created with `GITHUB_TOKEN` do not
+trigger other workflows, which is why publishing and release automation live in
+the same workflow.
