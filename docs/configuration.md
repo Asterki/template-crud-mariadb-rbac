@@ -73,9 +73,14 @@ Vite exposes only `VITE_*` variables at build time.
 | `VITE_APP_SLUG` | shared `APP_SLUG` | Machine-readable brand slug. |
 | `VITE_BRAND_COLOR` | shared `BRAND_COLOR` | Six-digit hex brand colour. Invalid values fall back. |
 | `VITE_DEFAULT_LOCALE` | `en` | `en` or `es`. An unknown value falls back to `en`. |
+| `ORIGIN_SECRET` | empty | Development proxy only. Vite injects it as `x-origin-secret`; never prefix it with `VITE_`. |
+| `VITE_PROXY_TARGET` | `http://localhost:3000` | Target for the Vite `/api` development proxy. |
 
 The defaults come from `shared/src/config/app.ts`. `npm run init` rewrites
 those defaults so a new project does not depend on deployment-time overrides.
+In development Vite proxies `/api` to `VITE_PROXY_TARGET` and injects the
+optional `ORIGIN_SECRET`. In production the Vercel rewrite performs the same
+job, so `VITE_API_URL` stays `/api`.
 
 ## Compose variables
 
