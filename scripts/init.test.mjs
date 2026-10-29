@@ -97,6 +97,24 @@ describe("init", { skip: initialized ? "repository already initialized" : false 
     assert.equal(existsSync(path.join(directory, ".template-initialized")), false);
   });
 
+  it("leaves the planning archive untouched", () => {
+    const directory = makeCopy();
+    const archive = path.join(directory, "docs/archive/PLAN.md");
+    const before = readFileSync(archive, "utf8");
+    const result = init(directory, [
+      "--name",
+      "Acme",
+      "--slug",
+      "acme",
+      "--yes",
+      "--no-db",
+      "--no-install",
+    ]);
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(readFileSync(archive, "utf8"), before);
+  });
+
   it("writes the marker once and refuses a second run", () => {
     const directory = makeCopy();
     const args = [

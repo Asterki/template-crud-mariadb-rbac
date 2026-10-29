@@ -244,6 +244,7 @@ function textFiles(directory, files = []) {
 
     const full = join(directory, entry.name);
     const rel = relative(root, full).split("\\").join("/");
+    if (rel.startsWith("docs/archive/")) continue;
     if (SKIP_FILES.has(rel)) continue;
     if (/(^|\/)\.env($|\.)/.test(rel) && !rel.endsWith(".example")) continue;
 
