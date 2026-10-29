@@ -16,6 +16,7 @@ import esES from "antd/locale/es_ES";
 
 import {
   FaBars,
+  FaBoxes,
   FaCompressArrowsAlt,
   FaKey,
   FaRegArrowAltCircleLeft,
@@ -28,7 +29,7 @@ import { useTranslation } from "react-i18next";
 import { APP_LOGO, APP_NAME } from "@template/shared";
 
 import AuthFeature from "../features/auth";
-import { useCan } from "../rbac";
+import { Can, useCan } from "../rbac";
 import { authRedirect } from "../rbac/guards";
 import type { RootState } from "../store";
 
@@ -92,6 +93,18 @@ export default function PageLayout({
         key: "accounts",
         label: <Link to="/admin/accounts">{t("sidebar.accounts")}</Link>,
         icon: <FaUsers />,
+      });
+    }
+
+    if (can("items:read")) {
+      items.push({
+        key: "items",
+        label: (
+          <Can permission="items:read">
+            <Link to="/admin/items">{t("sidebar.items")}</Link>
+          </Can>
+        ),
+        icon: <FaBoxes />,
       });
     }
 

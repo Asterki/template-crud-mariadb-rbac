@@ -17,6 +17,7 @@ const translation = {
     "invalid-current-password": "La contraseña actual no es correcta.",
     "password-change-required":
       "Debe cambiar su contraseña antes de continuar.",
+    "item-not-found": "El elemento no fue encontrado.",
     "invalid-origin": "El origen de la solicitud no está permitido.",
     "invalid-csrf-token":
       "El token de seguridad no es válido. Recargue la página.",
@@ -37,6 +38,7 @@ const translation = {
     "no-fields": "No hay cambios para guardar.",
     "invalid-status": "El estado seleccionado no es válido.",
     "query-too-long": "La búsqueda es demasiado larga.",
+    "description-too-long": "La descripción es demasiado larga.",
   },
 
   common: {
@@ -50,6 +52,7 @@ const translation = {
     confirm: "Confirmar",
     actions: "Acciones",
     loading: "Cargando...",
+    retry: "Reintentar",
   },
 
   permissions: {
@@ -74,6 +77,7 @@ const translation = {
       sidebar: {
         dashboard: "Panel de Control",
         accounts: "Cuentas de Usuario",
+        items: "Elementos",
         roles: "Roles y Permisos",
         changePassword: "Cambiar Contraseña",
         logout: "Cerrar Sesión",
@@ -180,6 +184,50 @@ const translation = {
           passwordSuccess: "Contraseña restablecida.",
           deleteSuccess: "Cuenta eliminada.",
           restoreSuccess: "Cuenta restaurada.",
+        },
+      },
+      items: {
+        title: "Elementos",
+        description:
+          "Módulo de ejemplo con permisos, auditoría y borrado lógico.",
+        create: "Crear Elemento",
+        searchPlaceholder: "Buscar por nombre",
+        showDeleted: "Mostrar eliminados",
+        empty: "No hay elementos.",
+        table: {
+          name: "Nombre",
+          description: "Descripción",
+          status: "Estado",
+          createdAt: "Creado",
+        },
+        status: {
+          all: "Todos",
+          active: "Activo",
+          archived: "Archivado",
+        },
+        actions: {
+          edit: "Editar",
+          delete: "Eliminar",
+          restore: "Restaurar",
+        },
+        fields: {
+          name: "Nombre",
+          description: "Descripción",
+          status: "Estado",
+        },
+        modals: {
+          createTitle: "Crear Elemento",
+          editTitle: "Editar Elemento",
+          deleteTitle: "Eliminar Elemento",
+          deleteContent: '¿Eliminar "{{name}}"? Podrá restaurarlo después.',
+          restoreTitle: "Restaurar Elemento",
+          restoreContent: '¿Restaurar "{{name}}"?',
+        },
+        messages: {
+          createSuccess: "Elemento creado.",
+          updateSuccess: "Elemento actualizado.",
+          deleteSuccess: "Elemento eliminado.",
+          restoreSuccess: "Elemento restaurado.",
         },
       },
       roles: {
