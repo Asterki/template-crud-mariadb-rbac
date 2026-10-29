@@ -17,6 +17,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
     "test:coverage": "vitest run --coverage --passWithNoTests",
+    "check:i18n": "node scripts/check-hardcoded-strings.mjs",
     "knip": "knip --no-exit-code"
   },
   "dependencies": {

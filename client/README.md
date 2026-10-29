@@ -25,6 +25,19 @@ This project uses [Vitest](https://vitest.dev/) for testing. You can run the tes
 npm run test
 ```
 
+## Internationalisation
+
+The UI ships with English (default) and Spanish. Translation packs live in
+`src/locales/<language>/<namespace>.ts`; keep both languages in sync and never
+put user-facing text directly in a component. API error codes are translated
+through the single lookup in `src/i18n/errors.ts`.
+
+Run the heuristic hardcoded-string check manually (it is not part of the build):
+
+```bash
+npm run check:i18n
+```
+
 ## Styling
 
 This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.

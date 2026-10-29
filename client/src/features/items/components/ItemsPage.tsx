@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import type { ItemDto } from "@template/shared";
 
 import { normalizeApiError } from "../../../utils/api";
+import { translateApiError } from "../../../i18n/errors";
 import { useItemMutations } from "../hooks/useItemMutations";
 import { useItems } from "../hooks/useItems";
 import { ItemsTable } from "./ItemsTable";
@@ -19,8 +20,8 @@ type FormState = {
 };
 
 export function ItemsPage() {
-  const { t } = useTranslation(["pages"], { keyPrefix: "admin.items" });
-  const { t: tErrors } = useTranslation(["error-messages"]);
+  const { t } = useTranslation("items");
+  const { t: tErrors } = useTranslation("errors");
   const { message } = App.useApp();
   const items = useItems();
   const mutations = useItemMutations(items.invalidate);
@@ -28,9 +29,7 @@ export function ItemsPage() {
 
   const reportError = (cause: unknown) => {
     const normalized = normalizeApiError(cause);
-    message.error(
-      tErrors(normalized.message, { defaultValue: normalized.message }),
-    );
+    message.error(translateApiError(tErrors, normalized));
   };
 
   const handleSubmit = async (values: ItemFormValues) => {

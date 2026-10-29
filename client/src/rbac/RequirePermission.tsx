@@ -24,13 +24,13 @@ export function RequirePermission({
 }: RequirePermissionProps) {
   const navigate = useNavigate();
   const { message } = App.useApp();
-  const { t } = useTranslation();
+  const { t } = useTranslation("errors");
   const account = useSelector((state: RootState) => state.auth.account);
   const allowed = can(account?.role, permission);
 
   useEffect(() => {
     if (account && !allowed) {
-      message.error(t("error-messages:forbidden"));
+      message.error(t("codes.forbidden"));
       navigate({ to: "/admin" });
     }
   }, [account, allowed, message, navigate, t]);

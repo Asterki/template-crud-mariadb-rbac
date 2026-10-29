@@ -22,6 +22,7 @@ import type {
 } from "@template/shared";
 
 import { Can } from "../../../rbac";
+import { translateApiError } from "../../../i18n/errors";
 
 const { Text, Title } = Typography;
 
@@ -59,9 +60,9 @@ export function ItemsTable({
   onDelete,
   onRestore,
 }: ItemsTableProps) {
-  const { t } = useTranslation(["pages"], { keyPrefix: "admin.items" });
-  const { t: tCommon } = useTranslation(["common"]);
-  const { t: tErrors } = useTranslation(["error-messages"]);
+  const { t } = useTranslation("items");
+  const { t: tCommon } = useTranslation("common");
+  const { t: tErrors } = useTranslation("errors");
   const [search, setSearch] = useState(query.q ?? "");
 
   useEffect(() => {
@@ -215,7 +216,7 @@ export function ItemsTable({
           className="mt-4"
           type="error"
           showIcon
-          message={tErrors(error, { defaultValue: error })}
+          message={translateApiError(tErrors, { code: error })}
           action={
             <Button size="small" onClick={onRetry}>
               {tCommon("retry")}

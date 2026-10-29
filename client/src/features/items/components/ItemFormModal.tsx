@@ -9,6 +9,8 @@ import {
   type UpdateItemRequest,
 } from "@template/shared";
 
+import { translateValidationError } from "../../../i18n/errors";
+
 export type ItemFormMode = "create" | "edit";
 
 export type ItemFormValues = Pick<
@@ -33,9 +35,9 @@ export function ItemFormModal({
   onCancel,
   onSubmit,
 }: ItemFormModalProps) {
-  const { t } = useTranslation(["pages"], { keyPrefix: "admin.items" });
-  const { t: tCommon } = useTranslation(["common"]);
-  const { t: tValidation } = useTranslation(["validation"]);
+  const { t } = useTranslation("items");
+  const { t: tCommon } = useTranslation("common");
+  const { t: tValidation } = useTranslation("validation");
   const [form] = Form.useForm<ItemFormValues>();
 
   useEffect(() => {
@@ -57,7 +59,9 @@ export function ItemFormModal({
       form.setFields(
         parsed.error.issues.map((issue) => ({
           name: issue.path[0] as keyof ItemFormValues,
-          errors: [tValidation(issue.message, { defaultValue: issue.message })],
+          errors: [
+            translateValidationError(tValidation, issue.message),
+          ],
         })),
       );
       return;

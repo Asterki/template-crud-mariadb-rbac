@@ -27,6 +27,7 @@ import { useTranslation } from "react-i18next";
 import { APP_LOGO, APP_NAME } from "@template/shared";
 
 import AuthFeature from "../features/auth";
+import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { ThemeModeToggle } from "../components/ThemeModeToggle";
 import { Can, useCan } from "../rbac";
 import { authRedirect } from "../rbac/guards";
@@ -50,7 +51,7 @@ export default function PageLayout({
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch<AppDispatch>();
-  const { t } = useTranslation(["layouts"], { keyPrefix: "admin" });
+  const { t } = useTranslation("common");
   const { can } = useCan();
 
   const { account } = useSelector((state: RootState) => state.auth);
@@ -82,7 +83,7 @@ export default function PageLayout({
     const items: MenuItem[] = [
       {
         key: "dashboard",
-        label: <Link to="/admin">{t("sidebar.dashboard")}</Link>,
+        label: <Link to="/admin">{t("nav.dashboard")}</Link>,
         icon: <FaCompressArrowsAlt />,
       },
     ];
@@ -90,7 +91,7 @@ export default function PageLayout({
     if (can("accounts:read")) {
       items.push({
         key: "accounts",
-        label: <Link to="/admin/accounts">{t("sidebar.accounts")}</Link>,
+        label: <Link to="/admin/accounts">{t("nav.accounts")}</Link>,
         icon: <FaUsers />,
       });
     }
@@ -100,7 +101,7 @@ export default function PageLayout({
         key: "items",
         label: (
           <Can permission="items:read">
-            <Link to="/admin/items">{t("sidebar.items")}</Link>
+            <Link to="/admin/items">{t("nav.items")}</Link>
           </Can>
         ),
         icon: <FaBoxes />,
@@ -110,7 +111,7 @@ export default function PageLayout({
     if (can("roles:read")) {
       items.push({
         key: "roles",
-        label: <Link to="/admin/roles">{t("sidebar.roles")}</Link>,
+        label: <Link to="/admin/roles">{t("nav.roles")}</Link>,
         icon: <FaUserShield />,
       });
     }
@@ -119,7 +120,7 @@ export default function PageLayout({
       {
         key: "change-password",
         label: (
-          <Link to="/admin/change-password">{t("sidebar.changePassword")}</Link>
+          <Link to="/admin/change-password">{t("nav.changePassword")}</Link>
         ),
         icon: <FaKey />,
       },
@@ -127,7 +128,7 @@ export default function PageLayout({
         key: "logout",
         label: (
           <Link to="/auth/logout" className="text-red-500">
-            {t("sidebar.logout")}
+            {t("nav.logout")}
           </Link>
         ),
         danger: true,
@@ -149,7 +150,7 @@ export default function PageLayout({
             type="button"
             onClick={() => setDrawerVisible(true)}
             className="md:hidden text-xl block text-white"
-            aria-label="Menu"
+            aria-label={t("menu")}
           >
             <FaBars />
           </button>
@@ -164,7 +165,10 @@ export default function PageLayout({
             {APP_NAME}
           </Title>
         </Space>
-        <ThemeModeToggle />
+        <Space align="center" size={12}>
+          <LanguageSwitcher />
+          <ThemeModeToggle />
+        </Space>
       </Header>
 
       <Layout hasSider>
@@ -187,7 +191,7 @@ export default function PageLayout({
         </Sider>
 
         <Drawer
-          title="Menu"
+          title={t("menu")}
           placement="left"
           onClose={() => setDrawerVisible(false)}
           open={drawerVisible}

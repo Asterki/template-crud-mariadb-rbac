@@ -9,6 +9,7 @@ import AdminPageLayout from "../../layouts/Admin";
 import { RequirePermission } from "../../rbac";
 import rolesApiClient from "../../features/roles/api";
 import { normalizeApiError } from "../../utils/api";
+import { translateApiError } from "../../i18n/errors";
 
 const { Title, Text } = Typography;
 
@@ -24,8 +25,11 @@ const ROLE_COLORS: Record<string, string> = {
 };
 
 function RouteComponent() {
-  const { t } = useTranslation(["pages"], { keyPrefix: "admin.roles" });
-  const { t: tPermissions } = useTranslation(["permissions"]);
+  const { t } = useTranslation("roles");
+  const { t: tPermissions } = useTranslation("roles", {
+    keyPrefix: "permissions",
+  });
+  const { t: tErrors } = useTranslation("errors");
   const { message } = App.useApp();
   const [rows, setRows] = useState<RolePermissionsEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,21 +40,19 @@ function RouteComponent() {
       .then((response) => setRows(response.data))
       .catch((error: unknown) => {
         const normalized = normalizeApiError(error);
-        message.error(
-          t(`error-messages:${normalized.message}`, {
-            defaultValue: normalized.message,
-          }),
-        );
+        message.error(translateApiError(tErrors, normalized));
       })
       .finally(() => setLoading(false));
-  }, [message, t]);
+  }, [message, tErrors]);
 
   const columns: ColumnsType<RolePermissionsEntry> = [
     {
       title: t("table.role"),
       dataIndex: "role",
       key: "role",
-      render: (role: string) => <Tag color={ROLE_COLORS[role]}>{role}</Tag>,
+      render: (role: string) => (
+        <Tag color={ROLE_COLORS[role]}>{t(`names.${role}`)}</Tag>
+      ),
     },
     {
       title: t("table.permissions"),

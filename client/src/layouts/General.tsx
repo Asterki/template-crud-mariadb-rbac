@@ -1,11 +1,15 @@
 import { Layout, Space } from "antd";
+import { useTranslation } from "react-i18next";
 import { APP_LOGO, APP_NAME } from "@template/shared";
+
+import { LanguageSwitcher } from "../components/LanguageSwitcher";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export default function GeneralLayout({ children }: LayoutProps) {
+  const { t } = useTranslation("common");
   const { Header, Content, Footer } = Layout;
 
   return (
@@ -24,6 +28,7 @@ export default function GeneralLayout({ children }: LayoutProps) {
             </h1>
           </div>
         </Space>
+        <LanguageSwitcher />
       </Header>
 
       <Content className="p-5 flex justify-center items-center">
@@ -31,9 +36,9 @@ export default function GeneralLayout({ children }: LayoutProps) {
       </Content>
 
       <Footer className="text-center border-t border-[#262a33] bg-transparent">
-        Hecho por{" "}
+        {t("footer.madeBy")}{" "}
         <a href="https://asterki.xyz" target="_blank" className="underline">
-          Fernando Rivera
+          {t("footer.author")}
         </a>{" "}
         | {new Date().getFullYear()}
       </Footer>

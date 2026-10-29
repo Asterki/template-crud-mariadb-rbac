@@ -28,6 +28,10 @@ import AdminPageLayout from "../../../layouts/Admin";
 import { RequirePermission, useCan } from "../../../rbac";
 import { accountsApi } from "../../../features/accounts/api";
 import { normalizeApiError } from "../../../utils/api";
+import {
+  translateApiError,
+  translateValidationError,
+} from "../../../i18n/errors";
 import type { RootState } from "../../../store";
 
 const { Title, Text } = Typography;
@@ -90,8 +94,11 @@ const emptyPassword: PasswordState = {
 };
 
 export default function AccountsPage() {
-  const { t } = useTranslation(["pages"], { keyPrefix: "admin.accounts" });
-  const { t: tCommon } = useTranslation(["common"]);
+  const { t } = useTranslation("accounts");
+  const { t: tCommon } = useTranslation("common");
+  const { t: tErrors } = useTranslation("errors");
+  const { t: tValidation } = useTranslation("validation");
+  const { t: tRoles } = useTranslation("roles");
   const { message, modal } = App.useApp();
   const { can, canManage } = useCan();
   const { account } = useSelector((state: RootState) => state.auth);
@@ -110,13 +117,9 @@ export default function AccountsPage() {
   const reportError = useCallback(
     (error: unknown) => {
       const normalized = normalizeApiError(error);
-      message.error(
-        t(`error-messages:${normalized.message}`, {
-          defaultValue: normalized.message,
-        }),
-      );
+      message.error(translateApiError(tErrors, normalized));
     },
-    [message, t],
+    [message, tErrors],
   );
 
   const load = useCallback(
@@ -151,7 +154,9 @@ export default function AccountsPage() {
   const handleCreate = async () => {
     const parsed = createAccountSchema.safeParse(createState);
     if (!parsed.success) {
-      message.warning(t(`validation:${parsed.error.issues[0]?.message}`));
+      message.warning(
+        translateValidationError(tValidation, parsed.error.issues[0]?.message),
+      );
       return;
     }
 
@@ -174,7 +179,9 @@ export default function AccountsPage() {
       role: editState.role,
     });
     if (!parsed.success) {
-      message.warning(t(`validation:${parsed.error.issues[0]?.message}`));
+      message.warning(
+        translateValidationError(tValidation, parsed.error.issues[0]?.message),
+      );
       return;
     }
 
@@ -194,7 +201,10 @@ export default function AccountsPage() {
     const status = row.status === "active" ? "inactive" : "active";
     modal.confirm({
       title: t("modals.statusTitle"),
-      content: t("modals.statusContent", { name: row.name, status }),
+      content: t("modals.statusContent", {
+        name: row.name,
+        status: t(`status.${status}`),
+      }),
       okText: tCommon("confirm"),
       cancelText: tCommon("cancel"),
       onOk: async () => {
@@ -214,7 +224,9 @@ export default function AccountsPage() {
       newPassword: passwordState.newPassword,
     });
     if (!parsed.success) {
-      message.warning(t(`validation:${parsed.error.issues[0]?.message}`));
+      message.warning(
+        translateValidationError(tValidation, parsed.error.issues[0]?.message),
+      );
       return;
     }
 
@@ -286,14 +298,18 @@ export default function AccountsPage() {
       title: t("table.role"),
       dataIndex: "role",
       key: "role",
-      render: (role: Role) => <Tag color={ROLE_COLORS[role]}>{role}</Tag>,
+      render: (role: Role) => (
+        <Tag color={ROLE_COLORS[role]}>{tRoles(`names.${role}`)}</Tag>
+      ),
     },
     {
       title: t("table.status"),
       dataIndex: "status",
       key: "status",
       render: (status: AccountDto["status"]) => (
-        <Tag color={status === "active" ? "green" : "red"}>{status}</Tag>
+        <Tag color={status === "active" ? "green" : "red"}>
+            {t(`status.${status}`)}
+          </Tag>
       ),
     },
     {
@@ -481,7 +497,7 @@ export default function AccountsPage() {
               value={createState.role}
               options={assignableRoles.map((role) => ({
                 value: role,
-                label: role,
+                label: tRoles(`names.${role}`),
               }))}
               onChange={(role) => setCreateState((prev) => ({ ...prev, role }))}
             />
@@ -522,7 +538,7 @@ export default function AccountsPage() {
               value={editState.role}
               options={assignableRoles.map((role) => ({
                 value: role,
-                label: role,
+                label: tRoles(`names.${role}`),
               }))}
               onChange={(role) => setEditState((prev) => ({ ...prev, role }))}
             />

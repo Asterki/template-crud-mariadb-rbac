@@ -90,7 +90,7 @@ describe("ItemsPage", () => {
     renderPage("viewer");
 
     await screen.findByText("Example item");
-    expect(screen.queryByRole("button", { name: /crear/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /create item/i })).toBeNull();
   });
 
   it("shows create but not delete to staff", async () => {
@@ -98,8 +98,10 @@ describe("ItemsPage", () => {
     renderPage("staff");
 
     await screen.findByText("Example item");
-    expect(screen.getByRole("button", { name: /crear/i })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /eliminar/i })).toBeNull();
+    expect(
+      screen.getByRole("button", { name: /create item/i }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /delete/i })).toBeNull();
   });
 
   it("renders a localised error state", async () => {
@@ -109,7 +111,7 @@ describe("ItemsPage", () => {
     renderPage("viewer");
 
     expect(
-      await screen.findByText(/No se pudo conectar al servidor/),
+      await screen.findByText(/Could not connect to the server/),
     ).toBeInTheDocument();
   });
 });

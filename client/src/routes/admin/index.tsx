@@ -16,22 +16,24 @@ export const Route = createFileRoute("/admin/")({
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const { t } = useTranslation(["pages"], { keyPrefix: "admin.index" });
+  const { t } = useTranslation("common");
+  const { t: tAccounts } = useTranslation("accounts");
+  const { t: tRoles } = useTranslation("roles");
   const { account } = useSelector((state: RootState) => state.auth);
 
   const greeting =
     new Date().getHours() < 12
-      ? t("greetings.morning")
+      ? t("dashboard.greetings.morning")
       : new Date().getHours() < 18
-        ? t("greetings.afternoon")
-        : t("greetings.evening");
+        ? t("dashboard.greetings.afternoon")
+        : t("dashboard.greetings.evening");
 
   return (
     <AdminLayout>
       <Title level={2} style={{ marginBottom: 24 }}>
         {greeting}, {account?.name}
       </Title>
-      <Paragraph>{t("description")}</Paragraph>
+      <Paragraph>{t("dashboard.description")}</Paragraph>
 
       <div className="flex gap-2 flex-wrap mt-8 items-stretch justify-center">
         <Can permission="accounts:read">
@@ -46,10 +48,10 @@ function RouteComponent() {
               </Col>
               <Col>
                 <p className="text-2xl font-bold text-primary">
-                  {t("items.accounts.title")}
+                  {tAccounts("title")}
                 </p>
                 <Paragraph type="secondary" style={{ margin: 0 }}>
-                  {t("items.accounts.description")}
+                  {tAccounts("description")}
                 </Paragraph>
               </Col>
             </div>
@@ -68,10 +70,10 @@ function RouteComponent() {
               </Col>
               <Col>
                 <p className="text-2xl font-bold text-primary">
-                  {t("items.roles.title")}
+                  {tRoles("title")}
                 </p>
                 <Paragraph type="secondary" style={{ margin: 0 }}>
-                  {t("items.roles.description")}
+                  {tRoles("description")}
                 </Paragraph>
               </Col>
             </div>

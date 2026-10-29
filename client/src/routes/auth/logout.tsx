@@ -5,6 +5,8 @@ import { useDispatch } from "react-redux";
 
 import AdminLayout from "../../layouts/Admin";
 import AuthFeature from "../../features/auth";
+import { translateApiError } from "../../i18n/errors";
+import { normalizeApiError } from "../../utils/api";
 import type { AppDispatch } from "../../store";
 
 export const Route = createFileRoute("/auth/logout")({
@@ -15,14 +17,15 @@ function RouteComponent() {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const { message } = App.useApp();
-  const { t } = useTranslation(["pages"], { keyPrefix: "auth.logout" });
+  const { t } = useTranslation("auth", { keyPrefix: "logout" });
+  const { t: tErrors } = useTranslation("errors");
 
   const logout = async () => {
     try {
       await dispatch(AuthFeature.actions.logout()).unwrap();
       navigate({ to: "/auth/login" });
-    } catch {
-      message.error(t("messages.error"));
+    } catch (error) {
+      message.error(translateApiError(tErrors, normalizeApiError(error)));
     }
   };
 

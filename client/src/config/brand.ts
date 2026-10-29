@@ -41,7 +41,11 @@ export function resolveDefaultLocale(
 const env = import.meta.env;
 
 /** Single source of truth for branding in the client. */
-export const brand: Readonly<AppBranding> = Object.freeze({
+export type Brand = Readonly<
+  Omit<AppBranding, "defaultLocale"> & { defaultLocale: SupportedLocale }
+>;
+
+export const brand: Brand = Object.freeze({
   name: env.VITE_APP_NAME?.trim() || APP_NAME,
   slug: env.VITE_APP_SLUG?.trim() || APP_SLUG,
   logo: APP_LOGO,

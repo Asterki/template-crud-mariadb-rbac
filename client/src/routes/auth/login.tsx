@@ -8,6 +8,10 @@ import { loginAccountSchema } from "@template/shared";
 import GeneralLayout from "../../layouts/General";
 import AuthFeature from "../../features/auth";
 import { normalizeApiError } from "../../utils/api";
+import {
+  translateApiError,
+  translateValidationError,
+} from "../../i18n/errors";
 import type { AppDispatch, RootState } from "../../store";
 
 export const Route = createFileRoute("/auth/login")({
@@ -17,7 +21,9 @@ export const Route = createFileRoute("/auth/login")({
 function RouteComponent() {
   const { message } = App.useApp();
   const navigate = useNavigate();
-  const { t } = useTranslation(["pages"], { keyPrefix: "auth.login" });
+  const { t } = useTranslation("auth", { keyPrefix: "login" });
+  const { t: tValidation } = useTranslation("validation");
+  const { t: tErrors } = useTranslation("errors");
   const dispatch = useDispatch<AppDispatch>();
 
   const { account, loading } = useSelector((state: RootState) => state.auth);
@@ -35,7 +41,7 @@ function RouteComponent() {
   const handleLogin = async () => {
     const parsed = loginAccountSchema.safeParse({ email, password });
     if (!parsed.success) {
-      message.error(t(`messages.${parsed.error.issues[0]?.message}`));
+      message.error(translateValidationError(tValidation, parsed.error.issues[0]?.message));
       return;
     }
 
@@ -49,11 +55,7 @@ function RouteComponent() {
       });
     } catch (error) {
       const normalized = normalizeApiError(error);
-      message.error(
-        t(`messages.${normalized.message}`, {
-          defaultValue: normalized.message,
-        }),
-      );
+      message.error(translateApiError(tErrors, normalized));
     }
   };
 

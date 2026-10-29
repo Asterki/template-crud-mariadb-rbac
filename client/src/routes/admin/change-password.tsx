@@ -8,6 +8,10 @@ import { changePasswordSchema } from "@template/shared";
 import AdminPageLayout from "../../layouts/Admin";
 import AuthFeature from "../../features/auth";
 import { normalizeApiError } from "../../utils/api";
+import {
+  translateApiError,
+  translateValidationError,
+} from "../../i18n/errors";
 import type { AppDispatch, RootState } from "../../store";
 
 const { Title, Text } = Typography;
@@ -17,10 +21,12 @@ export const Route = createFileRoute("/admin/change-password")({
 });
 
 function RouteComponent() {
-  const { t } = useTranslation(["pages"], {
-    keyPrefix: "admin.changePassword",
+  const { t } = useTranslation("auth", {
+    keyPrefix: "changePassword",
   });
-  const { t: tCommon } = useTranslation(["common"]);
+  const { t: tCommon } = useTranslation("common");
+  const { t: tValidation } = useTranslation("validation");
+  const { t: tErrors } = useTranslation("errors");
   const { message } = App.useApp();
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
@@ -42,7 +48,9 @@ function RouteComponent() {
       newPassword,
     });
     if (!parsed.success) {
-      message.warning(t(`validation:${parsed.error.issues[0]?.message}`));
+      message.warning(
+        translateValidationError(tValidation, parsed.error.issues[0]?.message),
+      );
       return;
     }
 
@@ -56,11 +64,7 @@ function RouteComponent() {
       navigate({ to: "/admin" });
     } catch (error) {
       const normalized = normalizeApiError(error);
-      message.error(
-        t(`error-messages:${normalized.message}`, {
-          defaultValue: normalized.message,
-        }),
-      );
+      message.error(translateApiError(tErrors, normalized));
     } finally {
       setLoading(false);
     }
