@@ -8,6 +8,9 @@ import type { PrismaClient } from "@prisma/client";
 import type { Logger } from "pino";
 
 import type { AppConfig } from "../config/index.js";
+import { sessionCookieName, sessionCookieOptions } from "../http/cookies.js";
+
+const BCRYPT_COST = 12;
 
 export type SessionDependencies = {
   config: AppConfig;
@@ -21,16 +24,11 @@ export function createSessionManager({
   logger,
 }: SessionDependencies) {
   const sessionMiddleware = session({
+    name: sessionCookieName(config),
     secret: config.sessionSecret,
     resave: false,
     saveUninitialized: false,
-    cookie: {
-      secure: false,
-      maxAge: 1000 * 60 * 60 * 24 * 7,
-      sameSite: "lax",
-      httpOnly: false,
-      domain: config.cookieDomain,
-    },
+    cookie: sessionCookieOptions(config),
     store: new PrismaSessionStore(prisma as never, {
       checkPeriod: 2 * 60 * 1000, // Prune expired sessions every 2 minutes
       dbRecordIdIsSessionId: true,
@@ -42,44 +40,43 @@ export function createSessionManager({
     {
       usernameField: "email",
       passwordField: "password",
-      passReqToCallback: true,
-      session: false,
     },
-    async (
-      req: { body: { email: string; password: string } },
-      _email,
-      _password,
-      done,
-    ) => {
+    async (email, password, done) => {
       try {
         const account = await prisma.account.findFirst({
-          where: {
-            email: req.body.email.toLowerCase(),
-          },
+          where: { email: email.trim().toLowerCase() },
+          include: { metadata: { select: { deleted: true } } },
         });
 
-        if (!account)
-          return done(null, false, {
-            message: "invalid-credentials",
+        if (!account) {
+          return done(null, false, { message: "invalid-credentials" });
+        }
+
+        const valid = await bcrypt.compare(password, account.password);
+        if (!valid) {
+          return done(null, false, { message: "invalid-credentials" });
+        }
+
+        if (
+          account.status === "inactive" ||
+          account.metadata?.deleted === true
+        ) {
+          return done(null, false, { message: "account-locked" });
+        }
+
+        if (bcrypt.getRounds(account.password) !== BCRYPT_COST) {
+          const rehashed = await bcrypt.hash(password, BCRYPT_COST);
+          await prisma.account.update({
+            where: { id: account.id },
+            data: { password: rehashed },
           });
+          account.password = rehashed;
+        }
 
-        // Verify password and TFA code
-        if (!bcrypt.compareSync(req.body.password, account.password))
-          return done(null, false, {
-            message: "invalid-credentials",
-          });
-
-        // Check the account status
-        if (account.status == "inactive")
-          return done(null, false, {
-            message: "account-locked",
-          });
-
-        logger.info(`Account login for ${req.body.email}`);
-
+        logger.info({ accountId: account.id }, "Account login");
         return done(null, account);
-      } catch (err: unknown) {
-        return done(err);
+      } catch (error) {
+        return done(error);
       }
     },
   );
@@ -89,14 +86,23 @@ export function createSessionManager({
   });
 
   passport.deserializeUser(async (id: string, done) => {
-    const user = await prisma.account.findUnique({
-      where: { id: id },
-    });
-    if (user == null) {
-      done(null, null);
-      return;
+    try {
+      const user = await prisma.account.findUnique({
+        where: { id },
+        include: { metadata: { select: { deleted: true } } },
+      });
+      if (
+        user === null ||
+        user.status === "inactive" ||
+        user.metadata?.deleted === true
+      ) {
+        done(null, false);
+        return;
+      }
+      done(null, user as Express.User);
+    } catch (error) {
+      done(error);
     }
-    done(null, user as Express.User);
   });
 
   passport.use(localStrategy);

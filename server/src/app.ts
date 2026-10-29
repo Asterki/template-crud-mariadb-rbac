@@ -1,6 +1,5 @@
 import express, { type Express } from "express";
 import cookie from "cookie-parser";
-import cors from "cors";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { PrismaClient } from "@prisma/client";
@@ -9,7 +8,11 @@ import type { Logger } from "pino";
 import type { AppConfig } from "./config/index.js";
 import { errorHandler } from "./http/error-handler.js";
 import { notFound } from "./http/not-found.js";
+import { csrfProtection } from "./middleware/csrf.js";
+import { originSecret } from "./middleware/origin-secret.js";
+import { globalRateLimit } from "./middleware/rate-limit.js";
 import { requestLogger } from "./middleware/request-logger.js";
+import { corsMiddleWare, securityHeaders } from "./middleware/security.js";
 import { createHealthRouter } from "./routes/health.js";
 import { registerRoutes } from "./routes/index.js";
 import { createAccountService } from "./services/account-service.js";
@@ -39,20 +42,21 @@ export function createApp({
   app.set("trust proxy", config.trustProxy);
 
   app.use(requestLogger(logger));
+  app.use(securityHeaders());
+  app.use(corsMiddleWare(config));
   app.use(express.json({ limit: "1mb" }));
   app.use(cookie(config.sessionSecret));
   app.use(createHealthRouter({ prisma, logger }));
   app.use("/uploads/", express.static(path.join(__dirname, "../uploads")));
 
-  if (config.nodeEnv !== "production") {
-    app.use(
-      cors({
-        origin: [...config.corsOrigins],
-        credentials: true,
-        exposedHeaders: ["set-cookie"],
-      }),
-    );
-  } else {
+  const sessions = createSessionManager({ config, prisma, logger });
+  sessions.loadToServer(app);
+
+  app.use("/api", originSecret(config));
+  app.use("/api", globalRateLimit(config));
+  app.use(csrfProtection(config));
+
+  if (config.nodeEnv === "production") {
     const clientPath = path.join(__dirname, "../../client-dist");
     app.use(express.static(clientPath));
     app.get(/.*/, (req, res, next) => {
@@ -61,10 +65,7 @@ export function createApp({
     });
   }
 
-  const sessions = createSessionManager({ config, prisma, logger });
-  sessions.loadToServer(app);
-
-  registerRoutes(app, { accounts: createAccountService(prisma) });
+  registerRoutes(app, { accounts: createAccountService(prisma), config });
   app.use("/api", notFound);
   app.use(errorHandler);
 

@@ -120,6 +120,14 @@ export function createAccountService(prisma: PrismaClient) {
       return paginated(accounts.map(toAccountDto), total, input);
     },
 
+    async recordLogin(id: string): Promise<{ lastLogin: Date | null }> {
+      return prisma.account.update({
+        where: { id },
+        data: { lastLogin: new Date() },
+        select: { lastLogin: true },
+      });
+    },
+
     async get(id: string): Promise<AccountDto> {
       const account = await prisma.account.findUnique({
         where: { id },

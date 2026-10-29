@@ -1,4 +1,5 @@
 import express from "express";
+import { Prisma } from "@prisma/client";
 import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -31,6 +32,12 @@ function testApp() {
   app.get("/unknown", () => {
     throw new Error("secret stack content");
   });
+  app.get("/database-down", () => {
+    throw new Prisma.PrismaClientInitializationError(
+      "database is down",
+      "P1001",
+    );
+  });
   app.use("/api", notFound);
   app.use(errorHandler);
   return app;
@@ -58,6 +65,16 @@ describe("errorHandler", () => {
     });
     expect(JSON.stringify(response.body)).not.toContain("secret stack");
     expect(response.body.error.stack).toBeUndefined();
+  });
+
+  it("maps database connection failures to a 503", async () => {
+    const response = await request(testApp()).get("/database-down");
+
+    expect(response.status).toBe(503);
+    expect(response.body.error).toMatchObject({
+      code: "service-unavailable",
+      message: "service-unavailable",
+    });
   });
 
   it("returns JSON 404 for an unknown API path", async () => {

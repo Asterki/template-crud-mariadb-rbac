@@ -3,15 +3,21 @@ import type { RequestHandler } from "express";
 import passport from "passport";
 import type { ChangePasswordRequest } from "@template/shared";
 
+import type { AppConfig } from "../config/index.js";
+import {
+  clearSessionCookieOptions,
+  csrfCookieName,
+  csrfCookieOptions,
+  sessionCookieName,
+} from "../http/cookies.js";
 import { toSessionAccountDto } from "../http/dto/accounts.js";
 import { UnauthorizedError } from "../http/errors.js";
 import type { AccountService } from "../services/account-service.js";
 
-function csrfCookieName(): string {
-  return process.env.NODE_ENV === "production" ? "__Host-csrf" : "csrf";
-}
-
-export function createAuthController(accounts: AccountService) {
+export function createAuthController(
+  accounts: AccountService,
+  config: Pick<AppConfig, "nodeEnv" | "cookieDomain">,
+) {
   const login: RequestHandler = (req, res, next) => {
     passport.authenticate(
       "local",
@@ -30,16 +36,27 @@ export function createAuthController(accounts: AccountService) {
           return;
         }
 
-        req.logIn(user, (loginError) => {
-          if (loginError) {
-            next(loginError);
+        req.session.regenerate((regenerateError) => {
+          if (regenerateError) {
+            next(regenerateError);
             return;
           }
-          if (!req.user) {
-            next(new UnauthorizedError("invalid-credentials"));
-            return;
-          }
-          res.json({ data: toSessionAccountDto(req.user) });
+
+          req.logIn(user, (loginError) => {
+            if (loginError) {
+              next(loginError);
+              return;
+            }
+
+            accounts
+              .recordLogin(user.id)
+              .then(({ lastLogin }) => {
+                res.json({
+                  data: toSessionAccountDto({ ...user, lastLogin }),
+                });
+              })
+              .catch(next);
+          });
         });
       },
     )(req, res, next);
@@ -47,25 +64,31 @@ export function createAuthController(accounts: AccountService) {
 
   const csrf: RequestHandler = (_req, res) => {
     const csrfToken = randomBytes(32).toString("hex");
-    const secure = process.env.NODE_ENV === "production";
 
-    res.cookie(csrfCookieName(), csrfToken, {
-      httpOnly: false,
-      secure,
-      sameSite: "lax",
-      path: "/",
-    });
+    res.cookie(csrfCookieName(config), csrfToken, csrfCookieOptions(config));
     res.setHeader("Cache-Control", "no-store");
     res.json({ csrfToken });
   };
 
   const logout: RequestHandler = (req, res, next) => {
-    req.logout((error) => {
-      if (error) {
-        next(error);
+    req.logout((logoutError) => {
+      if (logoutError) {
+        next(logoutError);
         return;
       }
-      res.json({ data: { success: true } });
+
+      req.session.destroy((destroyError) => {
+        if (destroyError) {
+          next(destroyError);
+          return;
+        }
+
+        res.clearCookie(
+          sessionCookieName(config),
+          clearSessionCookieOptions(config),
+        );
+        res.json({ data: { success: true } });
+      });
     });
   };
 
@@ -76,17 +99,33 @@ export function createAuthController(accounts: AccountService) {
     res.json({ data: toSessionAccountDto(req.user) });
   };
 
-  const changePassword: RequestHandler = async (req, res) => {
+  const changePassword: RequestHandler = async (req, res, next) => {
     if (!req.user) {
       throw new UnauthorizedError("unauthenticated");
     }
+    const current = req.user;
     const body = req.body as ChangePasswordRequest;
+
     const updated = await accounts.changeOwnPassword(
-      req.user.id,
+      current.id,
       body.currentPassword,
       body.newPassword,
     );
-    res.json({ data: toSessionAccountDto(updated) });
+
+    req.session.regenerate((regenerateError) => {
+      if (regenerateError) {
+        next(regenerateError);
+        return;
+      }
+
+      req.logIn(current, (loginError) => {
+        if (loginError) {
+          next(loginError);
+          return;
+        }
+        res.json({ data: toSessionAccountDto(updated) });
+      });
+    });
   };
 
   return { login, csrf, logout, me, changePassword };

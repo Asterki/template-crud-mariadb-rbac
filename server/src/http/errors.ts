@@ -55,7 +55,7 @@ export class ValidationError extends AppError {
 
 export class ServiceUnavailableError extends AppError {
   constructor(message = "Service unavailable", details?: unknown) {
-    super("service_unavailable", 503, message, details);
+    super("service-unavailable", 503, message, details);
     this.name = "ServiceUnavailableError";
   }
 }

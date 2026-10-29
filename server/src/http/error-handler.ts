@@ -3,7 +3,20 @@ import { Prisma } from "@prisma/client";
 import { ZodError } from "zod";
 
 import { logger } from "../logger.js";
-import { AppError, ConflictError, ValidationError } from "./errors.js";
+import {
+  AppError,
+  ConflictError,
+  ServiceUnavailableError,
+  ValidationError,
+} from "./errors.js";
+
+const DATABASE_UNAVAILABLE_CODES = new Set([
+  "P1001",
+  "P1002",
+  "P1008",
+  "P1017",
+  "P2024",
+]);
 
 type ErrorPayload = {
   error: {
@@ -33,6 +46,14 @@ function normalize(error: unknown): AppError {
 
   if (error instanceof ZodError) {
     return new ValidationError("Invalid request", zodDetails(error));
+  }
+
+  if (
+    error instanceof Prisma.PrismaClientInitializationError ||
+    (error instanceof Prisma.PrismaClientKnownRequestError &&
+      DATABASE_UNAVAILABLE_CODES.has(error.code))
+  ) {
+    return new ServiceUnavailableError("service-unavailable");
   }
 
   if (

@@ -1,6 +1,7 @@
 import type { Router } from "express";
 import { describe, expect, it } from "vitest";
 
+import { loadConfig } from "../../src/config/index.js";
 import { createHealthRouter } from "../../src/routes/health.js";
 import { createAuthRouter } from "../../src/routes/auth.js";
 import { createAccountsRouter } from "../../src/routes/accounts.js";
@@ -59,13 +60,22 @@ function collect(
 }
 
 const service = {} as AccountService;
+const config = loadConfig({
+  NODE_ENV: "test",
+  PORT: "3000",
+  DATABASE_URL: "mysql://user:password@localhost:3306/app",
+  SESSION_SECRET: "a".repeat(32),
+  CORS_ORIGINS: "http://localhost:2173",
+  LOG_LEVEL: "silent",
+  LOG_FORMAT: "json",
+});
 
 const routers = [
   {
     prefix: "",
     router: createHealthRouter({ prisma: {} as never, logger: {} as never }),
   },
-  { prefix: "/api/auth", router: createAuthRouter(service) },
+  { prefix: "/api/auth", router: createAuthRouter(service, config) },
   { prefix: "/api/accounts", router: createAccountsRouter(service) },
   { prefix: "/api/roles", router: createRolesRouter() },
 ] as Array<{ prefix: string; router: Router }>;

@@ -15,10 +15,10 @@ import {
   hasTestDatabase,
   migrateTestDatabase,
   seedAccount,
-  TEST_PASSWORD,
   testEmail,
   truncateAll,
 } from "../helpers/db.js";
+import { csrfToken, loginAgent } from "../helpers/http.js";
 
 const describeDb = hasTestDatabase ? describe : describe.skip;
 const db = (hasTestDatabase ? createTestPrisma() : null) as PrismaClient;
@@ -41,12 +41,7 @@ const app = createApp({ config, logger: createLogger(config), prisma: db });
 type Method = "get" | "post" | "patch" | "delete";
 
 async function login(email: string) {
-  const agent = request.agent(app);
-  const response = await agent
-    .post("/api/auth/login")
-    .send({ email, password: TEST_PASSWORD });
-  expect(response.status).toBe(200);
-  return agent;
+  return loginAgent(app, email, "InitialPassword123!");
 }
 
 describeDb("permission matrix", () => {
@@ -88,6 +83,7 @@ describeDb("permission matrix", () => {
 
     for (const [index, role] of roles.entries()) {
       const agent = await login(accounts[role].email);
+      const token = await csrfToken(agent);
       const target = targets[index]!;
       const deletedTarget = deletedTargets[index]!;
 
@@ -165,7 +161,10 @@ describeDb("permission matrix", () => {
       ];
 
       for (const testCase of cases) {
-        const requestBuilder = agent[testCase.method](testCase.url);
+        let requestBuilder = agent[testCase.method](testCase.url);
+        if (testCase.method !== "get") {
+          requestBuilder = requestBuilder.set("x-csrf-token", token);
+        }
         const response =
           testCase.body === undefined
             ? await requestBuilder
@@ -192,15 +191,17 @@ describeDb("permission matrix", () => {
 
   it("returns 401 for unauthenticated protected requests", async () => {
     await truncateAll(db);
-    const anonymous = request(app);
+    const anonymous = request.agent(app);
+    const token = await csrfToken(anonymous);
 
     const responses = await Promise.all([
       anonymous.get("/api/accounts"),
       anonymous.get("/api/roles"),
       anonymous.get("/api/auth/me"),
-      anonymous.post("/api/auth/logout"),
+      anonymous.post("/api/auth/logout").set("x-csrf-token", token),
       anonymous
         .post("/api/auth/change-password")
+        .set("x-csrf-token", token)
         .send({ currentPassword: "x", newPassword: "NewPassword123!" }),
     ]);
 
