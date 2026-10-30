@@ -114,4 +114,6 @@ rollback.
 
 ## License
 
-See [LICENSE](./LICENSE).
+Released under the [MIT License](./LICENSE).
+
+Copyright © 2026 Fernando David Rivera Ulloa.

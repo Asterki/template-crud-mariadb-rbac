@@ -45,6 +45,8 @@ repository URL, locale and brand colour with `readline`.
 - application titles and brand defaults (`shared/src/config/app.ts`,
   `client/index.html`, `client/public/manifest.json`, README, MkDocs);
 - repository URLs and the CODEOWNERS placeholder;
+- `repository`, `homepage`, `bugs` and `author` metadata in the root and
+  package manifests (the MIT license is preserved);
 - generated `server/.env` and `client/.env` with a random `SESSION_SECRET`,
   database passwords and `ORIGIN_SECRET`.
 

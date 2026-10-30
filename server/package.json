@@ -3,6 +3,16 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "license": "MIT",
+  "author": "Fernando David Rivera Ulloa",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Asterki/template-crud-mariadb-rbac.git"
+  },
+  "homepage": "https://github.com/Asterki/template-crud-mariadb-rbac#readme",
+  "bugs": {
+    "url": "https://github.com/Asterki/template-crud-mariadb-rbac/issues"
+  },
   "main": "./dist/index.js",
   "engines": {
     "node": ">=24 <25",
