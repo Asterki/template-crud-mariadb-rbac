@@ -1,40 +1,40 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 
 import {
-  FaBars,
-  FaTerminal,
-  FaUserShield,
-  FaUsers,
-  FaCompressArrowsAlt,
-  FaChartArea,
-  FaCog,
-  FaRegArrowAltCircleLeft,
-  FaInfo,
-} from "react-icons/fa";
-
-import {
-  ConfigProvider,
   Drawer,
   Layout,
   Menu,
-  MenuProps,
+  type MenuProps,
   Space,
   Spin,
-  Typography
+  Typography,
 } from "antd";
 const { Title } = Typography;
-import esES from "antd/locale/es_ES";
+
+import {
+  FaBars,
+  FaBook,
+  FaBoxes,
+  FaCompressArrowsAlt,
+  FaKey,
+  FaRegArrowAltCircleLeft,
+  FaUserShield,
+  FaUsers,
+} from "react-icons/fa";
 
 import { useDispatch, useSelector } from "react-redux";
-
 import { useTranslation } from "react-i18next";
-import AuthFeature from "../features/auth/";
+import { brand } from "../config/brand";
 
-// import ConfigFeature from "../features/config/";
+import AuthFeature from "../features/auth";
+import { LanguageSwitcher } from "../components/LanguageSwitcher";
+import { ThemeModeToggle } from "../components/ThemeModeToggle";
+import { Can, useCan } from "../rbac";
+import { docsNavVisible } from "../features/docs/nav";
+import { useThemeMode } from "../theme";
+import { authRedirect } from "../rbac/guards";
 import type { RootState } from "../store";
-
-import { hasPermissions } from "../utils/permissions";
 
 const { Header, Sider } = Layout;
 
@@ -45,172 +45,142 @@ interface LayoutProps {
   removePadding?: boolean;
 }
 
-export default function PageLayout({ children, selectedPage, removePadding, defaultCollapsed }: LayoutProps) {
+export default function PageLayout({
+  children,
+  selectedPage,
+  removePadding,
+  defaultCollapsed,
+}: LayoutProps) {
   const navigate = useNavigate();
-  const dispatch = useDispatch<typeof import("../store").store.dispatch>();
-
-  const { t } = useTranslation(["layouts"], { keyPrefix: "admin" });
+  const location = useLocation();
+  const dispatch = useDispatch<AppDispatch>();
+  const { t } = useTranslation("common");
+  const { can } = useCan();
+  const { isDark } = useThemeMode();
 
   const { account } = useSelector((state: RootState) => state.auth);
-  // const { config } = useSelector((state: RootState) => state.config);
 
   const [collapsed, setCollapsed] = useState(defaultCollapsed || false);
   const [drawerVisible, setDrawerVisible] = useState(false);
 
   useEffect(() => {
-    if (!account) {
-      (async () => {
-        const result = await dispatch(AuthFeature.actions.fetch());
+    if (account) return;
+    void dispatch(AuthFeature.actions.fetchMe())
+      .unwrap()
+      .catch(() => {
+        navigate({ to: "/auth/login" });
+      });
+  }, [account, dispatch, navigate]);
 
-        if (
-          AuthFeature.actions.fetch.rejected.match(result) ||
-          result.payload.status === "unauthenticated"
-        ) {
-          navigate({ to: "/auth/login" });
-        } else {
-          console.log("Account fetched successfully:", result.payload);
-        }
-      })();
+  useEffect(() => {
+    if (!account) return;
+    const target = authRedirect(account, location.pathname);
+    if (target && target !== location.pathname) {
+      navigate({ to: target });
     }
-  }, [account]);
-
-  // useEffect(() => {
-  //   if (!config) dispatch(ConfigFeature.actions.fetchConfig());
-
-  //   // if (!config?.masterServer.enabled) navigate({ to: '/nodes/register' })
-  // }, [config]);
-
-  const sidebarRef = useRef(null);
+  }, [account, location.pathname, navigate]);
 
   type MenuItem = Required<MenuProps>["items"][number];
   const menuItems = useMemo<MenuItem[]>(() => {
     if (!account) return [];
 
-    const userPermissions = account.data.role.permissions;
-
-    return [
-      // === Overview & Core ===
+    const items: MenuItem[] = [
       {
         key: "dashboard",
-        label: <Link to="/admin">{t("sidebar.dashboard")}</Link>,
-        icon: <FaCompressArrowsAlt />, // Better for dashboards
+        label: <Link to="/admin">{t("nav.dashboard")}</Link>,
+        icon: <FaCompressArrowsAlt />,
       },
+    ];
 
+    if (can("accounts:read")) {
+      items.push({
+        key: "accounts",
+        label: <Link to="/admin/accounts">{t("nav.accounts")}</Link>,
+        icon: <FaUsers />,
+      });
+    }
+
+    if (can("items:read")) {
+      items.push({
+        key: "items",
+        label: (
+          <Can permission="items:read">
+            <Link to="/admin/items">{t("nav.items")}</Link>
+          </Can>
+        ),
+        icon: <FaBoxes />,
+      });
+    }
+
+    if (can("roles:read")) {
+      items.push({
+        key: "roles",
+        label: <Link to="/admin/roles">{t("nav.roles")}</Link>,
+        icon: <FaUserShield />,
+      });
+    }
+
+    if (docsNavVisible(account.role)) {
+      items.push({
+        key: "docs",
+        label: <Link to="/admin/docs">{t("nav.docs")}</Link>,
+        icon: <FaBook />,
+      });
+    }
+
+    items.push(
       {
-        key: "reports-group",
-        label: t("sidebar.reports-group.title"),
-        icon: <FaChartArea />,
-        children: [
-
-        ],
-      },
-
-      {
-        key: "management",
-        label: t("sidebar.management.title"),
-        icon: <FaCog />,
-        children: [
-          {
-            key: "accounts",
-            label: (
-              <Link to="/admin/accounts">
-                {t("sidebar.management.accounts")}
-              </Link>
-            ),
-            style: {
-              display: hasPermissions(userPermissions, ["accounts:read"])
-                ? "block"
-                : "none",
-            },
-            icon: <FaUsers />, // Better for dashboards
-          },
-
-          {
-            key: "account-roles",
-            label: (
-              <Link to="/admin/accounts/roles">
-                {t("sidebar.management.account-roles")}
-              </Link>
-            ),
-            style: {
-              display: hasPermissions(userPermissions, ["account-roles:read"])
-                ? "block"
-                : "none",
-            },
-            icon: <FaUserShield />,
-          },
-
-          {
-            key: "config",
-            label: (
-              <Link to="/admin/config">{t("sidebar.management.config")}</Link>
-            ),
-            style: {
-              display: hasPermissions(userPermissions, ["config:read"]) ? "block" : "none",
-            },
-            icon: <FaCog />,
-          },
-
-          {
-            key: "logs",
-            label: <Link to="/admin/logs">{t("sidebar.management.logs")}</Link>,
-            style: {
-              display: hasPermissions(userPermissions, ["logs:read"])
-                ? "block"
-                : "none",
-            },
-            icon: <FaTerminal />,
-          },
-        ],
+        key: "change-password",
+        label: (
+          <Link to="/admin/change-password">{t("nav.changePassword")}</Link>
+        ),
+        icon: <FaKey />,
       },
       {
         key: "logout",
         label: (
-          <Link color="red" to="/auth/logout">
-            {t("sidebar.logout")}
+          <Link to="/auth/logout" className="text-red-500">
+            {t("nav.logout")}
           </Link>
         ),
         danger: true,
         icon: <FaRegArrowAltCircleLeft className="text-red-300" />,
       },
-    ];
-  }, [account]);
+    );
 
-  const isDark = false;
+    return items;
+  }, [account, can, t]);
 
   return (
-    <ConfigProvider
-      locale={esES}
-    >
-      {/* Top Navbar */}
-      <Header
-        className={`px-4 flex items-center justify-between color-white`}
-        style={{ paddingInline: 16 }}
-      >
+    <>
+      <Header className="flex items-center justify-between">
         <div className="md:hidden block">
           <button
+            type="button"
             onClick={() => setDrawerVisible(true)}
             className="md:hidden text-xl block text-white"
+            aria-label={t("menu")}
           >
             <FaBars />
           </button>
         </div>
-        <Space align="center" className="" size={14}>
+        <Space align="center" size={14}>
           <img
-            src="/assets/img/icon.png"
-            alt="Icon"
-            style={{ width: 42, height: 42, objectFit: "contain" }}
+            src={brand.logo}
+            alt={brand.name}
+            className="h-[42px] w-[42px] object-contain"
           />
-          <div className="text-white">
-            <h1 style={{ margin: 0 }} className="text-white font-bold text-lg">
-              Sistema de Registro de la Universidad de Las Americas
-            </h1>
-          </div>
+          <Title level={1} className="!m-0 !text-white text-lg">
+            {brand.name}
+          </Title>
+        </Space>
+        <Space align="center" size={12}>
+          <LanguageSwitcher />
+          <ThemeModeToggle />
         </Space>
       </Header>
 
       <Layout hasSider>
-        {/* Sidebar for desktop */}
         <Sider
           breakpoint="md"
           collapsible
@@ -219,23 +189,18 @@ export default function PageLayout({ children, selectedPage, removePadding, defa
           className="hidden md:block"
           theme={isDark ? "dark" : "light"}
           width={220}
-          ref={sidebarRef}
         >
           <Menu
             mode="inline"
-            defaultOpenKeys={[
-              "reports-group",
-              "management",
-            ]}
+            defaultOpenKeys={["management"]}
             defaultSelectedKeys={[selectedPage || "dashboard"]}
             items={menuItems}
             className="h-full"
           />
         </Sider>
 
-        {/* Sidebar Drawer for mobile */}
         <Drawer
-          title="Menú"
+          title={t("menu")}
           placement="left"
           onClose={() => setDrawerVisible(false)}
           open={drawerVisible}
@@ -243,36 +208,27 @@ export default function PageLayout({ children, selectedPage, removePadding, defa
           <Menu
             mode="inline"
             defaultSelectedKeys={[selectedPage || "dashboard"]}
-            defaultOpenKeys={[
-              "reports-group",
-              "management",
-            ]}
-            style={{
-              color: "white",
-            }}
             items={menuItems}
             onClick={() => setDrawerVisible(false)}
           />
         </Drawer>
 
-
-
-        {/* Main Content */}
-        <Layout
-          style={{ background: "transparent" }}
-          className={`min-h-screen ${isDark ? "dark" : ""} relative`}
-        >
-          <div className={`${removePadding ? "" : "p-4"} dark:text-white min-h-[calc(100vh-64px)] z-10`}>
-            {account && children}
-            {!account && (
+        <Layout className="min-h-screen bg-transparent">
+          <div
+            className={`${removePadding ? "" : "p-4"} dark:text-white min-h-[calc(100vh-64px)] z-10`}
+          >
+            {account ? (
+              children
+            ) : (
               <div className="text-center text-lg text-gray-500">
                 <Spin size="large" />
               </div>
             )}
           </div>
         </Layout>
-
       </Layout>
-    </ConfigProvider>
+    </>
   );
 }
+
+type AppDispatch = typeof import("../store").store.dispatch;

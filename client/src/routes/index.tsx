@@ -1,16 +1,5 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-
-import { Layout, Button } from "antd";
-const { Header, Footer } = Layout;
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
-  component: Page,
+  component: () => <Navigate to="/admin" />,
 });
-
-function Page() {
-  const navigate = useNavigate();
-
-  navigate({
-    to: "/admin",
-  })
-}

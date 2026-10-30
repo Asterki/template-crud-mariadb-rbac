@@ -1,0 +1,57 @@
+const accounts = {
+  title: "Gestión de Cuentas",
+  description: "Administre las cuentas de usuario del sistema.",
+  createAccount: "Crear Cuenta",
+  searchPlaceholder: "Buscar por nombre o correo",
+  showDeleted: "Mostrar eliminadas",
+  status: {
+    active: "Activa",
+    inactive: "Inactiva",
+  },
+  table: {
+    name: "Nombre",
+    email: "Correo",
+    role: "Rol",
+    status: "Estado",
+    lastLogin: "Último acceso",
+    never: "Nunca",
+    actions: "Acciones",
+    deleted: "Eliminada",
+  },
+  actions: {
+    edit: "Editar",
+    activate: "Activar",
+    deactivate: "Desactivar",
+    password: "Contraseña",
+    restore: "Restaurar",
+    delete: "Eliminar",
+  },
+  fields: {
+    name: "Nombre",
+    email: "Correo",
+    password: "Contraseña inicial",
+    newPassword: "Nueva contraseña",
+  },
+  modals: {
+    createTitle: "Crear Cuenta",
+    editTitle: "Editar Cuenta",
+    passwordTitle: "Restablecer Contraseña",
+    statusTitle: "Cambiar Estado",
+    statusContent: "¿Cambiar el estado de {{name}} a {{status}}?",
+    deleteTitle: "Eliminar Cuenta",
+    deleteContent:
+      "¿Eliminar la cuenta de {{name}}? El correo se libera para reutilizarlo.",
+    restoreTitle: "Restaurar Cuenta",
+    restoreContent: "¿Restaurar la cuenta de {{name}}?",
+  },
+  messages: {
+    createSuccess: "Cuenta creada.",
+    updateSuccess: "Cuenta actualizada.",
+    statusSuccess: "Estado actualizado.",
+    passwordSuccess: "Contraseña restablecida.",
+    deleteSuccess: "Cuenta eliminada.",
+    restoreSuccess: "Cuenta restaurada.",
+  },
+};
+
+export default accounts;

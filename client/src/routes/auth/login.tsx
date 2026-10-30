@@ -1,19 +1,18 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-
-import { App, Modal, Button, Form, Input, Typography, Card } from "antd";
-
-import { FaChevronLeft } from "react-icons/fa";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { App, Button, Card, Form, Input, Typography } from "antd";
 import { useTranslation } from "react-i18next";
-
-import { unwrapResult } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
-import type { RootState, AppDispatch } from "../../store";
+import { loginAccountSchema } from "@template/shared";
 
-import AuthFeature, { type AuthAPITypes } from "../../features/auth/";
-import GeneralLayout from "client/src/layouts/General";
-
-// import TerminalFeature from "../../features/terminals/";
+import GeneralLayout from "../../layouts/General";
+import AuthFeature from "../../features/auth";
+import { normalizeApiError } from "../../utils/api";
+import {
+  translateApiError,
+  translateValidationError,
+} from "../../i18n/errors";
+import type { AppDispatch, RootState } from "../../store";
 
 export const Route = createFileRoute("/auth/login")({
   component: RouteComponent,
@@ -22,118 +21,46 @@ export const Route = createFileRoute("/auth/login")({
 function RouteComponent() {
   const { message } = App.useApp();
   const navigate = useNavigate();
-  const { t } = useTranslation(["pages"], { keyPrefix: "auth.login" });
-
+  const { t } = useTranslation("auth", { keyPrefix: "login" });
+  const { t: tValidation } = useTranslation("validation");
+  const { t: tErrors } = useTranslation("errors");
   const dispatch = useDispatch<AppDispatch>();
-  const { account } = useSelector((state: RootState) => state.auth);
 
-  const [loginState, setLoginState] = useState<
-    AuthAPITypes.LoginRequestBody & { loading: boolean; tfaModalOpen: boolean }
-  >({
-    loading: false,
-    tfaModalOpen: false,
-    email: "",
-    password: "",
-    tfaCode: "",
-  });
+  const { account, loading } = useSelector((state: RootState) => state.auth);
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    if (!account) return;
+    navigate({
+      to: account.mustChangePassword ? "/admin/change-password" : "/admin",
+    });
+  }, [account, navigate]);
 
   const handleLogin = async () => {
-    if (loginState.loading) return;
-    setLoginState((s) => ({ ...s, loading: true }));
-
-    const parsedData = AuthFeature.schemas.loginAccountSchema.safeParse({
-      ...loginState,
-      tfaCode:
-        loginState.tfaCode!.trim() == ""
-          ? undefined
-          : loginState.tfaCode!.trim(),
-    });
-
-    if (!parsedData.success) {
-      for (const error of parsedData.error.issues) {
-        message.error(t(`messages.${error.message}`));
-      }
-      setLoginState((s) => ({ ...s, loading: false }));
+    const parsed = loginAccountSchema.safeParse({ email, password });
+    if (!parsed.success) {
+      message.error(translateValidationError(tValidation, parsed.error.issues[0]?.message));
       return;
     }
 
-    const result = await dispatch(AuthFeature.actions.login(parsedData.data));
-    const payload = unwrapResult(result);
-
-    switch (payload.status) {
-      case "success":
-        message.success(t("messages.success"));
-        break;
-      case "requires-tfa":
-        message.info(t("messages.requires-tfa"));
-        setLoginState((s) => ({ ...s, loading: false, requiresTfa: true }));
-        break;
-      case "invalid-credentials":
-        message.error(t("messages.invalid-credentials"));
-        break;
-      case "invalid-tfa-code":
-        message.error(t("messages.invalid-tfa-code"));
-        break;
+    try {
+      const session = await dispatch(
+        AuthFeature.actions.login(parsed.data),
+      ).unwrap();
+      message.success(t("messages.success"));
+      navigate({
+        to: session.mustChangePassword ? "/admin/change-password" : "/admin",
+      });
+    } catch (error) {
+      const normalized = normalizeApiError(error);
+      message.error(translateApiError(tErrors, normalized));
     }
-
-    setLoginState((s) => ({ ...s, loading: false }));
   };
-
-  useEffect(() => {
-    if (account) {
-      navigate({ to: "/admin" });
-    }
-  }, [account, navigate]);
-
-  // useEffect(() => {
-  // 	if (!terminal) {
-  // 		(async () => {
-  // 			const fingerPrint =
-  // 				await TerminalFeature.utils.getTerminalFingerPrint();
-  // 			const result = await dispatch(
-  // 				TerminalFeature.actions.fetchTerminal(fingerPrint),
-  // 			);
-  // 			const payload = unwrapResult(result);
-  //
-  // 			if (
-  // 				AuthFeature.actions.fetch.rejected.match(result) ||
-  // 				payload.status == "terminal-not-found"
-  // 			) {
-  // 				navigate({ to: "/terminals/activate" });
-  // 			}
-  // 		})();
-  // 	}
-  // }, [terminal]);
 
   return (
     <GeneralLayout>
-      <Modal
-        open={loginState.tfaModalOpen}
-        title={t("login.tfaModal.title")}
-        onOk={handleLogin}
-        okText={t("login.tfaModal.submit")}
-        onCancel={() => {
-          setLoginState((s) => ({ ...s, requiresTfa: false, tfa: "" }));
-        }}
-        cancelText={t("dashboard:common.cancel")}
-      >
-        <p>{t("login.tfaModal.description")}</p>
-
-        <br />
-
-        <Form layout="vertical">
-          <Form.Item label={t("login.tfaModal.fields.tfaCode")} required>
-            <Input.Password
-              value={loginState.tfaCode}
-              onChange={(e) =>
-                setLoginState({ ...loginState, tfaCode: e.target.value })
-              }
-              autoComplete="one-time-code"
-              placeholder={t("login.tfaModal.fields.tfaCodePlaceholder")}
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
       <Card
         title={
           <Typography.Title level={3} className="!mb-0 text-center">
@@ -146,13 +73,11 @@ function RouteComponent() {
           {t("description")}
         </Typography.Paragraph>
 
-        <Form layout="vertical">
+        <Form layout="vertical" onFinish={handleLogin}>
           <Form.Item label={t("fields.email")} required>
             <Input
-              value={loginState.email}
-              onChange={(e) =>
-                setLoginState({ ...loginState, email: e.target.value })
-              }
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
               autoComplete="email"
               type="email"
               placeholder={t("fields.emailPlaceholder")}
@@ -161,23 +86,15 @@ function RouteComponent() {
 
           <Form.Item label={t("fields.password")} required>
             <Input.Password
-              value={loginState.password}
-              onChange={(e) =>
-                setLoginState({ ...loginState, password: e.target.value })
-              }
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
               autoComplete="current-password"
-              placeholder="••••••••"
+              placeholder={t("fields.passwordPlaceholder")}
             />
           </Form.Item>
 
           <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={loginState.loading}
-              block
-              onClick={handleLogin}
-            >
+            <Button type="primary" htmlType="submit" loading={loading} block>
               {t("submit")}
             </Button>
           </Form.Item>

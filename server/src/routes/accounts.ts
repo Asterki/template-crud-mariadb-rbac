@@ -1,81 +1,95 @@
-import express from "express";
-
-import createHandler from "../controllers/accounts/create.js";
-import getHandler from "../controllers/accounts/get.js";
-import listHandler from "../controllers/accounts/list.js";
-import updateHandler from "../controllers/accounts/update.js";
-import deleteHandler from "../controllers/accounts/delete.js";
-import restoreHandler from "../controllers/accounts/restore.js";
-import updatePasswordHandler from "../controllers/accounts/update-password.js";
-import updateStatusHandler from "../controllers/accounts/update-status.js";
-
-import { validateRequestBody } from "../middleware/validationMiddleware.js";
+import { Router } from "express";
 import {
-  ensureAuthenticated,
-  ensurePermissions,
-} from "../middleware/authMiddleware.js";
+  createAccountSchema,
+  idParamSchema,
+  listAccountsQuerySchema,
+  setAccountPasswordSchema,
+  setAccountStatusSchema,
+  updateAccountSchema,
+} from "@template/shared";
 
-const router = express.Router();
-
-// Import the schemas and types
+import { createAccountsController } from "../controllers/accounts.js";
 import {
-  createSchema,
-  deleteSchema,
-  getSchema,
-  updateSchema,
-  listSchema,
-  updatePasswordSchema,
-  updateStatusSchema,
-} from "@shared/schemas/accounts.js";
+  validateBody,
+  validateParams,
+  validateQuery,
+} from "../http/validation.js";
+import {
+  requireAuthenticated,
+  requirePermission,
+} from "../middleware/require-permission.js";
+import type { AccountService } from "../services/account-service.js";
 
-// Apply global middlewares
-router.use(ensureAuthenticated);
+export function createAccountsRouter(accounts: AccountService): Router {
+  const router = Router();
+  const controller = createAccountsController({ accounts });
 
-// Routes with their schemas
-router.post(
-  "/create",
-  ensurePermissions(["accounts:create"]),
-  validateRequestBody(createSchema),
-  createHandler,
-);
+  router.get(
+    "/",
+    requireAuthenticated,
+    requirePermission("accounts:read"),
+    validateQuery(listAccountsQuerySchema),
+    controller.list,
+  );
 
-router.post(
-  "/update",
-  ensurePermissions(["accounts:update"]),
-  validateRequestBody(updateSchema),
-  updateHandler,
-);
+  router.get(
+    "/:id",
+    requireAuthenticated,
+    requirePermission("accounts:read"),
+    validateParams(idParamSchema),
+    controller.get,
+  );
 
-router.post(
-  "/update-status",
-  ensurePermissions(["accounts:update-status"]),
-  validateRequestBody(updateStatusSchema),
-  updateStatusHandler,
-);
+  router.post(
+    "/",
+    requireAuthenticated,
+    requirePermission("accounts:create"),
+    validateBody(createAccountSchema),
+    controller.create,
+  );
 
-router.post(
-  "/update-password",
-  ensurePermissions(["accounts:change-password"]),
-  validateRequestBody(updatePasswordSchema),
-  updatePasswordHandler,
-);
+  router.patch(
+    "/:id",
+    requireAuthenticated,
+    requirePermission("accounts:update"),
+    validateParams(idParamSchema),
+    validateBody(updateAccountSchema),
+    controller.update,
+  );
 
-router.post(
-  "/delete",
-  ensurePermissions(["accounts:delete"]),
-  validateRequestBody(deleteSchema),
-  deleteHandler,
-);
+  router.post(
+    "/:id/status",
+    requireAuthenticated,
+    requirePermission("accounts:update-status"),
+    validateParams(idParamSchema),
+    validateBody(setAccountStatusSchema),
+    controller.setStatus,
+  );
 
-router.post(
-  "/restore",
-  ensurePermissions(["accounts:restore"]),
-  validateRequestBody(deleteSchema),
-  restoreHandler,
-);
+  router.post(
+    "/:id/password",
+    requireAuthenticated,
+    requirePermission("accounts:change-password"),
+    validateParams(idParamSchema),
+    validateBody(setAccountPasswordSchema),
+    controller.setPassword,
+  );
 
-router.post("/get", validateRequestBody(getSchema), getHandler);
+  router.delete(
+    "/:id",
+    requireAuthenticated,
+    requirePermission("accounts:delete"),
+    validateParams(idParamSchema),
+    controller.remove,
+  );
 
-router.post("/list", validateRequestBody(listSchema), listHandler);
+  router.post(
+    "/:id/restore",
+    requireAuthenticated,
+    requirePermission("accounts:restore"),
+    validateParams(idParamSchema),
+    controller.restore,
+  );
 
-export default router;
+  return router;
+}

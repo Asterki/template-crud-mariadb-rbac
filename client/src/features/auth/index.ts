@@ -1,19 +1,26 @@
-// Slice
-import slice, { login, logout, fetch } from "./slice";
-
-// API
-import * as AuthAPITypes from "../../../../shared/api/auth";
-import * as schemas from "../../../../shared/schemas/auth";
+import slice, {
+  changePassword,
+  clearAccount,
+  fetchMe,
+  login,
+  logout,
+  setAccount,
+} from "./slice";
 import authApi from "./api";
 
-export type { AuthAPITypes };
+export * from "./api";
+export type { AuthState } from "./slice";
+export type { LoginRequest, SessionAccountDto } from "@template/shared";
+
 export default {
   slice,
-  authApi,
+  api: authApi,
   actions: {
     login,
     logout,
-    fetch,
+    fetchMe,
+    changePassword,
+    setAccount,
+    clearAccount,
   },
-  schemas,
 };

@@ -1,22 +1,35 @@
-import express from "express";
+import { Router } from "express";
+import { changePasswordSchema, loginAccountSchema } from "@template/shared";
 
-// Controllers
-import accountsFetch from "../controllers/auth/fetch.js";
-import accountsLogin from "../controllers/auth/login.js";
-import accountsLogout from "../controllers/auth/logout.js";
+import type { AppConfig } from "../config/index.js";
+import { createAuthController } from "../controllers/auth.js";
+import { validateBody } from "../http/validation.js";
+import { loginRateLimit } from "../middleware/rate-limit.js";
+import { requireAuthenticated } from "../middleware/require-permission.js";
+import type { AccountService } from "../services/account-service.js";
 
-// Middlewares
-import { validateRequestBody } from "../middleware/validationMiddleware.js";
-import { ensureAuthenticated } from "../middleware/authMiddleware.js";
+export function createAuthRouter(
+  accounts: AccountService,
+  config: AppConfig,
+): Router {
+  const router = Router();
+  const controller = createAuthController(accounts, config);
 
-// Schemas
-import { loginAccountSchema } from "@shared/schemas/auth.js";
+  router.post(
+    "/login",
+    loginRateLimit(config),
+    validateBody(loginAccountSchema),
+    controller.login,
+  );
+  router.get("/csrf", controller.csrf);
+  router.post("/logout", requireAuthenticated, controller.logout);
+  router.get("/me", requireAuthenticated, controller.me);
+  router.post(
+    "/change-password",
+    requireAuthenticated,
+    validateBody(changePasswordSchema),
+    controller.changePassword,
+  );
 
-const router = express.Router();
-
-// Account access
-router.post("/login", [validateRequestBody(loginAccountSchema)], accountsLogin);
-router.post("/logout", [ensureAuthenticated], accountsLogout);
-router.get("/fetch", [ensureAuthenticated], accountsFetch);
-
-export default router;
+  return router;
+}

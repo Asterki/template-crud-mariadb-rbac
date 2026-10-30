@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum Role {
+  admin
+  manager
+  staff
+  viewer
+}
+
+enum AccountStatus {
+  active
+  inactive
+}
+
+enum ItemStatus {
+  active
+  archived
+}
+
+model Metadata {
+  id String @id @default(cuid())
+
+  createdBy String?
+  updatedBy String?
+  deletedBy String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deleted   Boolean   @default(false)
+  deletedAt DateTime?
+
+  account Account?
+  item    Item?
+  history MetadataUpdateHistory[]
+
+  @@index([deleted])
+}
+
+model Account {
+  id String @id @default(cuid())
+
+  email    String @unique
+  name     String
+  password String
+
+  role               Role          @default(viewer)
+  status             AccountStatus @default(active)
+  mustChangePassword Boolean       @default(false)
+  lastLogin          DateTime?
+
+  metadataId String?   @unique
+  metadata   Metadata? @relation(fields: [metadataId], references: [id], onDelete: SetNull)
+
+  @@index([role])
+  @@index([status])
+}
+
+model Item {
+  id String @id @default(cuid())
+
+  name        String
+  description String?    @db.Text
+  status      ItemStatus @default(active)
+
+  metadataId String?   @unique
+  metadata   Metadata? @relation(fields: [metadataId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+}
+
+model MetadataUpdateHistory {
+  id String @id @default(cuid())
+
+  metadataId String
+  metadata   Metadata @relation(fields: [metadataId], references: [id], onDelete: Cascade)
+
+  updatedAt   DateTime @default(now())
+  updatedById String?
+  changes     Json
+
+  @@index([metadataId])
+  @@index([updatedAt])
+}
+
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String   @db.Text
+  expiresAt DateTime
+
+  @@index([expiresAt])
+  @@map("sessions")
+}

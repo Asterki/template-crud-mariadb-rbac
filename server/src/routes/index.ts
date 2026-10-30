@@ -1,12 +1,29 @@
 import type { Express } from "express";
 
-// Import routers
-import AuthRouter from "./auth.js";
-import AccountsRouter from "./accounts.js";
-import AccountRolesRouter from "./account-roles.js";
+import type { AppConfig } from "../config/index.js";
+import type { AccountService } from "../services/account-service.js";
+import type { DocsService } from "../services/docs-service.js";
+import type { ItemService } from "../services/item-service.js";
+import { createAccountsRouter } from "./accounts.js";
+import { createAuthRouter } from "./auth.js";
+import { createDocsRouter } from "./docs.js";
+import { createItemsRouter } from "./items.js";
+import { createRolesRouter } from "./roles.js";
 
-export function registerRoutes(app: Express): void {
-  app.use("/api/auth", AuthRouter);
-  app.use("/api/accounts", AccountsRouter);
-  app.use("/api/account-roles", AccountRolesRouter);
+export type RouteDependencies = {
+  accounts: AccountService;
+  docs: DocsService;
+  items: ItemService;
+  config: AppConfig;
+};
+
+export function registerRoutes(
+  app: Express,
+  { accounts, docs, items, config }: RouteDependencies,
+): void {
+  app.use("/api/auth", createAuthRouter(accounts, config));
+  app.use("/api/accounts", createAccountsRouter(accounts));
+  app.use("/api/docs", createDocsRouter(docs));
+  app.use("/api/items", createItemsRouter(items));
+  app.use("/api/roles", createRolesRouter());
 }

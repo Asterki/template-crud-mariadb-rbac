@@ -1,0 +1,10 @@
+{
+  "entry": ["src/main.tsx"],
+  "project": ["src/**/*.{ts,tsx}"],
+  "ignore": ["dist/**", "src/routeTree.gen.ts"],
+  "ignoreDependencies": [
+    "react-markdown",
+    "tailwindcss",
+    "@testing-library/react"
+  ]
+}

@@ -1,9 +1,23 @@
-@import "tailwindcss";
+/*
+ * Layer order:
+ *   1. tailwind theme  -> design variables only
+ *   2. tailwind utilities
+ *   3. Ant Design reset and component styles, injected at runtime by cssinjs
+ *
+ * Tailwind preflight is intentionally not imported: Ant Design owns the reset
+ * so buttons, inputs and tables keep their component styling. The `dark`
+ * variant is defined below and driven by the ThemeProvider's <html> class.
+ */
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
 @config "../tailwind.config.js";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
+  --brand-primary: #1677ff;
+  --color-bg: #f5f7fa;
+  --color-text: rgba(0, 0, 0, 0.88);
   --scrollbar-track: #f6f8fb;
   --scrollbar-thumb: #1e3976;
   --scrollbar-thumb-hover: #274892;
@@ -16,8 +30,8 @@ html {
 }
 
 ::selection {
-  background: rgba(30, 57, 118, 0.12);
-  color: #ffffff;
+  background: color-mix(in srgb, var(--brand-primary) 18%, transparent);
+  color: inherit;
 }
 
 /* WebKit scrollbar */
@@ -45,6 +59,6 @@ html {
 }
 
 /* Optional: nicer app chrome */
-#root {
+#app {
   min-height: 100vh;
 }

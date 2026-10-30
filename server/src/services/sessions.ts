@@ -1,125 +1,122 @@
-import { Express } from "express";
+import type { Express } from "express";
 import passport from "passport";
 import passportLocal from "passport-local";
 import session from "express-session";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
-
 import bcrypt from "bcrypt";
+import type { PrismaClient } from "@prisma/client";
+import type { Logger } from "pino";
 
-import LoggingService from "./logging.js";
-import prismaClient from "../config/prisma.js";
+import type { AppConfig } from "../config/index.js";
+import { sessionCookieName, sessionCookieOptions } from "../http/cookies.js";
 
-class SessionManager {
-  authStrategies: { [key: string]: passportLocal.Strategy };
-  private instance: SessionManager | null = null;
+const BCRYPT_COST = 12;
 
-  private sessionMiddleware = session({
-    secret: process.env.SESSION_SECRET as string,
+export type SessionDependencies = {
+  config: AppConfig;
+  prisma: PrismaClient;
+  logger: Logger;
+};
+
+export function createSessionManager({
+  config,
+  prisma,
+  logger,
+}: SessionDependencies) {
+  const sessionMiddleware = session({
+    name: sessionCookieName(config),
+    secret: config.sessionSecret,
     resave: false,
     saveUninitialized: false,
-    cookie: {
-      secure: false,
-      maxAge: 1000 * 60 * 60 * 24 * 7,
-      sameSite: "lax",
-      httpOnly: false,
-    },
-    store: new PrismaSessionStore(prismaClient as any, {
+    cookie: sessionCookieOptions(config),
+    store: new PrismaSessionStore(prisma as never, {
       checkPeriod: 2 * 60 * 1000, // Prune expired sessions every 2 minutes
       dbRecordIdIsSessionId: true,
       dbRecordIdFunction: undefined,
     }),
   });
 
-  constructor() {
-    this.authStrategies = {
-      local: new passportLocal.Strategy(
-        {
-          usernameField: "email",
-          passwordField: "password",
-          passReqToCallback: true,
-          session: false,
-        },
-        async (req: any, _email: string, _password: string, done) => {
-          try {
-            const account = await prismaClient.account.findFirst({
-              where: {
-                email: req.body.email.toLowerCase(),
-              },
-              include: {
-                role: true,
-              },
-            });
+  const localStrategy = new passportLocal.Strategy(
+    {
+      usernameField: "email",
+      passwordField: "password",
+    },
+    async (email, password, done) => {
+      try {
+        const account = await prisma.account.findFirst({
+          where: { email: email.trim().toLowerCase() },
+          include: { metadata: { select: { deleted: true } } },
+        });
 
-            if (!account)
-              return done(null, false, {
-                message: "invalid-credentials",
-              });
+        if (!account) {
+          return done(null, false, { message: "invalid-credentials" });
+        }
 
-            // Verify password and TFA code
-            if (!bcrypt.compareSync(req.body.password, account.password))
-              return done(null, false, {
-                message: "invalid-credentials",
-              });
+        const valid = await bcrypt.compare(password, account.password);
+        if (!valid) {
+          return done(null, false, { message: "invalid-credentials" });
+        }
 
-            // Check the account status
-            if (account.status == "inactive")
-              return done(null, false, {
-                message: "account-locked",
-              });
+        if (
+          account.status === "inactive" ||
+          account.metadata?.deleted === true
+        ) {
+          return done(null, false, { message: "account-locked" });
+        }
 
-            // Log the account creation
-            LoggingService.log({
-              message: `Account login for ${req.body.email}`,
-              level: "info",
-              source: "application",
-            });
+        if (bcrypt.getRounds(account.password) !== BCRYPT_COST) {
+          const rehashed = await bcrypt.hash(password, BCRYPT_COST);
+          await prisma.account.update({
+            where: { id: account.id },
+            data: { password: rehashed },
+          });
+          account.password = rehashed;
+        }
 
-            return done(null, account);
-          } catch (err: unknown) {
-            return done(err);
-          }
-        },
-      ),
-    };
-    this.loadStrategies();
-  }
+        logger.info({ accountId: account.id }, "Account login");
+        return done(null, account);
+      } catch (error) {
+        return done(error);
+      }
+    },
+  );
 
-  public getInstance() {
-    if (!this.instance) this.instance = new SessionManager();
-    return this.instance;
-  }
+  passport.serializeUser((user: Express.User, done) => {
+    done(null, user.id);
+  });
 
-  public loadToServer(server: Express) {
-    server.use(this.sessionMiddleware);
-    server.use(passport.initialize());
-    server.use(passport.session());
-  }
-
-  private loadStrategies() {
-    passport.serializeUser((user: any, done) => {
-      done(null, user.id);
-    });
-
-    passport.deserializeUser(async (id: string, done) => {
-      const user = await prismaClient.account.findUnique({
-        where: { id: id },
-        include: {
-          role: true,
-        },
+  passport.deserializeUser(async (id: string, done) => {
+    try {
+      const user = await prisma.account.findUnique({
+        where: { id },
+        include: { metadata: { select: { deleted: true } } },
       });
-      if (user == null) {
-        done(null, null);
+      if (
+        user === null ||
+        user.status === "inactive" ||
+        user.metadata?.deleted === true
+      ) {
+        done(null, false);
         return;
       }
-      done(null, user);
-    });
+      done(null, user as Express.User);
+    } catch (error) {
+      done(error);
+    }
+  });
 
-    passport.use(this.authStrategies.local);
-  }
+  passport.use(localStrategy);
 
-  public getSessionMiddleware() {
-    return this.sessionMiddleware;
-  }
+  return {
+    getSessionMiddleware() {
+      return sessionMiddleware;
+    },
+    loadToServer(server: Express) {
+      server.use(sessionMiddleware);
+      server.use(passport.initialize());
+      server.use(passport.session());
+    },
+  };
 }
 
-export default SessionManager;
+export default createSessionManager;

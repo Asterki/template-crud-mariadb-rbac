@@ -1,0 +1,57 @@
+const accounts = {
+  title: "Account Management",
+  description: "Manage the system's user accounts.",
+  createAccount: "Create Account",
+  searchPlaceholder: "Search by name or email",
+  showDeleted: "Show deleted",
+  status: {
+    active: "Active",
+    inactive: "Inactive",
+  },
+  table: {
+    name: "Name",
+    email: "Email",
+    role: "Role",
+    status: "Status",
+    lastLogin: "Last login",
+    never: "Never",
+    actions: "Actions",
+    deleted: "Deleted",
+  },
+  actions: {
+    edit: "Edit",
+    activate: "Activate",
+    deactivate: "Deactivate",
+    password: "Password",
+    restore: "Restore",
+    delete: "Delete",
+  },
+  fields: {
+    name: "Name",
+    email: "Email",
+    password: "Initial password",
+    newPassword: "New password",
+  },
+  modals: {
+    createTitle: "Create Account",
+    editTitle: "Edit Account",
+    passwordTitle: "Reset Password",
+    statusTitle: "Change Status",
+    statusContent: "Change {{name}}'s status to {{status}}?",
+    deleteTitle: "Delete Account",
+    deleteContent:
+      "Delete {{name}}'s account? The email will be released for reuse.",
+    restoreTitle: "Restore Account",
+    restoreContent: "Restore {{name}}'s account?",
+  },
+  messages: {
+    createSuccess: "Account created.",
+    updateSuccess: "Account updated.",
+    statusSuccess: "Status updated.",
+    passwordSuccess: "Password reset.",
+    deleteSuccess: "Account deleted.",
+    restoreSuccess: "Account restored.",
+  },
+};
+
+export default accounts;

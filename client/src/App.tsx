@@ -1,17 +1,15 @@
 import { StrictMode, useEffect } from "react";
-import { Provider, useDispatch } from "react-redux";
-import { AppDispatch } from "./store";
+import { Provider } from "react-redux";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 
 import { store } from "./store";
 import { routeTree } from "./routeTree.gen";
-// import Route404 from "./routes/errors/404";
 import { Context } from "./Context";
+import { brand } from "./config/brand";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { ThemeProvider } from "./theme";
 
-const router = createRouter({
-  routeTree,
-  // defaultNotFoundComponent: () => <Route404 />,
-});
+const router = createRouter({ routeTree });
 
 declare module "@tanstack/react-router" {
   interface Register {
@@ -19,23 +17,27 @@ declare module "@tanstack/react-router" {
   }
 }
 
-// Component to dispatch config fetch on app start
-const AppInitializer = ({ children }: { children: React.ReactNode }) => {
-  const dispatch = useDispatch<AppDispatch>();
+const App = () => {
+  useEffect(() => {
+    document.title = brand.name;
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute("content", brand.brandColor);
+  }, []);
 
-  return <>{children}</>;
+  return (
+    <StrictMode>
+      <Context.Provider value={{ name: "App" }}>
+        <Provider store={store}>
+          <ThemeProvider>
+            <ErrorBoundary>
+              <RouterProvider router={router} />
+            </ErrorBoundary>
+          </ThemeProvider>
+        </Provider>
+      </Context.Provider>
+    </StrictMode>
+  );
 };
-
-const App = () => (
-  <StrictMode>
-    <Context.Provider value={{ name: "App" }}>
-      <Provider store={store}>
-        <AppInitializer>
-          <RouterProvider router={router} />
-        </AppInitializer>
-      </Provider>
-    </Context.Provider>
-  </StrictMode>
-);
 
 export default App;

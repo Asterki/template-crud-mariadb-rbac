@@ -1,97 +1,51 @@
-import { useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-
+import { App, Button, Card } from "antd";
 import { useTranslation } from "react-i18next";
+import { useDispatch } from "react-redux";
 
-import AuthFeature from "../../features/auth/";
-
-import { useDispatch, useSelector } from "react-redux";
-import type { RootState } from "../../store";
-import { unwrapResult } from "@reduxjs/toolkit";
-
-import { Button, Card } from "antd";
-import AdminLayout from "client/src/layouts/Admin";
+import AdminLayout from "../../layouts/Admin";
+import AuthFeature from "../../features/auth";
+import { translateApiError } from "../../i18n/errors";
+import { normalizeApiError } from "../../utils/api";
+import type { AppDispatch } from "../../store";
 
 export const Route = createFileRoute("/auth/logout")({
-	component: RouteComponent,
+  component: RouteComponent,
 });
 
 function RouteComponent() {
-	const navigate = useNavigate();
-	const { account } = useSelector((state: RootState) => state.auth);
+  const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+  const { message } = App.useApp();
+  const { t } = useTranslation("auth", { keyPrefix: "logout" });
+  const { t: tErrors } = useTranslation("errors");
 
-	const dispatch = useDispatch<typeof import("../../store").store.dispatch>();
-	const { t } = useTranslation(["pages"], { keyPrefix: "auth.logout" });
+  const logout = async () => {
+    try {
+      await dispatch(AuthFeature.actions.logout()).unwrap();
+      navigate({ to: "/auth/login" });
+    } catch (error) {
+      message.error(translateApiError(tErrors, normalizeApiError(error)));
+    }
+  };
 
-	const logout = async () => {
-		const result = await dispatch(AuthFeature.actions.logout());
-		if (result.type === "accounts/logout/fulfilled") {
-			navigate({
-				to: "/",
-			});
-		}
-	};
-
-	useEffect(() => {
-		if (!account) {
-			(async () => {
-				const result = await dispatch(AuthFeature.actions.fetch());
-				const payload = unwrapResult(result);
-
-				if (payload.status == "network-error") {
-					navigate({ to: "/errors/offline" });
-				}
-
-				if (
-					AuthFeature.actions.fetch.rejected.match(result) ||
-					result.payload.status === "unauthenticated"
-				) {
-					navigate({ to: "/auth/login" });
-				}
-			})();
-		}
-	}, [account]);
-
-	return (
-		<AdminLayout>
-			{account && (
-				<main className="min-h-screen flex items-center justify-center">
-					<Card>
-						<div className="text-2xl font-bold text-center">
-							{t("title")}
-						</div>
-						<div className="text-center">
-							<p>{t("description")}</p>
-							<Button
-								className="mt-4"
-								type="primary"
-								variant="solid"
-								color="red"
-								onClick={logout}
-							>
-								{t("button")}
-							</Button>
-
-							<br />
-
-							<Button
-								className="mt-4"
-								type="default"
-								variant="solid"
-								onClick={() => {
-									navigate({
-										to: "/admin",
-									});
-								}}
-							>
-								{t("cancel")}
-							</Button>
-						</div>
-					</Card>
-				</main>
-			)}
-
-			{!account && <p>Loading your account...</p>}
-		</AdminLayout>
-	);
+  return (
+    <AdminLayout>
+      <main className="min-h-screen flex items-center justify-center">
+        <Card>
+          <div className="text-2xl font-bold text-center">{t("title")}</div>
+          <div className="text-center">
+            <p>{t("description")}</p>
+            <Button className="mt-4" type="primary" danger onClick={logout}>
+              {t("button")}
+            </Button>
+            <br />
+            <Button className="mt-4" onClick={() => navigate({ to: "/admin" })}>
+              {t("cancel")}
+            </Button>
+          </div>
+        </Card>
+      </main>
+    </AdminLayout>
+  );
 }
