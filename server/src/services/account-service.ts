@@ -7,7 +7,7 @@ import type {
   Paginated,
   Role,
   UpdateAccountRequest,
-} from "@template/shared";
+} from "@unah-poa-pacc/shared";
 
 import {
   appendHistory,

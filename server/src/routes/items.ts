@@ -4,7 +4,7 @@ import {
   idParamSchema,
   listItemsQuerySchema,
   updateItemSchema,
-} from "@template/shared";
+} from "@unah-poa-pacc/shared";
 
 import { createItemsController } from "../controllers/items.js";
 import {

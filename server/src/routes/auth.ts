@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { changePasswordSchema, loginAccountSchema } from "@template/shared";
+import { changePasswordSchema, loginAccountSchema } from "@unah-poa-pacc/shared";
 
 import type { AppConfig } from "../config/index.js";
 import { createAuthController } from "../controllers/auth.js";

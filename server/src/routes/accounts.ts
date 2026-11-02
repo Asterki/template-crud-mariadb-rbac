@@ -6,7 +6,7 @@ import {
   setAccountPasswordSchema,
   setAccountStatusSchema,
   updateAccountSchema,
-} from "@template/shared";
+} from "@unah-poa-pacc/shared";
 
 import { createAccountsController } from "../controllers/accounts.js";
 import {

@@ -1,4 +1,4 @@
-import type { PageMeta, Paginated } from "@template/shared";
+import type { PageMeta, Paginated } from "@unah-poa-pacc/shared";
 
 export type PaginationInput = {
   page: number;

@@ -2,7 +2,7 @@ import {
   ROLE_PERMISSIONS,
   type AccountDto,
   type SessionAccountDto,
-} from "@template/shared";
+} from "@unah-poa-pacc/shared";
 
 type AccountRecord = {
   id: string;

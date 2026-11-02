@@ -3,7 +3,7 @@ import {
   roleHasPermission,
   type Permission,
   type Role,
-} from "@template/shared";
+} from "@unah-poa-pacc/shared";
 
 export function can(
   role: Role | null | undefined,

@@ -7,7 +7,7 @@ import {
   type ItemDto,
   type ItemStatus,
   type UpdateItemRequest,
-} from "@template/shared";
+} from "@unah-poa-pacc/shared";
 
 import { translateValidationError } from "../../../i18n/errors";
 

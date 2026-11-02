@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import type { CreateItemRequest, UpdateItemRequest } from "@template/shared";
+import type { CreateItemRequest, UpdateItemRequest } from "@unah-poa-pacc/shared";
 
 import { itemsApi } from "../api";
 

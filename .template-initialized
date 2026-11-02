@@ -1,0 +1,11 @@
+{
+  "name": "UNAH Sistema POA PACC",
+  "slug": "unah-poa-pacc",
+  "title": "UNAH Sistema POA PACC",
+  "image": "unah-poa-pacc-api",
+  "owner": "Asterki",
+  "repo": "https://github.com/Asterki/template-crud-mariadb-rbac",
+  "locale": "en",
+  "brand": "#1677ff",
+  "initializedAt": "2026-11-02T03:04:02.320Z"
+}

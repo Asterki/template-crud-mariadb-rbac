@@ -1,4 +1,4 @@
-import type { SessionAccountDto } from "@template/shared";
+import type { SessionAccountDto } from "@unah-poa-pacc/shared";
 
 export const CHANGE_PASSWORD_PATH = "/admin/change-password";
 

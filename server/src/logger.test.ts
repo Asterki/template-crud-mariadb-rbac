@@ -7,7 +7,7 @@ import { createLogger } from "./logger.js";
 import { requestLogger } from "./middleware/request-logger.js";
 
 const config = {
-  serviceName: "template-api-test",
+  serviceName: "unah-poa-pacc-api-test",
   nodeEnv: "test" as const,
   logLevel: "debug" as const,
   logFormat: "json" as const,

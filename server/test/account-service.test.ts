@@ -1,4 +1,4 @@
-import { listAccountsQuerySchema } from "@template/shared";
+import { listAccountsQuerySchema } from "@unah-poa-pacc/shared";
 import type { PrismaClient } from "@prisma/client";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
